@@ -23,33 +23,77 @@
 "     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 " }}}
 "=============================================================================
-"
-function! unite#sources#bibtex#define() "{{{
-  return s:source
-endfunction "}}}
+
+
+" Variables
+call unite#util#set_default('g:unite_bibtex_bib_files',[])
+
 
 let s:source = {
       \ 'name': 'bibtex',
       \ }
 
+
 function! s:source.gather_candidates(args,context)
-    let bib_src = unite#util#system(g:unite_bibtex_articles_directory . '/bibtex_source.py')
-    let lines = split(bib_src,'\n')
-    let key = []
-    let desc = []
-    for line in lines
-        let i = stridx(line,',')
-        let k = line[:i-1]
-        let d = line[(i+2):]
-        call add(key,k)
-        call add(desc,d)
-    endfor
-    return map(key,'{
-    \   "word"   : desc[v:key],
-    \   "source" : "bibtex",
-    \   "kind"   : "word",
-    \   "action__text" : v:val,
+    let l:candidates = []
+python << EOF
+import os.path
+import vim
+from pybtex.database.input import bibtex
+from pybtex import errors
+
+
+def _read_file(filename):
+    errors.enable_strict_mode()
+    parser = bibtex.Parser()
+    return parser.parse_file(filename)
+
+
+def _check_path(path):
+    path = os.path.abspath(os.path.expanduser(path))
+    if not os.path.exists(path):
+        raise RuntimeError("file:%s not found" % path)
+    return path
+
+
+def entry_to_str(entry):
+    try:
+        persons = entry.persons[u'author']
+        authors = [unicode(au) for au in persons]
+    except:
+        authors = [u'unknown']
+    title   = entry.fields[u"title"] if u"title" in entry.fields else ""
+    journal = entry.fields[u"journal"] if u"journal" in entry.fields else ""
+    year    = entry.fields[u"year"] if u"year" in entry.fields else ""
+    desc = u"%s %s %s(%s)" % (",".join(authors),title,journal,year)
+    return desc.replace("'","").replace("\\","")
+
+
+bibpath_list = vim.eval("g:unite_bibtex_bib_files")
+for bibpath in bibpath_list:
+    path = _check_path(bibpath)
+    bibdata = _read_file(path)
+    for key in bibdata.entries:
+        try:
+            k = key.encode("utf-8")
+        except:
+            print("encode fails")
+            continue
+        desc = entry_to_str(bibdata.entries[key]).encode("utf-8")
+        vim.command("call add(l:candidates,['%s','%s'])" % (k,desc))
+EOF
+    return map(l:candidates,'{
+    \   "word": v:val[1],
+    \   "source": "bibtex",
+    \   "kind": "word",
+    \   "action__text": v:val[0],
     \ }')
 endfunction
+
+
+function! unite#sources#bibtex#define() 
+    return s:source
+endfunction 
+
 
 " vim: foldmethod=marker
