@@ -5,13 +5,13 @@ a BibTeX source for unite.vim
 
 ## Usage
 
-If you understand japanese see [this](http://termoshtt.hatenablog.com/)
+If you understand Japanese see [this](http://termoshtt.hatenablog.com/)
 
- 0. Instll Unite for vim
+ 1. Install Unite for vim
  1. Install plugin (aka NeoBundle/pathogen)
- 2. `sudo easy_install pybtex`
- 3. Set variable `let g:unite_bibtex_bib_files=["~/papers/bib/all.bib"]`
- 4. `:Unite bibtex` in vim
+ 1. `sudo easy_install pybtex`
+ 1. Set variable `let g:unite_bibtex_bib_files=["~/papers/bib/all.bib"]`
+ 1. `:Unite bibtex` in vim
  
 
 ## Troubleshooting
