@@ -3,17 +3,23 @@ unite-bibtex
 
 a BibTeX source for unite.vim
 
-## Usage
+### Requirements
 
-If you understand Japanese see [this](http://termoshtt.hatenablog.com/)
+- [unite.vim](https://github.com/Shougo/unite.vim)
+- [pybtex](http://pypi.python.org/pypi/pybtex): A BibTeX-compatible bibliography processor in Python
 
- 1. Install Unite for vim
- 1. Install plugin (aka NeoBundle/pathogen)
- 1. `sudo easy_install pybtex`
- 1. Set variable `let g:unite_bibtex_bib_files=["~/papers/bib/all.bib"]`
+### Usage
+
+ 1. Install [pybtex](http://pypi.python.org/pypi/pybtex) `sudo easy_install pybtex`
+ 1. Install [unite.vim](https://github.com/Shougo/unite.vim)
+ 1. Install this plugin
+ 1. Set variable `let g:unite_bibtex_bib_files=["/path/to/your/bib/file/library.bib"]`
  1. `:Unite bibtex` in vim
- 
 
-## Troubleshooting
+### Troubleshooting
 
-Check that your bibtex file parses correctly by using [this script](https://gist.github.com/Tarrasch/7983895)
+You can correct your .bib file with `pybtex-convert`:
+
+```
+pybtex-convert /path/to/your.bib out.bib
+```
