@@ -38,6 +38,7 @@ function! s:source.gather_candidates(args,context)
     let l:candidates = []
 python << EOF
 import os.path
+import sys
 import vim
 from pybtex.database.input import bibtex
 from pybtex import errors
@@ -69,18 +70,27 @@ def entry_to_str(entry):
     return desc.replace("'","").replace("\\","")
 
 
-bibpath_list = vim.eval("g:unite_bibtex_bib_files")
-for bibpath in bibpath_list:
-    path = _check_path(bibpath)
-    bibdata = _read_file(path)
-    for key in bibdata.entries:
-        try:
-            k = key.encode("utf-8")
-        except:
-            print("encode fails")
-            continue
-        desc = entry_to_str(bibdata.entries[key]).encode("utf-8")
-        vim.command("call add(l:candidates,['%s','%s'])" % (k,desc))
+class vim_messenger(object):
+    def write(self, data):
+        vim.command("echo '%s'" % str(data))
+sys.stdout = vim_messenger()
+sys.stderr = vim_messenger()
+
+try:
+    bibpath_list = vim.eval("g:unite_bibtex_bib_files")
+    for bibpath in bibpath_list:
+        path = _check_path(bibpath)
+        bibdata = _read_file(path)
+        for key in bibdata.entries:
+            try:
+                k = key.encode("utf-8")
+            except:
+                print("encode fails")
+                continue
+            desc = entry_to_str(bibdata.entries[key]).encode("utf-8")
+            vim.command("call add(l:candidates,['%s','%s'])" % (k,desc))
+except:
+    vim.command("echo 'ERROR: Please check your .bib file.'")
 EOF
     return map(l:candidates,'{
     \   "word": v:val[1],
