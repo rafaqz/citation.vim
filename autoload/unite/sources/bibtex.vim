@@ -86,7 +86,7 @@ EOF
     \   "word": v:val[1],
     \   "source": "bibtex",
     \   "kind": "word",
-    \   "action__text": v:val[0],
+    \   "action__text": "\\cite{" . v:val[0] . "}",
     \ }')
 endfunction
 
