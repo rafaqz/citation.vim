@@ -43,7 +43,7 @@ import vim
 try:
   from pybtex.database.input import bibtex
   from pybtex import errors
-except ImportError
+except ImportError:
     vim.command("echo 'ERROR: Please install pybtex.'")
 
 
