@@ -40,8 +40,11 @@ python << EOF
 import os.path
 import sys
 import vim
-from pybtex.database.input import bibtex
-from pybtex import errors
+try:
+  from pybtex.database.input import bibtex
+  from pybtex import errors
+except ImportError
+    vim.command("echo 'ERROR: Please install pybtex.'")
 
 
 def _read_file(filename):
