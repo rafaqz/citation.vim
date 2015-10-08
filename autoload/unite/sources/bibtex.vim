@@ -1,7 +1,7 @@
 "=============================================================================
-" FILE: build.vim
+" FILE: autoload/unite/source/bibtex.vim
 " AUTHOR:  Toshiki TERAMUREA <toshiki.teramura@gmail.com>
-" Last Modified: 22 Aug 2013.
+" Last Modified: 8 Oct 2015.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -24,76 +24,29 @@
 " }}}
 "=============================================================================
 
+let s:save_cpo = &cpo
+set cpo&vim
 
-" Variables
-call unite#util#set_default('g:unite_bibtex_bib_files',[])
-
+call unite#util#set_default('g:unite_bibtex_bib_files', [])
 
 let s:source = {
       \ 'name': 'bibtex',
       \ }
 
+function! unite#sources#bibtex#define() 
+    return s:source
+endfunction 
+
+pyfile <sfile>:h:h:h:h/src/unite_bibtex.py
 
 function! s:source.gather_candidates(args,context)
     let l:candidates = []
 python << EOF
-import os.path
-import sys
 import vim
-try:
-  from pybtex.database.input import bibtex
-  from pybtex import errors
-except ImportError:
-    vim.command("echo 'ERROR: Please install pybtex.'")
-
-
-def _read_file(filename):
-    errors.enable_strict_mode()
-    parser = bibtex.Parser()
-    return parser.parse_file(filename)
-
-
-def _check_path(path):
-    path = os.path.abspath(os.path.expanduser(path))
-    if not os.path.exists(path):
-        raise RuntimeError("file:%s not found" % path)
-    return path
-
-
-def entry_to_str(entry):
-    try:
-        persons = entry.persons[u'author']
-        authors = [unicode(au) for au in persons]
-    except:
-        authors = [u'unknown']
-    title   = entry.fields[u"title"] if u"title" in entry.fields else ""
-    journal = entry.fields[u"journal"] if u"journal" in entry.fields else ""
-    year    = entry.fields[u"year"] if u"year" in entry.fields else ""
-    desc = u"%s %s %s(%s)" % (",".join(authors),title,journal,year)
-    return desc.replace("'","").replace("\\","")
-
-
-class vim_messenger(object):
-    def write(self, data):
-        vim.command("echo '%s'" % str(data))
-sys.stdout = vim_messenger()
-sys.stderr = vim_messenger()
-
-try:
-    bibpath_list = vim.eval("g:unite_bibtex_bib_files")
-    for bibpath in bibpath_list:
-        path = _check_path(bibpath)
-        bibdata = _read_file(path)
-        for key in bibdata.entries:
-            try:
-                k = key.encode("utf-8")
-            except:
-                print("encode fails")
-                continue
-            desc = entry_to_str(bibdata.entries[key]).encode("utf-8")
-            vim.command("call add(l:candidates,['%s','%s'])" % (k,desc))
-except:
-    vim.command("echo 'ERROR: Please check your .bib file.'")
+bibpaths = vim.eval("g:unite_bibtex_bib_files")
+entries = unite_bibtex.get_entries(bibpaths)
+for k, v in entries.items():
+    vim.command("call add(l:candidates,['{}','{}'])".format(k, v))
 EOF
     return map(l:candidates,'{
     \   "word": v:val[1],
@@ -103,10 +56,6 @@ EOF
     \ }')
 endfunction
 
-
-function! unite#sources#bibtex#define() 
-    return s:source
-endfunction 
-
-
+let &cpo = s:save_cpo
+unlet s:save_cpo
 " vim: foldmethod=marker
