@@ -23,3 +23,6 @@ You can correct your .bib file with `pybtex-convert`:
 ```
 pybtex-convert /path/to/your.bib out.bib
 ```
+
+If you meet an import error of pybtex, please confirm your pybtex is installed into your system.
+Python interpreter of vim usually uses system site-package, so you should install pybtex into your system directory.
