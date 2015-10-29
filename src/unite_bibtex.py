@@ -2,7 +2,6 @@
 
 import os.path
 from pybtex.database.input import bibtex
-from pybtex import errors
 
 
 class unite_bibtex(object):
