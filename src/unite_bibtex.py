@@ -32,6 +32,8 @@ class unite_bibtex(object):
         title = entry.fields[u"title"] if u"title" in entry.fields else ""
         journal = entry.fields[u"journal"] if u"journal" in entry.fields else ""
         year = entry.fields[u"year"] if u"year" in entry.fields else ""
+        filename = entry.fields[u"file"] if u"file" in entry.fields else ""
+        url = entry.fields[u"url"] if u"url" in entry.fields else ""
         desc = u"%s %s %s(%s)" % (",".join(authors), title, journal, year)
         return desc.replace("'", "").replace("\\", "")
 
