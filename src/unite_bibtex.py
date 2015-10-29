@@ -3,6 +3,16 @@
 import os.path
 from pybtex.database.input import bibtex
 
+class Bibdata(object):
+    desc = ""
+    filename = ""
+    url = ""
+
+    # The class "constructor" - It's actually an initializer 
+    def __init__(self, desc, filename, url):
+        self.desc = desc
+        self.filename = filename
+        self.url = url
 
 class unite_bibtex(object):
     """
@@ -32,9 +42,9 @@ class unite_bibtex(object):
         title = entry.fields[u"title"] if u"title" in entry.fields else ""
         journal = entry.fields[u"journal"] if u"journal" in entry.fields else ""
         year = entry.fields[u"year"] if u"year" in entry.fields else ""
-        filename = entry.fields[u"file"] if u"file" in entry.fields else ""
-        url = entry.fields[u"url"] if u"url" in entry.fields else ""
-        desc = u"%s %s %s(%s)" % (",".join(authors), title, journal, year)
+        filename = "FILE: " + entry.fields[u"file"] if u"file" in entry.fields else ""
+        url = "URL: " + entry.fields[u"url"] if u"url" in entry.fields else ""
+        desc = u"%s %s %s(%s), %s, %s" % (",".join(authors), title, journal, year, url, filename)
         return desc.replace("'", "").replace("\\", "")
 
     @staticmethod
@@ -54,7 +64,11 @@ class unite_bibtex(object):
                 except:
                     print("Cannot encode bibtex key, skip: {}".format(k))
                     continue
-                entries[k] = unite_bibtex.entry_to_str(bibdata.entries[key]).encode("utf-8")
+                entry = bibdata.entries[key]
+                desc = unite_bibtex.entry_to_str(entry)
+                filename = entry.fields[u"file"].split(':')[1] if u"file" in entry.fields else ""
+                url = entry.fields[u"url"] if u"url" in entry.fields else ""
+                entries[k] = Bibdata(desc.encode("utf-8"), filename.encode("utf-8"), url.encode("utf-8"))
         return entries
 
 if __name__ == '__main__':

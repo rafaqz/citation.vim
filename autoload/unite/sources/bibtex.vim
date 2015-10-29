@@ -28,31 +28,84 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 call unite#util#set_default('g:unite_bibtex_bib_files', [])
+call unite#util#set_default('g:unite_bibtex_bib_prefix', "")
 
-let s:source = {
+let s:source_key = {
+      \ 'action_table': {'*': {}},
       \ 'name': 'bibtex',
       \ }
 
+let s:source_file = {
+      \ 'action_table': {'*': {}},
+      \ 'name': 'bibtex_file',
+      \ }
+
+let s:source_uri= {
+      \ 'action_table': {'*': {}},
+      \ "source": "bibtex_uri",
+      \ "kind": ["uri"],
+      \ 'name': 'bibtex_uri',
+      \ }
+
 function! unite#sources#bibtex#define() 
-    return s:source
+  return [s:source_key, s:source_file, s:source_uri]
 endfunction 
 
 pyfile <sfile>:h:h:h:h/src/unite_bibtex.py
 
-function! s:source.gather_candidates(args,context)
+
+function! s:source_key.gather_candidates(args,context)
     let l:candidates = []
 python << EOF
 import vim
 bibpaths = vim.eval("g:unite_bibtex_bib_files")
 entries = unite_bibtex.get_entries(bibpaths)
 for k, v in entries.items():
-    vim.command("call add(l:candidates,['{}','{}'])".format(k, v))
+    vim.command("call add(l:candidates,['{}','{}'])".format(k, v.desc))
 EOF
     return map(l:candidates,'{
     \   "word": v:val[1],
     \   "source": "bibtex",
     \   "kind": "word",
-    \   "action__text": "\\cite{" . v:val[0] . "}",
+    \   "action__text": "[@" . v:val[0] . "]",
+    \ }')
+endfunction
+
+
+function! s:source_file.gather_candidates(args,context)
+    let l:candidates = []
+python << EOF
+import vim
+bibpaths = vim.eval("g:unite_bibtex_bib_files")
+entries = unite_bibtex.get_entries(bibpaths)
+for k, v in entries.items():
+    vim.command("call add(l:candidates,['{}','{}'])".format(v.filename, v.desc))
+EOF
+    return map(l:candidates,'{
+    \   "word": v:val[1],
+    \   "source": "bibtex_file",
+    \   "kind": ["word","file", "uri"],
+    \   "action__text": v:val[0],
+    \   "action__path": v:val[0],
+    \ }')
+endfunction
+
+
+function! s:source_uri.gather_candidates(args,context)
+    let l:candidates = []
+python << EOF
+import vim
+bibpaths = vim.eval("g:unite_bibtex_bib_files")
+entries = unite_bibtex.get_entries(bibpaths)
+for k, v in entries.items():
+    vim.command("call add(l:candidates,['{}','{}'])".format(v.url, v.desc))
+EOF
+    return map(l:candidates,'{
+    \   "word": v:val[1],
+    \   "source": "bibtex_uri",
+    \   "kind": ["word","uri"],
+    \   "action__text": v:val[0],
+    \   "action__path": v:val[0],
     \ }')
 endfunction
 
