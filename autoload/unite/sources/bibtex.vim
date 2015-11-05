@@ -30,31 +30,29 @@ set cpo&vim
 call unite#util#set_default('g:unite_bibtex_bib_files', [])
 call unite#util#set_default('g:unite_bibtex_bib_prefix', "")
 
-let s:source_key = {
-      \ 'action_table': {'*': {}},
+let s:source_desc = {
+      \ 'action_table': {},
       \ 'name': 'bibtex',
       \ }
 
 let s:source_file = {
-      \ 'action_table': {'*': {}},
+      \ 'action_table': {},
       \ 'name': 'bibtex_file',
       \ }
 
 let s:source_uri= {
-      \ 'action_table': {'*': {}},
-      \ "source": "bibtex_uri",
-      \ "kind": ["uri"],
+      \ 'action_table': {},
       \ 'name': 'bibtex_uri',
       \ }
 
 function! unite#sources#bibtex#define() 
-  return [s:source_key, s:source_file, s:source_uri]
+  return [s:source_desc, s:source_file, s:source_uri]
 endfunction 
 
 pyfile <sfile>:h:h:h:h/src/unite_bibtex.py
 
 
-function! s:source_key.gather_candidates(args,context)
+function! s:source_desc.gather_candidates(args,context)
     let l:candidates = []
 python << EOF
 import vim
