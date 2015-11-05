@@ -42,9 +42,9 @@ class unite_bibtex(object):
         title = entry.fields[u"title"] if u"title" in entry.fields else ""
         journal = entry.fields[u"journal"] if u"journal" in entry.fields else ""
         year = entry.fields[u"year"] if u"year" in entry.fields else ""
-        filename = "FILE: " + entry.fields[u"file"] if u"file" in entry.fields else ""
-        url = "URL: " + entry.fields[u"url"] if u"url" in entry.fields else ""
-        desc = u"%s %s %s(%s), %s, %s" % (",".join(authors), title, journal, year, url, filename)
+        filename = "+FILE" if u"file" in entry.fields else ""
+        url = "+URL" if u"url" in entry.fields else ""
+        desc = u" %s %s %s(%s), %s, %s" % (",".join(authors), title, journal, year, url, filename)
         return desc.replace("'", "").replace("\\", "")
 
     @staticmethod
@@ -65,7 +65,7 @@ class unite_bibtex(object):
                     print("Cannot encode bibtex key, skip: {}".format(k))
                     continue
                 entry = bibdata.entries[key]
-                desc = unite_bibtex.entry_to_str(entry)
+                desc = key + unite_bibtex.entry_to_str(entry)
                 filename = entry.fields[u"file"].split(':')[1] if u"file" in entry.fields else ""
                 url = entry.fields[u"url"] if u"url" in entry.fields else ""
                 entries[k] = Bibdata(desc.encode("utf-8"), filename.encode("utf-8"), url.encode("utf-8"))
