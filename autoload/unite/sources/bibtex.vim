@@ -37,12 +37,12 @@ let s:source_desc = {
 
 let s:source_file = {
       \ 'action_table': {},
-      \ 'name': 'bibtex_file',
+      \ 'name': 'bibtex/file',
       \ }
 
 let s:source_uri= {
       \ 'action_table': {},
-      \ 'name': 'bibtex_uri',
+      \ 'name': 'bibtex/uri',
       \ }
 
 function! unite#sources#bibtex#define() 
