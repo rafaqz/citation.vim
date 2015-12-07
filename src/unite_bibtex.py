@@ -3,13 +3,28 @@
 import os.path
 from pybtex.database.input import bibtex
 
-class Bibdata(object):
-    desc = ""
-    filename = ""
-    url = ""
+def clean(entry, field):
+    ufield = "u{}".format(field)
+    output = entry.fields[ufield] if ufield in entry.fields else ""
+    return output.encode("utf-8")
 
+class Bibentry(object):
     # The class "constructor" - It's actually an initializer 
-    def __init__(self, desc, filename, url):
+    def __init__(self, 
+                abstract,
+                author,
+                desc,
+                doi,
+                filename,
+                isbn,
+                journal,
+                key,
+                language,
+                publisher,
+                title,
+                url,
+                year):
+
         self.desc = desc
         self.filename = filename
         self.url = url
@@ -48,14 +63,14 @@ class unite_bibtex(object):
         return desc.replace("'", "").replace("\\", "")
 
     @staticmethod
-    def get_entries(bibpath_list):
+    def get_entries(bibpaths):
         entries = {}
-        for bibpath in bibpath_list:
+        for bibpath in bibpaths:
             try:
                 path = unite_bibtex._check_path(bibpath)
                 bibdata = unite_bibtex._read_file(path)
             except Exception as e:
-                print("Fail to read {}".format(bibpath))
+                print("Failed to read {}".format(bibpath))
                 print("Message: {}".format(str(e)))
                 continue
             for key in bibdata.entries:
@@ -65,15 +80,27 @@ class unite_bibtex(object):
                     print("Cannot encode bibtex key, skip: {}".format(k))
                     continue
                 entry = bibdata.entries[key]
-                desc = key + unite_bibtex.entry_to_str(entry)
+                desc = k + unite_bibtex.entry_to_str(entry)
                 filename = entry.fields[u"file"].split(':')[1] if u"file" in entry.fields else ""
-                url = entry.fields[u"url"] if u"url" in entry.fields else ""
-                entries[k] = Bibdata(desc.encode("utf-8"), filename.encode("utf-8"), url.encode("utf-8"))
+                entries[k] = Bibentry(
+                    clean(entry, "abstract"),
+                    clean(entry, "author"),
+                    clean(entry, "doi"),
+                    desc.encode("utf-8"),
+                    filename.encode("utf-8"),
+                    clean(entry, "isbn"),
+                    clean(entry, "journal"),
+                    k,
+                    clean(entry, "language"),
+                    clean(entry, "publisher"),
+                    clean(entry, "title"),
+                    clean(entry, "url"),
+                    clean(entry, "year"))
         return entries
 
 if __name__ == '__main__':
     import sys
-    bibpath_list = sys.argv[1:]
-    entries = unite_bibtex.get_entries(bibpath_list)
+    bibpaths = sys.argv[1:]
+    entries = unite_bibtex.get_entries(bibpaths)
     for k, v in entries.items():
         print("{}:{}".format(k, v))
