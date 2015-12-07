@@ -28,92 +28,59 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 call unite#util#set_default('g:unite_bibtex_bib_files', [])
-call unite#util#set_default('g:unite_bibtex_bib_prefix', "")
+call unite#util#set_default('g:unite_bibtex_bib_prefix', "[@")
+call unite#util#set_default('g:unite_bibtex_bib_suffix', "]")
+call unite#util#set_default('g:unite_bibtex_description_format', "{}: {} \"{}\" {} ({})")
+call unite#util#set_default('g:unite_bibtex_description_fields', ["type", "key", "title", "author", "year"])
 
-let s:source_abstract = {
-    \ 'action_table': {},
-    \ 'name': 'bibtex/abstract',
-    \ }
-let s:source_author = {
-    \ 'action_table': {},
-    \ 'name': 'bibtex/author',
-    \ }
-let s:source_doi = {
-    \ 'action_table': {},
-    \ 'name': 'bibtex/doi',
-    \ }
-let s:source_file = {
-    \ 'action_table': {},
-    \ 'name': 'bibtex/key',
-    \ }
-let s:source_isbn = {
-    \ 'action_table': {},
-    \ 'name': 'bibtex/isbn',
-    \ }
-let s:source_journal = {
-    \ 'action_table': {},
-    \ 'name': 'bibtex/isbn',
-    \ }
-let s:source_key = {
-    \ 'action_table': {},
-    \ 'name': 'bibtex/key',
-    \ }
-let s:source_language = {
-    \ 'action_table': {},
-    \ 'name': 'bibtex/language',
-    \ }
-let s:source_journal = {
-    \ 'action_table': {},
-    \ 'name': 'bibtex/language',
-    \ }
-let s:source_publisher = {
-    \ 'action_table': {},
-    \ 'name': 'bibtex/publisher',
-    \ }
-let s:source_title = {
-    \ 'action_table': {},
-    \ 'name': 'bibtex/title',
-    \ }
-let s:source_uri = {
-    \ 'action_table': {},
-    \ 'name': 'bibtex/url',
-    \ }
-let s:source_year = {
-    \ 'action_table': {},
-    \ 'name': 'bibtex/year',
-    \ }
+let s:sub_sources = [
+\ "abstract",
+\ "annote",
+\ "author",
+\ "combined",
+\ "doi",
+\ "file",
+\ "isbn",
+\ "journal",
+\ "key",
+\ "language",
+\ "month",
+\ "pages",
+\ "publisher",
+\ "shorttitle",
+\ "title",
+\ "uri",
+\ "volume",
+\ "year"
+\ ]
 
+" Build source variable and function programatically for all sub_sources.
+function! s:construct_sources(sub_sources)
+    for sub_source in a:sub_sources
+        exec "let s:source_" . sub_source . " = { 
+        \       'action_table': {}, 
+        \       'name': 'bibtex/" . sub_source . "' 
+        \     }"
+        exec "function! s:source_" . sub_source . ".gather_candidates(args,context) 
+        \    \n   return s:map_entries('" . sub_source . "') 
+        \    \n endfunction"
+    endfor
+endfunction
+
+call s:construct_sources(s:sub_sources)
+
+" Return all sources (bibtex/sub_source) to Unite.
 function! unite#sources#bibtex#define() 
-  return [
-         \ s:source_author,
-         \ s:source_abstract,
-         \ s:source_doi,
-         \ s:source_file, 
-         \ s:source_isbn,
-         \ s:source_journal,
-         \ s:source_key,
-         \ s:source_language,
-         \ s:source_publisher,
-         \ s:source_title,
-         \ s:source_uri,
-         \ s:source_year
-         \ ]
+    let l:sources = []
+    for sub_source in s:sub_sources
+        let l:sources += [s:source_{sub_source}]
+    endfor
+    return l:sources
 endfunction 
 
 pyfile <sfile>:h:h:h:h/src/unite_bibtex.py
 
-function! s:get_entries(field)
-    let l:candidates = []
-python << EOF
-import vim
-bibpaths = vim.eval("g:unite_bibtex_bib_files")
-entries = unite_bibtex.get_entries(bibpaths)
-for k, v in entries.items():
-    vim.command("call add(l:candidates,['{}','{}'])".format(v.filename, v.desc))
-EOF
-    return l:candidates
-endfunction
-
+" Map entries for unite.
 function! s:map_entries(field) 
     return map(s:get_entries(a:field),'{
     \   "word": v:val[1],
@@ -123,20 +90,52 @@ function! s:map_entries(field)
     \ }')
 endfunction
 
-function! s:source_key.gather_candidates(args,context)
+" Get bibtex entries for a given field.
+function! s:get_entries(field)
     let l:candidates = []
-python << EOF
-import vim
+    python import vim
+
+python << endpython
 bibpaths = vim.eval("g:unite_bibtex_bib_files")
+desc_format = vim.eval("g:unite_bibtex_description_format")
+desc_fields = vim.eval("g:unite_bibtex_description_fields")
+field = vim.eval("a:field")
 entries = unite_bibtex.get_entries(bibpaths)
-for k, v in entries.items():
-    vim.command("call add(l:candidates,['{}','{}'])".format(k, v.desc))
-EOF
-    return map(l:candidates,'{
+
+def bibtex_description(entry):
+    eval_fields = []
+    for field in desc_fields:
+        eval_fields += [eval("entry." + field)]
+    return desc_format.format(*eval_fields)
+
+for key, entry in entries.items():
+    desc = bibtex_description(entry)
+    vim.command("call add(l:candidates,['{}','{}'])".format(eval('entry.' + field), desc))
+endpython
+
+    return l:candidates
+endfunction
+
+
+" Override default gather_candidates function where necessary.
+function! s:source_key.gather_candidates(args,context)
+    let prefix = g:unite_bibtex_bib_prefix
+    let suffix = g:unite_bibtex_bib_suffix
+    return map(s:get_entries("key"),'{
     \   "word": v:val[1],
-    \   "source": "bibtex",
+    \   "source": "bibtex/key",
     \   "kind": "word",
-    \   "action__text": "[@" . v:val[0] . "]",
+    \   "action__text": prefix . v:val[0] . suffix,
+    \ }')
+endfunction
+
+function! s:source_file.gather_candidates(args,context)
+    return map(s:get_entries("file"),'{
+    \   "word": v:val[1],
+    \   "source": "bibtex/file",
+    \   "kind": ["word","file", "uri"],
+    \   "action__text": v:val[0],
+    \   "action__path": v:val[0],
     \ }')
 endfunction
 
@@ -150,43 +149,5 @@ function! s:source_uri.gather_candidates(args,context)
     \ }')
 endfunction
 
-function! s:source_abstract.gather_candidates(args,context)
-  return s:map_entries("abstract")
-endfunction
-
-function! s:source_author.gather_candidates(args,context)
-  return s:map_entries("author")
-endfunction
-
-function! s:source_doi.gather_candidates(args,context)
-  return s:map_entries("doi")
-endfunction
-
-function! s:source_isbn.gather_candidates(args,context)
-  return s:map_entries("isbn")
-endfunction
-
-function! s:source_journal.gather_candidates(args,context)
-  return s:map_entries("journal")
-endfunction
-
-function! s:source_language.gather_candidates(args,context)
-  return s:map_entries("language")
-endfunction
-
-function! s:source_publisher.gather_candidates(args,context)
-  return s:map_entries("publisher")
-endfunction
-
-function! s:source_title.gather_candidates(args,context)
-  return s:map_entries("title")
-endfunction
-
-function! s:source_year.gather_candidates(args,context)
-  return s:map_entries("year")
-endfunction
-
-
 let &cpo = s:save_cpo
 unlet s:save_cpo
-" vim: foldmethod=marker

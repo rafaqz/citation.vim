@@ -1,39 +1,56 @@
 # -*- coding: utf-8 -*-
 
 import os.path
+import string
 from pybtex.database.input import bibtex
-
-def clean(entry, field):
-    ufield = "u{}".format(field)
-    output = entry.fields[ufield] if ufield in entry.fields else ""
-    return output.encode("utf-8")
-
-class Bibentry(object):
-    # The class "constructor" - It's actually an initializer 
-    def __init__(self, 
-                abstract,
-                author,
-                desc,
-                doi,
-                filename,
-                isbn,
-                journal,
-                key,
-                language,
-                publisher,
-                title,
-                url,
-                year):
-
-        self.desc = desc
-        self.filename = filename
-        self.url = url
 
 class unite_bibtex(object):
     """
     Name space for unite_bibtex.vim
     (not to pollute global name space)
     """
+    class Bibentry(object):
+        def __init__(
+                    self, 
+                    abstract,
+                    annote,
+                    author,
+                    doi,
+                    file,
+                    isbn,
+                    journal,
+                    key,
+                    language,
+                    month,
+                    pages,
+                    publisher,
+                    shorttitle,
+                    title,
+                    type,
+                    url,
+                    volume,
+                    year,
+                    ):
+
+            self.abstract = abstract 
+            self.annote = annote 
+            self.author = author 
+            self.doi = doi 
+            self.file = file
+            self.isbn = isbn 
+            self.journal = journal 
+            self.key = key 
+            self.language = language 
+            self.month = month 
+            self.pages = pages 
+            self.publisher = publisher 
+            self.title = title 
+            self.type = type 
+            self.shorttitle = shorttitle 
+            self.url = url 
+            self.volume = volume
+            self.year = year
+            self.combined = unite_bibtex.combine(self)
 
     @staticmethod
     def _read_file(filename):
@@ -48,19 +65,52 @@ class unite_bibtex(object):
         return path
 
     @staticmethod
-    def entry_to_str(entry):
+    def strip_chars(string):
+        return string.replace("{","").replace("}","")
+
+    @staticmethod
+    def clean(entry, field):
+        ufield = eval("u'{}'".format(field))
+        output = entry.fields[ufield] if ufield in entry.fields else ""
+        output = unite_bibtex.strip_chars(output)
+        return output.encode("utf-8")
+
+    @staticmethod
+    def combine(entry):
+        combined = "\n  [{}]\n  Key: {}\n  Title: {}\n  Author(s): {}\n  Month: {}\n  Year: {}\n  Abstract: {}\n  Journal: {}\n  Volume: {}\n  Pages: {}\n  Publisher: {}\n  Lang: {}\n  File(s): {}\n  URI:  {}\n  DOI:  {}\n  ISBN:  {}\n  Annotation: {}".format(
+                entry.type,
+                entry.key,
+                entry.title,
+                entry.author, 
+                entry.month,
+                entry.year,
+                entry.year,
+                entry.journal, 
+                entry.volume, 
+                entry.pages, 
+                entry.publisher, 
+                entry.language, 
+                entry.file, 
+                entry.url, 
+                entry.doi, 
+                entry.isbn, 
+                entry.annote, 
+                )
+        return combined
+
+    @staticmethod
+    def authors(entry):
         try:
             persons = entry.persons[u'author']
             authors = [unicode(au) for au in persons]
         except:
-            authors = [u'unknown']
-        title = entry.fields[u"title"] if u"title" in entry.fields else ""
-        journal = entry.fields[u"journal"] if u"journal" in entry.fields else ""
-        year = entry.fields[u"year"] if u"year" in entry.fields else ""
-        filename = "+FILE" if u"file" in entry.fields else ""
-        url = "+URL" if u"url" in entry.fields else ""
-        desc = u" %s %s %s(%s), %s, %s" % (",".join(authors), title, journal, year, url, filename)
-        return desc.replace("'", "").replace("\\", "")
+            authors = [u"unknown"]
+        return unite_bibtex.strip_chars("; ".join(authors)).encode("utf-8")
+
+    @staticmethod
+    def file(entry):
+        file = entry.fields[u"file"].split(':')[1] if u"file" in entry.fields else ""
+        return file.encode("utf-8")
 
     @staticmethod
     def get_entries(bibpaths):
@@ -80,22 +130,25 @@ class unite_bibtex(object):
                     print("Cannot encode bibtex key, skip: {}".format(k))
                     continue
                 entry = bibdata.entries[key]
-                desc = k + unite_bibtex.entry_to_str(entry)
-                filename = entry.fields[u"file"].split(':')[1] if u"file" in entry.fields else ""
-                entries[k] = Bibentry(
-                    clean(entry, "abstract"),
-                    clean(entry, "author"),
-                    clean(entry, "doi"),
-                    desc.encode("utf-8"),
-                    filename.encode("utf-8"),
-                    clean(entry, "isbn"),
-                    clean(entry, "journal"),
+                entries[k] = unite_bibtex.Bibentry(
+                    unite_bibtex.clean(entry, "abstract"),
+                    unite_bibtex.clean(entry, "annote"),
+                    unite_bibtex.authors(entry),
+                    unite_bibtex.clean(entry, "doi"),
+                    unite_bibtex.file(entry),
+                    unite_bibtex.clean(entry, "isbn"),
+                    unite_bibtex.clean(entry, "journal"),
                     k,
-                    clean(entry, "language"),
-                    clean(entry, "publisher"),
-                    clean(entry, "title"),
-                    clean(entry, "url"),
-                    clean(entry, "year"))
+                    unite_bibtex.clean(entry, "language"),
+                    unite_bibtex.clean(entry, "month"),
+                    unite_bibtex.clean(entry, "pages"),
+                    unite_bibtex.clean(entry, "publisher"),
+                    unite_bibtex.clean(entry, "shorttitle"),
+                    unite_bibtex.clean(entry, "title"),
+                    entry.type.encode("utf-8"),
+                    unite_bibtex.clean(entry, "url"),
+                    unite_bibtex.clean(entry, "volume"),
+                    unite_bibtex.clean(entry, "year"))
         return entries
 
 if __name__ == '__main__':
@@ -103,4 +156,4 @@ if __name__ == '__main__':
     bibpaths = sys.argv[1:]
     entries = unite_bibtex.get_entries(bibpaths)
     for k, v in entries.items():
-        print("{}:{}".format(k, v))
+        print("{}:{}".format(k, v.combined))
