@@ -33,6 +33,27 @@ call unite#util#set_default('g:unite_bibtex_bib_suffix', "]")
 call unite#util#set_default('g:unite_bibtex_description_format', "{}: {} \"{}\" {} ({})")
 call unite#util#set_default('g:unite_bibtex_description_fields', ["type", "key", "title", "author", "year"])
 
+let s:has_supported_python = 0
+if has('python3')"
+    let s:has_supported_python = 3
+elseif has('python')"
+    let s:has_supported_python = 2
+endif
+let s:plugin_path = escape(expand('<sfile>:h:h:h:h'), '\')
+
+if s:has_supported_python == 3
+    echo s:plugin_path
+    exe 'py3file ' . s:plugin_path . '/src/unite_bibtex.py'
+elseif s:has_supported_python == 2
+    exe 'pyfile ' . s:plugin_path . '/src/unite_bibtex.py'
+else
+    function! s:DidNotLoad()
+        echohl WarningMsg|echomsg "Unite bibtex unavailable: requires Vim 7.3+"|echohl None
+    endfunction
+    command! call s:DidNotLoad()
+    call s:DidNotLoad()
+endif
+
 let s:sub_sources = [
 \ "abstract",
 \ "annote",
@@ -49,7 +70,7 @@ let s:sub_sources = [
 \ "publisher",
 \ "shorttitle",
 \ "title",
-\ "uri",
+\ "url",
 \ "volume",
 \ "year"
 \ ]
@@ -62,8 +83,8 @@ function! s:construct_sources(sub_sources)
         \       'name': 'bibtex/" . sub_source . "' 
         \     }"
         exec "function! s:source_" . sub_source . ".gather_candidates(args,context) 
-        \    \n   return s:map_entries('" . sub_source . "') 
-        \    \n endfunction"
+        \  \n   return s:map_entries('" . sub_source . "') 
+        \  \n endfunction"
     endfor
 endfunction
 
@@ -78,7 +99,6 @@ function! unite#sources#bibtex#define()
     return l:sources
 endfunction 
 
-pyfile <sfile>:h:h:h:h/src/unite_bibtex.py
 
 " Map entries for unite.
 function! s:map_entries(field) 
@@ -92,30 +112,14 @@ endfunction
 
 " Get bibtex entries for a given field.
 function! s:get_entries(field)
-    let l:candidates = []
-    python import vim
-
-python << endpython
-bibpaths = vim.eval("g:unite_bibtex_bib_files")
-desc_format = vim.eval("g:unite_bibtex_description_format")
-desc_fields = vim.eval("g:unite_bibtex_description_fields")
-field = vim.eval("a:field")
-entries = unite_bibtex.get_entries(bibpaths)
-
-def bibtex_description(entry):
-    eval_fields = []
-    for field in desc_fields:
-        eval_fields += [eval("entry." + field)]
-    return desc_format.format(*eval_fields)
-
-for key, entry in entries.items():
-    desc = bibtex_description(entry)
-    vim.command("call add(l:candidates,['{}','{}'])".format(eval('entry.' + field), desc))
-endpython
-
-    return l:candidates
+    let l:out = []
+    if s:has_supported_python == 3
+      let l:out = py3eval("unite_bibtex.connect()")
+    elseif s:has_supported_python == 2
+      let l:out = pyeval("unite_bibtex.connect()")
+    endif
+    return l:out
 endfunction
-
 
 " Override default gather_candidates function where necessary.
 function! s:source_key.gather_candidates(args,context)
@@ -139,10 +143,10 @@ function! s:source_file.gather_candidates(args,context)
     \ }')
 endfunction
 
-function! s:source_uri.gather_candidates(args,context)
+function! s:source_url.gather_candidates(args,context)
     return map(s:get_entries("url"),'{
     \   "word": v:val[1],
-    \   "source": "bibtex/uri",
+    \   "source": "bibtex/url",
     \   "kind": ["word","uri"],
     \   "action__text": v:val[0],
     \   "action__path": v:val[0],

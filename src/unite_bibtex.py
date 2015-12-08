@@ -10,7 +10,7 @@ class unite_bibtex(object):
     (not to pollute global name space)
     """
     class Bibentry(object):
-        def __init__(
+         def __init__(
                     self, 
                     abstract,
                     annote,
@@ -70,21 +70,20 @@ class unite_bibtex(object):
 
     @staticmethod
     def clean(entry, field):
-        ufield = eval("u'{}'".format(field))
-        output = entry.fields[ufield] if ufield in entry.fields else ""
+        output = entry.fields[field] if field in entry.fields else ""
         output = unite_bibtex.strip_chars(output)
-        return output.encode("utf-8")
+        return output
 
     @staticmethod
     def combine(entry):
-        combined = "\n  [{}]\n  Key: {}\n  Title: {}\n  Author(s): {}\n  Month: {}\n  Year: {}\n  Abstract: {}\n  Journal: {}\n  Volume: {}\n  Pages: {}\n  Publisher: {}\n  Lang: {}\n  File(s): {}\n  URI:  {}\n  DOI:  {}\n  ISBN:  {}\n  Annotation: {}".format(
+        combined = u"\n  [{}]\n  Key: {}\n  Title: {}\n  Author(s): {}\n  Month: {}\n  Year: {}\n  Abstract: {}\n  Journal: {}\n  Volume: {}\n  Pages: {}\n  Publisher: {}\n  Lang: {}\n  File(s): {}\n  URL:  {}\n  DOI:  {}\n  ISBN:  {}\n  Annotation: {}".format(
                 entry.type,
                 entry.key,
                 entry.title,
                 entry.author, 
                 entry.month,
                 entry.year,
-                entry.year,
+                entry.abstract,
                 entry.journal, 
                 entry.volume, 
                 entry.pages, 
@@ -101,19 +100,22 @@ class unite_bibtex(object):
     @staticmethod
     def authors(entry):
         try:
-            persons = entry.persons[u'author']
-            authors = [unicode(au) for au in persons]
-        except:
+            persons = entry.persons[u"author"]
+            authors = [str(au) for au in persons]
+        except KeyError:
             authors = [u"unknown"]
-        return unite_bibtex.strip_chars("; ".join(authors)).encode("utf-8")
+        authors = unite_bibtex.strip_chars("; ".join(authors))
+        return authors
 
     @staticmethod
     def file(entry):
-        file = entry.fields[u"file"].split(':')[1] if u"file" in entry.fields else ""
-        return file.encode("utf-8")
+        output = ""
+        if u"file" in entry.fields: 
+            output = entry.fields[u"file"].split(":")[1]
+        return output
 
     @staticmethod
-    def get_entries(bibpaths):
+    def get_entries(bibpaths,field):
         entries = {}
         for bibpath in bibpaths:
             try:
@@ -125,11 +127,18 @@ class unite_bibtex(object):
                 continue
             for key in bibdata.entries:
                 try:
-                    k = key.encode("utf-8")
+                    k = key
                 except:
                     print("Cannot encode bibtex key, skip: {}".format(k))
                     continue
                 entry = bibdata.entries[key]
+                if field in ['url','author','key','combined']:
+                    if field == 'author' and not entry.persons:
+                         continue
+                else:
+                     if not field in entry.fields:
+                         continue
+
                 entries[k] = unite_bibtex.Bibentry(
                     unite_bibtex.clean(entry, "abstract"),
                     unite_bibtex.clean(entry, "annote"),
@@ -138,22 +147,47 @@ class unite_bibtex(object):
                     unite_bibtex.file(entry),
                     unite_bibtex.clean(entry, "isbn"),
                     unite_bibtex.clean(entry, "journal"),
-                    k,
+                    key,
                     unite_bibtex.clean(entry, "language"),
                     unite_bibtex.clean(entry, "month"),
                     unite_bibtex.clean(entry, "pages"),
                     unite_bibtex.clean(entry, "publisher"),
                     unite_bibtex.clean(entry, "shorttitle"),
                     unite_bibtex.clean(entry, "title"),
-                    entry.type.encode("utf-8"),
+                    entry.type,
                     unite_bibtex.clean(entry, "url"),
                     unite_bibtex.clean(entry, "volume"),
                     unite_bibtex.clean(entry, "year"))
         return entries
 
+    @staticmethod
+    def description(entry, desc_fields, desc_format):
+        eval_fields = []
+        for field in desc_fields:
+            try:
+                eval("entry." + field)
+            except AttributeError:
+                return 'Erro at "{}" field of g:unite_bibtex_description_fields. Check your vimrc.'.format(field)
+            eval_fields = eval_fields + [str(eval("entry." + field))]
+        return desc_format.format(*eval_fields)
+
+    @staticmethod
+    def connect():
+        import vim
+        bibpaths = vim.eval("g:unite_bibtex_bib_files")
+        desc_format = vim.eval("g:unite_bibtex_description_format")
+        desc_fields = vim.eval("g:unite_bibtex_description_fields")
+        field = vim.eval("a:field")
+        entries = unite_bibtex.get_entries(bibpaths, field)
+        output = []
+        for key, entry in entries.items():
+            desc = unite_bibtex.description(entry, desc_fields, desc_format)
+            output.append([eval("entry." + field), desc])
+        return output
+
 if __name__ == '__main__':
     import sys
     bibpaths = sys.argv[1:]
-    entries = unite_bibtex.get_entries(bibpaths)
+    entries = unite_bibtex.get_entries(bibpaths,"combined")
     for k, v in entries.items():
-        print("{}:{}".format(k, v.combined))
+        print(u"{}:{}".format(k, v.combined))
