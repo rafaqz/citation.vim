@@ -85,7 +85,7 @@ class unite_bibtex(object):
             elif sys.version_info[0] == 3:
                 authors = [str(au) for au in persons]
         except KeyError:
-            authors = [u"unknown"]
+            authors = [""]
         authors = unite_bibtex.strip_chars("; ".join(authors))
         return authors
 
@@ -115,8 +115,11 @@ class unite_bibtex(object):
                     continue
                 entry = bibdata.entries[key]
                 if field in ['author','key','combined']:
-                    if field == 'author' and not entry.persons:
-                         continue
+                    if field == 'author': 
+                        try:
+                            entry.persons[u'author']
+                        except:
+                            continue
                 else:
                      if not field in entry.fields:
                          continue
@@ -146,7 +149,7 @@ class unite_bibtex(object):
     def description(entry, field, desc_fields, desc_format):
         eval_fields = []
         source_field = ""
-        if not field in desc_fields + ["combined"]:
+        if not field in desc_fields + ["combined","file"]:
             source_field = "[" + eval("entry." + field) + "]"
         for desc_field in desc_fields:
             try:
