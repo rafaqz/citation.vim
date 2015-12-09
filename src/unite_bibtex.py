@@ -5,51 +5,30 @@ import string
 from pybtex.database.input import bibtex
 
 class unite_bibtex(object):
-    """
-    Name space for unite_bibtex.vim
-    (not to pollute global name space)
-    """
-    class Bibentry(object):
-         def __init__(
-                    self, 
-                    abstract,
-                    annote,
-                    author,
-                    doi,
-                    file,
-                    isbn,
-                    journal,
-                    key,
-                    language,
-                    month,
-                    pages,
-                    publisher,
-                    shorttitle,
-                    title,
-                    type,
-                    url,
-                    volume,
-                    year,
-                    ):
 
-            self.abstract = abstract 
-            self.annote = annote 
-            self.author = author 
-            self.doi = doi 
-            self.file = file
-            self.isbn = isbn 
-            self.journal = journal 
-            self.key = key 
-            self.language = language 
-            self.month = month 
-            self.pages = pages 
-            self.publisher = publisher 
-            self.title = title 
-            self.type = type 
-            self.shorttitle = shorttitle 
-            self.url = url 
-            self.volume = volume
-            self.year = year
+    class Bibentry(object):
+         def __init__(self, 
+                abstract,
+                annote,
+                author,
+                doi,
+                file,
+                isbn,
+                journal,
+                key,
+                language,
+                month,
+                pages,
+                publisher,
+                shorttitle,
+                title,
+                type,
+                url,
+                volume,
+                year,
+            ):
+
+            self.__dict__.update(locals())
             self.combined = unite_bibtex.combine(self)
 
     @staticmethod
@@ -101,7 +80,10 @@ class unite_bibtex(object):
     def authors(entry):
         try:
             persons = entry.persons[u"author"]
-            authors = [str(au) for au in persons]
+            if sys.version_info[0] == 2:
+                authors = [unicode(au) for au in persons]
+            elif sys.version_info[0] == 3:
+                authors = [str(au) for au in persons]
         except KeyError:
             authors = [u"unknown"]
         authors = unite_bibtex.strip_chars("; ".join(authors))
@@ -171,7 +153,7 @@ class unite_bibtex(object):
                 eval("entry." + desc_field)
             except AttributeError:
                 return 'Erro at "{}" field of g:unite_bibtex_description_fields. Check your vimrc.'.format(desc_field)
-            eval_fields = eval_fields + [str(eval("entry." + desc_field))]
+            eval_fields = eval_fields + [eval("entry." + desc_field)]
         if field in desc_fields:
             index = desc_fields.index(field)
             f = eval_fields[index]
