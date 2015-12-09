@@ -111,13 +111,16 @@ Customise the unite display, using the names of bibtex sources and a python form
     let g:unite_bibtex_description_format = "{}: {} \"{}\" {} ({})"
     let g:unite_bibtex_description_fields = ["type", "key", "title", "author", "year"]
 
+or this one is nice for showing journal/publisher (citations rarely have both):
+
+    let g:unite_bibtex_description_format', "{}: {} \'{}\' {} |{}{}|"
+    let g:unite_bibtex_description_fields', ["type", "key", "title", "author", "publisher", "journal"]
+
+All regions inside (), [], ||, "", '' or <> will be highlighted as will anything
+like "key2001name" or "word:"
+
 ### Troubleshooting
 
 You can correct your .bib file with `pybtex-convert`:
 
-```
-pybtex-convert /path/to/your.bib out.bib
-```
-
-If you meet an import error of pybtex, please confirm your pybtex is installed into your system.
-Python interpreter of vim usually uses system site-package, so you should install pybtex into your system directory.
+    pybtex-convert /path/to/your.bib out.bib
