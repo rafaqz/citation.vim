@@ -76,7 +76,7 @@ class unite_bibtex(object):
 
     @staticmethod
     def combine(entry):
-        combined = u"\n  [{}]\n  Key: {}\n  Title: {}\n  Author(s): {}\n  Month: {}\n  Year: {}\n  Abstract: {}\n  Journal: {}\n  Volume: {}\n  Pages: {}\n  Publisher: {}\n  Lang: {}\n  File(s): {}\n  URL:  {}\n  DOI:  {}\n  ISBN:  {}\n  Annotation: {}".format(
+        combined = u"\n[{}]\nKey: {}\nTitle: {}\nAuthor(s): {}\nMonth: {}\nYear: {}\nAbstract: {}\nJournal: {}\nVolume: {}\nPages: {}\nPublisher: {}\nLang: {}\nFile(s): {}\nURL:{}\nDOI:{}\nISBN:{}\nAnnotation: {}".format(
                 entry.type,
                 entry.key,
                 entry.title,
@@ -132,7 +132,7 @@ class unite_bibtex(object):
                     print("Cannot encode bibtex key, skip: {}".format(k))
                     continue
                 entry = bibdata.entries[key]
-                if field in ['url','author','key','combined']:
+                if field in ['author','key','combined']:
                     if field == 'author' and not entry.persons:
                          continue
                 else:
@@ -161,15 +161,23 @@ class unite_bibtex(object):
         return entries
 
     @staticmethod
-    def description(entry, desc_fields, desc_format):
+    def description(entry, field, desc_fields, desc_format):
         eval_fields = []
-        for field in desc_fields:
+        source_field = ""
+        if not field in desc_fields + ["combined"]:
+            source_field = "[" + eval("entry." + field) + "]"
+        for desc_field in desc_fields:
             try:
-                eval("entry." + field)
+                eval("entry." + desc_field)
             except AttributeError:
-                return 'Erro at "{}" field of g:unite_bibtex_description_fields. Check your vimrc.'.format(field)
-            eval_fields = eval_fields + [str(eval("entry." + field))]
-        return desc_format.format(*eval_fields)
+                return 'Erro at "{}" field of g:unite_bibtex_description_fields. Check your vimrc.'.format(desc_field)
+            eval_fields = eval_fields + [str(eval("entry." + desc_field))]
+        if field in desc_fields:
+            index = desc_fields.index(field)
+            f = eval_fields[index]
+            eval_fields[index] = "[" + f + "]"
+        return desc_format.format(*eval_fields) + " " + source_field
+
 
     @staticmethod
     def connect():
@@ -181,7 +189,7 @@ class unite_bibtex(object):
         entries = unite_bibtex.get_entries(bibpaths, field)
         output = []
         for key, entry in entries.items():
-            desc = unite_bibtex.description(entry, desc_fields, desc_format)
+            desc = unite_bibtex.description(entry, field, desc_fields, desc_format)
             output.append([eval("entry." + field), desc])
         return output
 

@@ -30,7 +30,7 @@ set cpo&vim
 call unite#util#set_default('g:unite_bibtex_bib_files', [])
 call unite#util#set_default('g:unite_bibtex_bib_prefix', "[@")
 call unite#util#set_default('g:unite_bibtex_bib_suffix', "]")
-call unite#util#set_default('g:unite_bibtex_description_format', "{}: {} \"{}\" {} ({})")
+call unite#util#set_default('g:unite_bibtex_description_format', "{}: {} \'{}\' {} |{}|")
 call unite#util#set_default('g:unite_bibtex_description_fields', ["type", "key", "title", "author", "year"])
 
 let s:has_supported_python = 0
@@ -80,12 +80,47 @@ function! s:construct_sources(sub_sources)
     for sub_source in a:sub_sources
         exec "let s:source_" . sub_source . " = { 
         \       'action_table': {}, 
-        \       'name': 'bibtex/" . sub_source . "' 
+        \       'name': 'bibtex/" . sub_source . "', 
+        \       'hooks': {},
+        \       'syntax': 'uniteSource__Bibtex'
         \     }"
+        exec "function! s:source_" . sub_source . ".hooks.on_syntax(args, context)
+        \  \n   call s:hooks.syntax()
+        \  \n endfunction"
         exec "function! s:source_" . sub_source . ".gather_candidates(args,context) 
         \  \n   return s:map_entries('" . sub_source . "') 
         \  \n endfunction"
     endfor
+endfunction
+
+let s:hooks = {}
+function! s:hooks.syntax()
+  syntax match uniteSource__Bibtex_Text "\".\+\"" contained
+			        \ containedin=uniteSource__Bibtex
+  syntax match uniteSource__Bibtex_Text "\'.\+\'" contained
+			        \ containedin=uniteSource__Bibtex
+  syntax match uniteSource__Bibtex_Type "\<\w*:" 
+			        \ contained containedin=uniteSource__Bibtex
+  syntax match uniteSource__Bibtex_Bracket "(.*)" contained
+			        \ containedin=uniteSource__Bibtex
+  syntax match uniteSource__Bibtex_Bar "|.*|" contained
+			        \ containedin=uniteSource__Bibtex
+  syntax match uniteSource__Bibtex_Arrows "<.*>" contained
+			        \ containedin=uniteSource__Bibtex
+  syntax match uniteSource__Bibtex_Split "\.\{2}" contained
+			        \ containedin=uniteSource__Bibtex
+  syntax match uniteSource__Bibtex_Key "\<\S\+\d\{4}\S*\>\|\<\S*\d\{4}\S\+\>" contained
+			        \ containedin=uniteSource__Bibtex
+  syntax match uniteSource__Bibtex_Field "\[.*\]" contained
+			        \ containedin=uniteSource__Bibtex
+  highlight default link uniteSource__Bibtex_Type Type
+  highlight default link uniteSource__Bibtex_Bracket Number
+  highlight default link uniteSource__Bibtex_Arrows Underlined
+  highlight default link uniteSource__Bibtex_Bar Define
+  highlight default link uniteSource__Bibtex_Key Label
+  highlight default link uniteSource__Bibtex_Field Function
+  highlight default link uniteSource__Bibtex_Split SpecialComment
+  highlight default link uniteSource__Bibtex_Text Comment
 endfunction
 
 call s:construct_sources(s:sub_sources)
