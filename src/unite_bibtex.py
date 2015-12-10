@@ -18,6 +18,7 @@ class unite_bibtex(object):
                 key,
                 language,
                 month,
+                number,
                 pages,
                 publisher,
                 shorttitle,
@@ -48,14 +49,14 @@ class unite_bibtex(object):
         return string.replace("{","").replace("}","")
 
     @staticmethod
-    def clean(entry, field):
+    def get_field(entry, field):
         output = entry.fields[field] if field in entry.fields else ""
         output = unite_bibtex.strip_chars(output)
         return output
 
     @staticmethod
     def combine(entry):
-        combined = u"\n[{}]\nKey: {}\nTitle: {}\nAuthor(s): {}\nMonth: {}\nYear: {}\nAbstract: {}\nJournal: {}\nVolume: {}\nPages: {}\nPublisher: {}\nLang: {}\nFile(s): {}\nURL:{}\nDOI:{}\nISBN:{}\nAnnotation: {}".format(
+        combined = u"\n[{}]\nKey: {}\nTitle: {}\nAuthor(s): {}\nMonth: {}\nYear: {}\nAbstract: {}\nJournal: {}\nNumber: {}\nVolume: {}\nPages: {}\nPublisher: {}\nLang: {}\nFile(s): {}\nURL:{}\nDOI:{}\nISBN:{}\nAnnotation: {}".format(
                 entry.type,
                 entry.key,
                 entry.title,
@@ -64,6 +65,7 @@ class unite_bibtex(object):
                 entry.year,
                 entry.abstract,
                 entry.journal, 
+                entry.number, 
                 entry.volume, 
                 entry.pages, 
                 entry.publisher, 
@@ -125,24 +127,25 @@ class unite_bibtex(object):
                          continue
 
                 entries[k] = unite_bibtex.Bibentry(
-                    unite_bibtex.clean(entry, "abstract"),
-                    unite_bibtex.clean(entry, "annote"),
+                    unite_bibtex.get_field(entry, "abstract"),
+                    unite_bibtex.get_field(entry, "annote"),
                     unite_bibtex.authors(entry),
-                    unite_bibtex.clean(entry, "doi"),
+                    unite_bibtex.get_field(entry, "doi"),
                     unite_bibtex.file(entry),
-                    unite_bibtex.clean(entry, "isbn"),
-                    unite_bibtex.clean(entry, "journal"),
+                    unite_bibtex.get_field(entry, "isbn"),
+                    unite_bibtex.get_field(entry, "journal"),
                     key,
-                    unite_bibtex.clean(entry, "language"),
-                    unite_bibtex.clean(entry, "month"),
-                    unite_bibtex.clean(entry, "pages"),
-                    unite_bibtex.clean(entry, "publisher"),
-                    unite_bibtex.clean(entry, "shorttitle"),
-                    unite_bibtex.clean(entry, "title"),
+                    unite_bibtex.get_field(entry, "language"),
+                    unite_bibtex.get_field(entry, "month"),
+                    unite_bibtex.get_field(entry, "number"),
+                    unite_bibtex.get_field(entry, "pages"),
+                    unite_bibtex.get_field(entry, "publisher"),
+                    unite_bibtex.get_field(entry, "shorttitle"),
+                    unite_bibtex.get_field(entry, "title"),
                     entry.type,
-                    unite_bibtex.clean(entry, "url"),
-                    unite_bibtex.clean(entry, "volume"),
-                    unite_bibtex.clean(entry, "year"))
+                    unite_bibtex.get_field(entry, "url"),
+                    unite_bibtex.get_field(entry, "volume"),
+                    unite_bibtex.get_field(entry, "year"))
         return entries
 
     @staticmethod

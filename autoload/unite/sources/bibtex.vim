@@ -68,6 +68,7 @@ let s:sub_sources = [
 \ "key",
 \ "language",
 \ "month",
+\ "number",
 \ "pages",
 \ "publisher",
 \ "shorttitle",
