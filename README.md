@@ -54,32 +54,35 @@ nmap <leader>u [unite]
 nnoremap [unite] <nop>
 
 To insert a citation:
-nnoremap <silent>[unite]c       :<C-u>Unite -buffer-name=bibtex   -start-insert -default-action=append      bibtex<cr>
 
-To immediately open/yank/browse a file or url from citation under the cursor:
+    nnoremap <silent>[unite]c       :<C-u>Unite -buffer-name=bibtex   -start-insert -default-action=append      bibtex<cr>
 
-    nnoremap <silent><leader>cc :<C-u>Unite -buffer-name=bibtex -input=<C-R><C-W> -default-action=start -force-immediately bibtex/file<cr>
-    nnoremap <silent><leader>cU :<C-u>Unite -buffer-name=bibtex -input=<C-R><C-W> -default-action=yank -force-immediately bibtex/url<cr>
-    nnoremap <silent><leader>cu :<C-u>Unite -buffer-name=bibtex -input=<C-R><C-W> -default-action=start -force-immediately bibtex/url<cr>
-    nnoremap <silent><leader>cC :<C-u>Unite -buffer-name=bibtex -input=<C-R><C-W> -default-action=yank -force-immediately bibtex/file<cr>
-    nnoremap <silent><leader>cf :<C-u>Unite -buffer-name=bibtex -input=<C-R><C-W> -default-action=file -force-immediately bibtex/file<cr>
+To immediately open a file or url from a citation under the cursor:
+
+    nnoremap <silent><leader>co :<C-u>Unite -input=<C-R><C-W> -default-action=start -force-immediately bibtex/file<cr>
+
+To immediately browse the folder from a citation under the cursor:
+
+    nnoremap <silent><leader>cf :<C-u>Unite -input=<C-R><C-W> -default-action=file -force-immediately bibtex/file<cr>
+
+To view all citation information from a citation under the cursor:
+
+    nnoremap <silent><leader>ci :<C-u>Unite -input=<C-R><C-W> -default-action=preview -force-immediately bibtex/combined<cr>
+
 
 To preview, append, yank citation data from unite:
 
-    nnoremap <silent>[unite]c  :<C-u>Unite -buffer-name=bibtex -start-insert -default-action=append -auto-preview bibtex/key<cr>
-    nnoremap <silent>[unite]cf :<C-u>Unite -buffer-name=bibtex -start-insert -default-action=start  -auto-preview bibtex/file<cr>
-    nnoremap <silent>[unite]cF :<C-u>Unite -buffer-name=bibtex -start-insert -default-action=append -auto-preview bibtex/file<cr>
-    nnoremap <silent>[unite]cu :<C-u>Unite -buffer-name=bibtex -start-insert -default-action=start  -auto-preview bibtex/url<cr>
-    nnoremap <silent>[unite]cU :<C-u>Unite -buffer-name=bibtex -start-insert -default-action=append -auto-preview bibtex/url<cr>
-    nnoremap <silent>[unite]ca :<C-u>Unite -buffer-name=bibtex -start-insert -default-action=append -auto-preview bibtex/author<cr>
-    nnoremap <silent>[unite]cp :<C-u>Unite -buffer-name=bibtex -start-insert -default-action=append -auto-preview bibtex/publisher<cr>
-    nnoremap <silent>[unite]cj :<C-u>Unite -buffer-name=bibtex -start-insert -default-action=append -auto-preview bibtex/journal<cr>
-    nnoremap <silent>[unite]cd :<C-u>Unite -buffer-name=bibtex -start-insert -default-action=append -auto-preview bibtex/doi<cr>
-    nnoremap <silent>[unite]ct :<C-u>Unite -buffer-name=bibtex -start-insert -default-action=append -auto-preview bibtex/title<cr>
-    nnoremap <silent>[unite]cy :<C-u>Unite -buffer-name=bibtex -start-insert -default-action=append -auto-preview bibtex/year<cr>
-    nnoremap <silent>[unite]ci :<C-u>Unite -buffer-name=bibtex -start-insert -default-action=append -auto-preview bibtex/isbn<cr>
-    nnoremap <silent>[unite]cn :<C-u>Unite -buffer-name=bibtex -start-insert -default-action=append -auto-preview bibtex/annote<cr>
-    nnoremap <silent>[unite]cb :<C-u>Unite -buffer-name=bibtex -start-insert -default-action=append -auto-preview bibtex/abstract<cr>
+    nnoremap <silent>[unite]c  :<C-u>Unite -buffer-name=bibtex -default-action=append  -auto-preview bibtex/key<cr>
+    nnoremap <silent>[unite]cF :<C-u>Unite -buffer-name=bibtex -default-action=append  -auto-preview bibtex/file<cr>
+    nnoremap <silent>[unite]ca :<C-u>Unite -buffer-name=bibtex -default-action=append  -auto-preview bibtex/author<cr>
+    nnoremap <silent>[unite]cp :<C-u>Unite -buffer-name=bibtex -default-action=append  -auto-preview bibtex/publisher<cr>
+    nnoremap <silent>[unite]cj :<C-u>Unite -buffer-name=bibtex -default-action=append  -auto-preview bibtex/journal<cr>
+    nnoremap <silent>[unite]ct :<C-u>Unite -buffer-name=bibtex -default-action=append  -auto-preview bibtex/title<cr>
+    nnoremap <silent>[unite]cn :<C-u>Unite -buffer-name=bibtex -default-action=append  -auto-preview bibtex/annote<cr>
+    nnoremap <silent>[unite]cb :<C-u>Unite -buffer-name=bibtex -default-action=append  -auto-preview bibtex/abstract<cr>
+    nnoremap <silent>[unite]cI :<C-u>Unite -buffer-name=bibtex -default-action=preview -auto-preview bibtex/combined<cr>
+
+To preview, append, yank citation data from unite:
     nnoremap <silent>[unite]cc :<C-u>Unite -buffer-name=bibtex -start-insert -default-action=preview              bibtex/combined<cr>
 
 
