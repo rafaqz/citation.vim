@@ -150,7 +150,7 @@ class unite_bibtex(object):
         eval_fields = []
         source_field = ""
         if not field in desc_fields + ["combined","file"]:
-            source_field = "[" + eval("entry." + field) + "]"
+            source_field = "【" + eval("entry." + field) + "】"
         for desc_field in desc_fields:
             try:
                 eval("entry." + desc_field)
@@ -160,7 +160,7 @@ class unite_bibtex(object):
         if field in desc_fields:
             index = desc_fields.index(field)
             f = eval_fields[index]
-            eval_fields[index] = "[" + f + "]"
+            eval_fields[index] = "【" + f + "】"
         return desc_format.format(*eval_fields) + " " + source_field
 
 

@@ -1,7 +1,8 @@
 "=============================================================================
 " FILE: autoload/unite/source/bibtex.vim
-" AUTHOR:  Toshiki TERAMUREA <toshiki.teramura@gmail.com>
-" Last Modified: 8 Oct 2015.
+" AUTHOR:  Rafael Schouten <rafaelschouten@gmail.com>, 
+" Forked From: unite-bibtex, Toshiki TERAMUREA
+" Last Modified: 8 Dec 2015.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -28,9 +29,10 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 call unite#util#set_default('g:unite_bibtex_bib_files', [])
-call unite#util#set_default('g:unite_bibtex_bib_prefix', "[@")
-call unite#util#set_default('g:unite_bibtex_bib_suffix', "]")
-call unite#util#set_default('g:unite_bibtex_description_format', "{}: {} \'{}\' _{}_ ({})")
+call unite#util#set_default('g:unite_bibtex_outer_prefix', "[")
+call unite#util#set_default('g:unite_bibtex_inner_prefix', "@")
+call unite#util#set_default('g:unite_bibtex_suffix', "]")
+call unite#util#set_default('g:unite_bibtex_description_format', "{}∶ {} ˝{}˝ ☆{}☆ ₍{}₎")
 call unite#util#set_default('g:unite_bibtex_description_fields', ["type", "key", "title", "author", "year"])
 
 let s:has_supported_python = 0
@@ -96,39 +98,44 @@ endfunction
 
 let s:hooks = {}
 function! s:hooks.syntax()
-  syntax region uniteSource__Bibtex_Text start=+"+ end=+"+ 
+  syntax region uniteSource__Bibtex_Text start=+[˝‘’‛“”‟′″‴‵‶‷]+ end=+[˝‘’‛“”‟′″‴‵‶‷]\|.[∶∷→⇒≫⊂⊃〔〕₍₎⁽⁾◁▷◀▶<>‹›♯♡♢◆◇◊○◎●◐◑∗∘∙⊙⊚⌂★☆☜☞☺☻☼₊⁺▪■□▢▣▤▥▦▧▨▩]+ 
         \ contains=uniteSource__Bibtex_Field,uniteSource__Bibtex_Split
         \ ,uniteSource__Bibtex_Arrow, uniteSource__Bibtex_Bar,uniteSource__Bibtex_Bracket   
         \ containedin=uniteSource__Bibtex
-  syntax region uniteSource__Bibtex_Text start=+'+ end=+'+ 
-        \ contains=uniteSource__Bibtex_Field,uniteSource__Bibtex_Split
-        \ ,uniteSource__Bibtex_Arrow, uniteSource__Bibtex_Bar,uniteSource__Bibtex_Bracket   
-        \ containedin=uniteSource__Bibtex
-  syntax match uniteSource__Bibtex_Type "\<\w*:" 
+  syntax match uniteSource__Bibtex_Key "\<[\w-]\+\d\{4}[\w-]*\>\|\<\w*\d\{4}\w\+\>" contained
+			        \ containedin=uniteSource__Bibtex
+              \ contains=uniteSource__Bibtex_Year
+  syntax region uniteSource__Bibtex_Field start='【' end='】'
+			        \ containedin=uniteSource__Bibtex
+  syntax match uniteSource__Bibtex_Type "\<\w*[∶∷→⇒≫]" 
 			        \ contained containedin=uniteSource__Bibtex
-  syntax region uniteSource__Bibtex_Bracket start='(' end=')' contains=uniteSource__Bibtex_Field
+  syntax region uniteSource__Bibtex_Bracket start='[⊂〔₍⁽]' end='[⊃〕₎⁾]' 
 			        \ containedin=uniteSource__Bibtex
-  syntax region uniteSource__Bibtex_Bar start='|' end='|' contains=uniteSource__Bibtex_Field
+  syntax region uniteSource__Bibtex_Arrows start='[◀◁<‹]' end='[▶▷>›]' 
 			        \ containedin=uniteSource__Bibtex
-  syntax region uniteSource__Bibtex_Arrows start='<' end='>' contains=uniteSource__Bibtex_Field
+  syntax region uniteSource__Bibtex_Blob start='[♯♡◆◇◊○◎●◐◑∗∙⊙⊚⌂★☺☻▪■□▢▣▤▥▦▧▨▩]' end='[♯♡◆◇◊○◎●◐◑∗∙⊙⊚⌂★☺☻▪■□▢▣▤▥▦▧▨▩]' 
 			        \ containedin=uniteSource__Bibtex
-  syntax region uniteSource__Bibtex_Underscore start='_' end='_' contains=uniteSource__Bibtex_Field
+  syntax region uniteSource__Bibtex_Tiny start='[、。‸₊⁺∘♢☆☜☞♢☼]' end='[、。‸₊⁺∘☆☜☞♢☼]'
+			        \ containedin=uniteSource__Bibtex
+  syntax region uniteSource__Bibtex_Bar start='[‖│┃┆∥┇┊┋]' end='[‖│┃┆∥┇┊┋]'
+			        \ containedin=uniteSource__Bibtex
+  syntax region uniteSource__Bibtex_Dash start='[‾⁻−₋‐⋯┄–—―∼┈─▭▬┉━┅₌⁼‗]' end='[‾⁻−₋‐⋯┄–—―∼┈─▭▬┉━┅₌⁼‗]'
 			        \ containedin=uniteSource__Bibtex
   syntax match uniteSource__Bibtex_Split "\.\{2}" contained
 			        \ containedin=uniteSource__Bibtex
-  syntax match uniteSource__Bibtex_Key "\<\S\+\d\{4}\S*\>\|\<\S*\d\{4}\S\+\>" contained
-			        \ containedin=uniteSource__Bibtex
-  syntax region uniteSource__Bibtex_Field start='\[' end='\]'
-			        \ containedin=uniteSource__Bibtex
-  highlight default link uniteSource__Bibtex_Type Define
-  highlight default link uniteSource__Bibtex_Bracket Number
-  highlight default link uniteSource__Bibtex_Arrows Underlined
-  highlight default link uniteSource__Bibtex_Bar Type
-  highlight default link uniteSource__Bibtex_Underscore Function
-  highlight default link uniteSource__Bibtex_Key Label
-  highlight default link uniteSource__Bibtex_Field Todo
-  highlight default link uniteSource__Bibtex_Split SpecialComment
+  syntax match uniteSource__Bibtex_Year "\d\{4}" contained
+  highlight default link uniteSource__Bibtex_Type Type
   highlight default link uniteSource__Bibtex_Text Comment
+  highlight default link uniteSource__Bibtex_Key Special
+  highlight default link uniteSource__Bibtex_Bracket Number
+  highlight default link uniteSource__Bibtex_Field Error
+  highlight default link uniteSource__Bibtex_Arrows Underlined
+  highlight default link uniteSource__Bibtex_Bar Conditional
+  highlight default link uniteSource__Bibtex_Blob Define
+  highlight default link uniteSource__Bibtex_Dash Function
+  highlight default link uniteSource__Bibtex_Year Define
+  highlight default link uniteSource__Bibtex_Split SpecialComment
+  highlight default link uniteSource__Bibtex_Tiny Identifier
 endfunction
 
 call s:construct_sources(s:sub_sources)
@@ -166,8 +173,8 @@ endfunction
 
 " Override default gather_candidates function where necessary.
 function! s:source_key.gather_candidates(args,context)
-    let prefix = g:unite_bibtex_bib_prefix
-    let suffix = g:unite_bibtex_bib_suffix
+    let prefix = g:unite_bibtex_outer_prefix . g:unite_bibtex_inner_prefix
+    let suffix = g:unite_bibtex_suffix
     return map(s:get_entries("key"),'{
     \   "word": v:val[1],
     \   "source": "bibtex/key",
@@ -175,7 +182,6 @@ function! s:source_key.gather_candidates(args,context)
     \   "action__text": prefix . v:val[0] . suffix,
     \ }')
 endfunction
-
 function! s:source_file.gather_candidates(args,context)
     return map(s:get_entries("file"),'{
     \   "word": v:val[1],
@@ -185,7 +191,6 @@ function! s:source_file.gather_candidates(args,context)
     \   "action__path": v:val[0],
     \ }')
 endfunction
-
 function! s:source_url.gather_candidates(args,context)
     return map(s:get_entries("url"),'{
     \   "word": v:val[1],

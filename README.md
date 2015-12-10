@@ -95,29 +95,45 @@ To preview, append, yank citation data from unite:
 1. Install [pybtex](http://pypi.python.org/pypi/pybtex) `sudo easy_install pybtex`
 1. Install [unite.vim](https://github.com/Shougo/unite.vim)
 1. Install this plugin
-1. Set variable 
+1. Set variables
 
     let g:unite_bibtex_bib_files=["/path/to/your/bib/file/library.bib"]
 
 1. Set your citation suffix and prefix. Pandoc markdown style is the default.
 
-    let g:unite_bibtex_bib_prefix = "[@"
-    let g:unite_bibtex_bib_suffix = "]"
+let g:unite_bibtex_bib_files=[]
+let g:unite_bibtex_outer_prefix="["
+let g:unite_bibtex_inner_prefix="@"
+
 
 ### Tweaks 
 
 Customise the unite display, using the names of bibtex sources and a python format string:
 
-    let g:unite_bibtex_description_format = "{}: {} \"{}\" {} ({})"
+    let g:unite_bibtex_description_format = "{}∶ {} \˝{}\˝ ₋{}₋ ₍{}₎"
     let g:unite_bibtex_description_fields = ["type", "key", "title", "author", "year"]
 
 or this one is nice for showing journal/publisher (citations rarely have both):
 
-    let g:unite_bibtex_description_format', "{}: {} \'{}\' {} |{}{}|"
-    let g:unite_bibtex_description_fields', ["type", "key", "title", "author", "publisher", "journal"]
+    let g:unite_bibtex_description_format="{}→ ′{}′ ₊{}₊ │{}{}│"
+    let g:unite_bibtex_description_fields=["key", "title", "author", "publisher", "journal"]
 
-All regions inside (), [], ||, "", '' or <> will be highlighted as will anything
-like "key2001name" or "word:"
+Highlighting picks up text between some weird characters. Nothing on the keyboard, as they will be in
+the citation text too. 
+
+Copy and paste in from this list:
+- Apostrophes and quotes  ˝‘’‛“”‟′″‴‵‶‷
+- Brackets                ⊂〔₍⁽     ⊃〕₎⁾ 
+- Arrows                  ◀◁<‹    ▶▷>› 
+- Blobs                   ♯♡◆◇◊○◎●◐◑∗∙⊙⊚⌂★☺☻▪■□▢▣▤▥▦▧▨▩
+- Tiny                    、。‸₊⁺∘♢☆☜☞♢☼
+- Bars                    ‖│┃┆∥┇┊┋
+- Dashes                  ‾⁻−₋‐⋯┄–—―∼┈─▭▬┉━┅₌⁼‗
+
+- And use these like a colon after words (notice that's not a normal colon)
+        ∶∷→⇒≫ 
+
+Tip: Use quotes near the middle.
 
 ### Troubleshooting
 
