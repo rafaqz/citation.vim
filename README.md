@@ -12,6 +12,8 @@ and urls directly from your citations or from a citation list. Browse all
 citation details, notes and abstracts within vim. Yank, insert or preview just
 about any of them.
 
+![Citation.vim screenshot](screenshot.png?raw=true "Citation.vim screenshot")
+
 Many thanks to termoshtt for unite-bibtex and smathot for gnotero and LibZotero code.
 
 
