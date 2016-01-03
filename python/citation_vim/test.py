@@ -1,5 +1,5 @@
 import sys
-sys.path.insert( 0, "/home/raf/.vim/plugged/unite-bibtex/python")
+sys.path.insert( 0, "/home/raf/.vim/plugged/citation.vim/python")
 from citation_vim.connect import Citation
 
 field = "title"

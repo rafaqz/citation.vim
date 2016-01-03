@@ -1,5 +1,5 @@
 "=============================================================================
-" FILE: autoload/unite/source/ciation.vim
+" FILE: autoload/unite/source/citation.vim
 " AUTHOR:  Rafael Schouten <rafaelschouten@gmail.com>, 
 " Forked From: unite-bibtex, Toshiki TERAMUREA
 " Last Modified: 8 Dec 2015.

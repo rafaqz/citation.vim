@@ -4,17 +4,16 @@ import os.path
 import string
 import json
 import sys
-sys.path.insert( 0, "/home/raf/.vim/plugged/unite-bibtex/python")
-from citation_vim.zotero.parser import zoteroParser
-from citation_vim.bibtex.parser import bibtexParser
 
 class Citation(object):
 
     @staticmethod
     def get_entries(field, file_path, file_format, desc_fields, desc_format):
         if file_format == "bibtex":
+            from citation_vim.bibtex.parser import bibtexParser
             parser = bibtexParser()
         elif file_format == "zotero":
+            from citation_vim.zotero.parser import zoteroParser
             parser = zoteroParser()
         else:
             print("g:citation_vim_file_format variable must be either 'zotero' or 'bibtex'")
@@ -40,5 +39,5 @@ class Citation(object):
         print(script_folder)
         sys.path.insert(0, script_folder)
 
-        return uniteBibtex.get_entries(field, file_path, file_format, desc_fields, desc_format)
+        return Citation.get_entries(field, file_path, file_format, desc_fields, desc_format)
 
