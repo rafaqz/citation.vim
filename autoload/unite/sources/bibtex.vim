@@ -28,12 +28,15 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-call unite#util#set_default('g:unite_bibtex_bib_files', [])
+call unite#util#set_default('g:unite_bibtex_file_paths', "")
+call unite#util#set_default('g:unite_bibtex_file_format', "bibtex")
 call unite#util#set_default('g:unite_bibtex_outer_prefix', "[")
 call unite#util#set_default('g:unite_bibtex_inner_prefix', "@")
 call unite#util#set_default('g:unite_bibtex_suffix', "]")
 call unite#util#set_default('g:unite_bibtex_description_format', "{}∶ {} ˝{}˝ ☆{}☆ ₍{}₎")
-call unite#util#set_default('g:unite_bibtex_description_fields', ["type", "key", "title", "author", "year"])
+call unite#util#set_default('g:unite_bibtex_description_fields', ["type", "key", "title", "author", "date"])
+
+let s:script_folder_path = escape( expand( '<sfile>:p:h' ), '\' )
 
 let s:has_supported_python = 0
 if has('python3')"
@@ -58,25 +61,24 @@ endif
 
 let s:sub_sources = [
 \ "abstract",
-\ "annote",
 \ "author",
 \ "combined",
+\ "date",
 \ "doi",
 \ "file",
 \ "isbn",
 \ "journal",
 \ "key",
 \ "language",
-\ "month",
-\ "number",
+\ "issue",
+\ "notes",
 \ "pages",
 \ "publisher",
-\ "shorttitle",
+\ "tags",
 \ "title",
 \ "type",
 \ "url",
-\ "volume",
-\ "year"
+\ "volume"
 \ ]
 
 " Build source variable and function programatically for all sub_sources.
@@ -95,6 +97,69 @@ function! s:construct_sources(sub_sources)
         \  \n   return s:map_entries('" . sub_source . "') 
         \  \n endfunction"
     endfor
+endfunction
+
+call s:construct_sources(s:sub_sources)
+
+" Return all sources (bibtex/sub_source) to Unite.
+function! unite#sources#bibtex#define() 
+    let l:sources = []
+    for sub_source in s:sub_sources
+        let l:sources += [s:source_{sub_source}]
+    endfor
+    return l:sources
+endfunction 
+
+
+" Map entries for unite.
+function! s:map_entries(field) 
+    return map(s:get_source(a:field),'{
+    \   "word": v:val[1],
+    \   "source": "bibtex",
+    \   "kind": "word",
+    \   "action__text": v:val[0],
+    \ }')
+endfunction
+
+" Get bibtex entries for a given field.
+function! s:get_source(field)
+    let l:out = []
+    if s:has_supported_python == 3
+      let l:out = py3eval("unite_bibtex.connect()")
+    elseif s:has_supported_python == 2
+      let l:out = pyeval("unite_bibtex.connect()")
+    endif
+    return l:out
+endfunction
+
+" Override default gather_candidates function where necessary.
+function! s:source_key.gather_candidates(args,context)
+    let prefix = g:unite_bibtex_outer_prefix . g:unite_bibtex_inner_prefix
+    let suffix = g:unite_bibtex_suffix
+    return map(s:get_source("key"),'{
+    \   "word": v:val[1],
+    \   "source": "bibtex/key",
+    \   "kind": "word",
+    \   "action__text": prefix . v:val[0] . suffix,
+    \ }')
+endfunction
+function! s:source_file.gather_candidates(args,context)
+    return map(s:get_source("file"),'{
+    \   "word": v:val[1],
+    \   "source": "bibtex/file",
+    \   "kind": ["word","file", "uri"],
+    \   "action__text": v:val[0],
+    \   "action__path": v:val[0],
+    \ }')
+endfunction
+function! s:source_url.gather_candidates(args,context)
+    return map(s:get_source("url"),'{
+    \   "word": v:val[1],
+    \   "source": "bibtex/url",
+    \   "kind": ["word","uri"],
+    \   "action__text": v:val[0],
+    \   "action__path": v:val[0],
+    \ }')
 endfunction
 
 let s:hooks = {}
@@ -137,69 +202,6 @@ function! s:hooks.syntax()
   highlight default link uniteSource__Bibtex_Year Define
   highlight default link uniteSource__Bibtex_Split SpecialComment
   highlight default link uniteSource__Bibtex_Tiny Identifier
-endfunction
-
-call s:construct_sources(s:sub_sources)
-
-" Return all sources (bibtex/sub_source) to Unite.
-function! unite#sources#bibtex#define() 
-    let l:sources = []
-    for sub_source in s:sub_sources
-        let l:sources += [s:source_{sub_source}]
-    endfor
-    return l:sources
-endfunction 
-
-
-" Map entries for unite.
-function! s:map_entries(field) 
-    return map(s:get_entries(a:field),'{
-    \   "word": v:val[1],
-    \   "source": "bibtex",
-    \   "kind": "word",
-    \   "action__text": v:val[0],
-    \ }')
-endfunction
-
-" Get bibtex entries for a given field.
-function! s:get_entries(field)
-    let l:out = []
-    if s:has_supported_python == 3
-      let l:out = py3eval("unite_bibtex.connect()")
-    elseif s:has_supported_python == 2
-      let l:out = pyeval("unite_bibtex.connect()")
-    endif
-    return l:out
-endfunction
-
-" Override default gather_candidates function where necessary.
-function! s:source_key.gather_candidates(args,context)
-    let prefix = g:unite_bibtex_outer_prefix . g:unite_bibtex_inner_prefix
-    let suffix = g:unite_bibtex_suffix
-    return map(s:get_entries("key"),'{
-    \   "word": v:val[1],
-    \   "source": "bibtex/key",
-    \   "kind": "word",
-    \   "action__text": prefix . v:val[0] . suffix,
-    \ }')
-endfunction
-function! s:source_file.gather_candidates(args,context)
-    return map(s:get_entries("file"),'{
-    \   "word": v:val[1],
-    \   "source": "bibtex/file",
-    \   "kind": ["word","file", "uri"],
-    \   "action__text": v:val[0],
-    \   "action__path": v:val[0],
-    \ }')
-endfunction
-function! s:source_url.gather_candidates(args,context)
-    return map(s:get_entries("url"),'{
-    \   "word": v:val[1],
-    \   "source": "bibtex/url",
-    \   "kind": ["word","uri"],
-    \   "action__text": v:val[0],
-    \   "action__path": v:val[0],
-    \ }')
 endfunction
 
 let &cpo = s:save_cpo
