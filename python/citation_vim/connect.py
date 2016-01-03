@@ -5,10 +5,10 @@ import string
 import json
 import sys
 sys.path.insert( 0, "/home/raf/.vim/plugged/unite-bibtex/python")
-from unite_bibtex.zotero.parser import zoteroParser
-from unite_bibtex.bibtex.parser import bibtexParser
+from citation_vim.zotero.parser import zoteroParser
+from citation_vim.bibtex.parser import bibtexParser
 
-class uniteBibtex(object):
+class Citation(object):
 
     @staticmethod
     def get_entries(field, file_path, file_format, desc_fields, desc_format):
@@ -17,7 +17,7 @@ class uniteBibtex(object):
         elif file_format == "zotero":
             parser = zoteroParser()
         else:
-            print("g:unite_bibtex_file_format variable must be either 'zotero' or 'bibtex'")
+            print("g:citation_vim_file_format variable must be either 'zotero' or 'bibtex'")
             return []
         entries = parser.load(field, file_path)
         output = []
@@ -30,10 +30,10 @@ class uniteBibtex(object):
     @staticmethod
     def connect():
         import vim
-        file_format = vim.eval("g:unite_bibtex_file_format")
-        file_path   = vim.eval("g:unite_bibtex_file_path")
-        desc_format = vim.eval("g:unite_bibtex_description_format")
-        desc_fields = vim.eval("g:unite_bibtex_description_fields")
+        file_format = vim.eval("g:citation_vim_file_format")
+        file_path   = vim.eval("g:citation_vim_file_path")
+        desc_format = vim.eval("g:citation_vim_description_format")
+        desc_fields = vim.eval("g:citation_vim_description_fields")
         field       = vim.eval("a:field")
         script_folder = vim.eval('s:script_folder_path')
         script_folder = os.path.join(script_folder, '../../../python') 

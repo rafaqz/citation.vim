@@ -1,17 +1,19 @@
-unite-bibtex
+citation.vim
 ============
 
-a BibTeX source for unite.vim
+A citation source for unite.vim
 
-Use your markdown documents as complete document manager - open referenced pdfs
+Imports zotero databases (with better_bibtex citation keys if available) or
+exported bibtex files.
+
+Use your markdown documents as a document manager - open referenced pdfs
 and urls directly from your citations or from a citation list. Browse all
 citation details, notes and abstracts within vim. Yank, insert or preview just
 about any of them.
 
-Best used with zotero automatically downloading pdfs, and automatically
-exporting with zotero_better_bibtex. Standard zotero bibtex will probably break
-everything...
-
+Best used with zotero automatically downloading pdfs. Automatically
+export bibtex files with zotero_better_bibtex exports or just use the zotero
+database directly. 
 
 ### Sources
 
@@ -32,20 +34,21 @@ bibtex/combined
 And everything else! Some more useful than others...
 
 bibtex/abstract
-bibtex/annote
 bibtex/author
+bibtex/date
 bibtex/doi
 bibtex/isbn
+bibtex/issue
 bibtex/journal
 bibtex/language
 bibtex/month
+bibtex/note
 bibtex/pages
 bibtex/publisher
-bibtex/shorttitle
+bibtex/tags
 bibtex/title
 bibtex/type
 bibtex/volume
-bibtex/year
 
 ### Examples mappings:
 
@@ -95,31 +98,40 @@ To preview, append, yank citation data from unite:
 
 ### Usage
 
-1. Install [pybtex](http://pypi.python.org/pypi/pybtex) `sudo easy_install pybtex`
 1. Install [unite.vim](https://github.com/Shougo/unite.vim)
 1. Install this plugin
-1. Set variables
+1. If you're using bibtex install [pybtex](http://pypi.python.org/pypi/pybtex)
 
-    let g:unite_bibtex_bib_files=["/path/to/your/bib/file/library.bib"]
+  `sudo easy_install pybtex`
+
+  - Set variables
+      let g:citation_vim_file_path=["/path/to/your/bib/file/library.bib"]
+      let g:citation_vim_file_format="bibtex"
+
+1. To use [zotero](http://pypi.python.org/pypi/pybtex)
+  - Set variables
+
+      let g:citation_vim_file_path=["/path/to/your/zotero/7XX8XX72/zotero/folder/"]
+      let g:citation_vim_file_format="zotero"
 
 1. Set your citation suffix and prefix. Pandoc markdown style is the default.
 
-let g:unite_bibtex_bib_files=[]
-let g:unite_bibtex_outer_prefix="["
-let g:unite_bibtex_inner_prefix="@"
+let g:citation_vim_outer_prefix="["
+let g:citation_vim_inner_prefix="@"
+let g:citation_vim_suffix="]"
 
 
 ### Tweaks 
 
 Customise the unite display, using the names of bibtex sources and a python format string:
 
-    let g:unite_bibtex_description_format = "{}∶ {} \˝{}\˝ ₋{}₋ ₍{}₎"
-    let g:unite_bibtex_description_fields = ["type", "key", "title", "author", "year"]
+    let g:citation_vim_description_format = "{}∶ {} \˝{}\˝ ₋{}₋ ₍{}₎"
+    let g:citation_vim_description_fields = ["type", "key", "title", "author", "year"]
 
 or this one is nice for showing journal/publisher (citations rarely have both):
 
-    let g:unite_bibtex_description_format="{}→ ′{}′ ₊{}₊ │{}{}│"
-    let g:unite_bibtex_description_fields=["key", "title", "author", "publisher", "journal"]
+    let g:citation_vim_description_format="{}→ ′{}′ ₊{}₊ │{}{}│"
+    let g:citation_vim_description_fields=["key", "title", "author", "publisher", "journal"]
 
 Highlighting picks up text between some weird characters. Nothing on the keyboard, as they will be in
 the citation text too. 
@@ -133,10 +145,13 @@ Copy and paste in from this list:
 - Bars                    ‖│┃┆∥┇┊┋
 - Dashes                  ‾⁻−₋‐⋯┄–—―∼┈─▭▬┉━┅₌⁼‗
 
-- And use these like a colon after words (notice that's not a normal colon)
+- And use these like a colon after words (notice that's not a normal colon!)
         ∶∷→⇒≫ 
 
-Tip: Use quotes near the middle.
+Tip: Use quoted fields near the middle. 
+
+Long lines will occasionally break the display. Its how unite works and theres
+not much we can do about it unfortunately.
 
 ### Troubleshooting
 

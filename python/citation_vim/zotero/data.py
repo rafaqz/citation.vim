@@ -112,7 +112,7 @@ class zoteroData(object):
 		else:
 			print(u"libzotero.__init__(): you appear to be running an unsupported OS")
 
-		self.database_copy = os.path.join(home_folder, u".unite_bibtex.sqlite")
+		self.database_copy = os.path.join(home_folder, u".citation_vim.sqlite")
 		# Remember search results so results speed up over time
 		self.search_cache = {}
 		# Check whether verbosity is turned on
@@ -142,7 +142,7 @@ class zoteroData(object):
 						if the local copy is up to date. (default=False)
 		"""
 
-		from unite_bibtex.zotero.item import zoteroItem
+		from citation_vim.zotero.item import zoteroItem
 
 		try:
 			stats = os.stat(self.zotero_database)

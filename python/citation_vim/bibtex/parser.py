@@ -2,7 +2,7 @@
 import os.path
 import sys
 from pybtex.database.input import bibtex
-from unite_bibtex.item import Item
+from citation_vim.item import Item
 
 class bibtexParser(object):
 

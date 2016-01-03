@@ -2,8 +2,8 @@
 
 import os
 import json
-from unite_bibtex.zotero.data import valid_location, zoteroData
-from unite_bibtex.item import Item
+from citation_vim.zotero.data import valid_location, zoteroData
+from citation_vim.item import Item
 
 class zoteroParser(object):
 
