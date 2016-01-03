@@ -8,12 +8,11 @@ import shutil
 import sys
 import time
 
-class LibZotero(object):
+class zoteroData(object):
 
 	"""
-	Libzotero provides access to the zotero database.
-	This is an object oriented reimplementation of the
-	original zoterotools.
+	Provides access to the zotero database.
+        Modified from gnoteros' LibZotero.
 	"""
 
 	attachment_query = u"""
@@ -143,7 +142,7 @@ class LibZotero(object):
 						if the local copy is up to date. (default=False)
 		"""
 
-		from zotero_item import zoteroItem as zotero_item
+		from unite_bibtex.zotero.item import zoteroItem
 
 		try:
 			stats = os.stat(self.zotero_database)
@@ -179,7 +178,7 @@ class LibZotero(object):
                                         ignored.append(item_id)
 				else:
 					if item_id not in self.index:
-						self.index[item_id] = zotero_item(item_id)
+						self.index[item_id] = zoteroItem(item_id)
 					self.index[item_id].type = item_type
 
 			# Retrieve information about date, publication, volume, issue and
@@ -222,7 +221,7 @@ class LibZotero(object):
 					else:
 						item_value = item[2]
 					if item_id not in self.index:
-						self.index[item_id] = zotero_item(item_id)
+						self.index[item_id] = zoteroItem(item_id)
 						self.index[item_id].key = key
 					if item_name == u"publicationTitle":
 						self.index[item_id].publication = str(item_value)
@@ -241,7 +240,7 @@ class LibZotero(object):
 				if item_id not in ignored:
 					item_author = item[1].title()
 					if item_id not in self.index:
-						self.index[item_id] = zotero_item(item_id)
+						self.index[item_id] = zoteroItem(item_id)
 					self.index[item_id].authors.append(item_author)
 			# Retrieve collection information
 			self.cur.execute(self.collection_query)
@@ -250,7 +249,7 @@ class LibZotero(object):
 				if item_id not in ignored:
 					item_collection = item[1]
 					if item_id not in self.index:
-						self.index[item_id] = zotero_item(item_id)
+						self.index[item_id] = zoteroItem(item_id)
 					self.index[item_id].collections.append(item_collection)
 					if item_collection not in self.collection_index:
 						self.collection_index.append(item_collection)
@@ -261,7 +260,7 @@ class LibZotero(object):
 				if item_id not in ignored:
 					item_tag = item[1]
 					if item_id not in self.index:
-						self.index[item_id] = zotero_item(item_id)
+						self.index[item_id] = zoteroItem(item_id)
 					self.index[item_id].tags.append(item_tag)
 					if item_tag not in self.tag_index:
 						self.tag_index.append(item_tag)
@@ -272,7 +271,7 @@ class LibZotero(object):
 				if item_id not in ignored:
 					item_note = item[1]
 					if item_id not in self.index:
-						self.index[item_id] = zotero_item(item_id)
+						self.index[item_id] = zoteroItem(item_id)
 					self.index[item_id].notes.append(item_note)
 					if item_note not in self.note_index:
 						self.note_index.append(item_note)
@@ -295,7 +294,7 @@ class LibZotero(object):
 							if item_attachment[-4:].lower() in \
 								self.attachment_ext:
 								if item_id not in self.index:
-									self.index[item_id] = zotero_item(item_id)
+									self.index[item_id] = zoteroItem(item_id)
 								self.cur.execute( \
 									u"select items.key from items where itemID = %d" \
 									% attachment_id)

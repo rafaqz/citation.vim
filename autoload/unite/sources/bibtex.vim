@@ -48,9 +48,9 @@ let s:plugin_path = escape(expand('<sfile>:h:h:h:h'), '\')
 
 if s:has_supported_python == 3
     echo s:plugin_path
-    exe 'py3file ' . s:plugin_path . '/src/unite_bibtex.py'
+    exe 'py3file ' . s:plugin_path . '/python/unite_bibtex/connect.py'
 elseif s:has_supported_python == 2
-    exe 'pyfile ' . s:plugin_path . '/src/unite_bibtex.py'
+    exe 'pyfile ' . s:plugin_path . '/python/unite_bibtex/connect.py'
 else
     function! s:DidNotLoad()
         echohl WarningMsg|echomsg "Unite bibtex unavailable: requires Vim 7.3+"|echohl None
@@ -125,9 +125,9 @@ endfunction
 function! s:get_source(field)
     let l:out = []
     if s:has_supported_python == 3
-      let l:out = py3eval("unite_bibtex.connect()")
+      let l:out = py3eval("uniteBibtex.connect()")
     elseif s:has_supported_python == 2
-      let l:out = pyeval("unite_bibtex.connect()")
+      let l:out = pyeval("uniteBibtex.connect()")
     endif
     return l:out
 endfunction
