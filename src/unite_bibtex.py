@@ -104,7 +104,7 @@ class unite_bibtex(object):
                         continue
                 print(entry.type)
 
-                item = unite_bibtex.Item(key,entry.type)
+                item = unite_bibtex.Item()
                 item.abstract  = self.get_field(entry, "abstract")
                 item.author    = self.format_author(entry)
                 item.date      = self.get_field(entry, "month") + self.get_field(entry, "year")
@@ -112,7 +112,7 @@ class unite_bibtex(object):
                 item.file      = self.format_file(entry)
                 item.isbn      = self.get_field(entry, "isbn")
                 item.journal   = self.get_field(entry, "journal")
-                # item.key       = key,
+                item.key       = key,
                 item.language  = self.get_field(entry, "language")
                 item.issue     = self.get_field(entry, "number")
                 item.notes     = self.get_field(entry, "annote")
@@ -120,7 +120,7 @@ class unite_bibtex(object):
                 item.publisher = self.get_field(entry, "publisher")
                 item.tags      = self.get_field(entry, "keyword")
                 item.title     = self.get_field(entry, "title")
-                # item.type      = entry.type,
+                item.type      = entry.type,
                 item.url       = self.get_field(entry, "url")
                 item.volume    = self.get_field(entry, "volume")
                 item.combine()
