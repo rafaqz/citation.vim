@@ -52,6 +52,41 @@ citation/title
 citation/type
 citation/volume
 
+### Requirements
+
+- Vim with python2 or python3 scripting enabled.
+- [unite.vim](https://github.com/Shougo/unite.vim)
+
+Bibtex
+- [pybtex](http://pypi.python.org/pypi/pybtex): A citation-compatible bibliography processor in Python
+
+### Usage
+
+1. Install [unite.vim](https://github.com/Shougo/unite.vim)
+1. Install this plugin in vim however you like to do that.
+1. If you're using bibtex install [pybtex](http://pypi.python.org/pypi/pybtex)
+
+  `sudo easy_install pybtex`
+
+  - Set variables
+      let g:citation_vim_file_path=["/path/to/your/bib/file/library.bib"]
+      let g:citation_vim_file_format="citation"
+
+1. To use [zotero](http://pypi.python.org/pypi/pybtex)
+  - Set variables
+
+      let g:citation_vim_file_path=["/path/to/your/zotero/7XX8XX72/zotero/folder/"]
+      let g:citation_vim_file_format="zotero"
+
+1. Set your citation suffix and prefix. Pandoc markdown style is the default.
+
+let g:citation_vim_outer_prefix="["
+let g:citation_vim_inner_prefix="@"
+let g:citation_vim_suffix="]"
+
+1. Set some mappings. Copy and paste the following examples into your vimrc to get started.
+
+
 ### Examples mappings:
 
 Set a unite leader:
@@ -91,36 +126,6 @@ To preview, append, yank citation data from unite:
     nnoremap <silent>[unite]cc :<C-u>Unite -buffer-name=citation -start-insert -default-action=preview              bibtex/combined<cr>
 
 
-
-### Requirements
-
-- Vim with python2 or python3 scripting enabled.
-- [unite.vim](https://github.com/Shougo/unite.vim)
-- [pybtex](http://pypi.python.org/pypi/pybtex): A citation-compatible bibliography processor in Python
-
-### Usage
-
-1. Install [unite.vim](https://github.com/Shougo/unite.vim)
-1. Install this plugin
-1. If you're using citation install [pybtex](http://pypi.python.org/pypi/pybtex)
-
-  `sudo easy_install pybtex`
-
-  - Set variables
-      let g:citation_vim_file_path=["/path/to/your/bib/file/library.bib"]
-      let g:citation_vim_file_format="citation"
-
-1. To use [zotero](http://pypi.python.org/pypi/pybtex)
-  - Set variables
-
-      let g:citation_vim_file_path=["/path/to/your/zotero/7XX8XX72/zotero/folder/"]
-      let g:citation_vim_file_format="zotero"
-
-1. Set your citation suffix and prefix. Pandoc markdown style is the default.
-
-let g:citation_vim_outer_prefix="["
-let g:citation_vim_inner_prefix="@"
-let g:citation_vim_suffix="]"
 
 
 ### Tweaks 
