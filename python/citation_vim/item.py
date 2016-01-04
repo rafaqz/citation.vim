@@ -26,20 +26,23 @@ class Item(object):
             self.isbn, 
             self.notes)
 
-    def describe(self, field, desc_fields, desc_format):
-        eval_fields = []
-        source_field = ""
-        if not field in desc_fields + ["combined","file"]:
-            source_field = "【" + eval("self." + field) + "】"
+    def describe(self, source_field, desc_fields, desc_format):
+        desc_strings = []
+        source_string = ""
         for desc_field in desc_fields:
             try:
-                eval("self." + desc_field)
+                getattr(self, desc_field)
             except AttributeError:
-                return 'Erro at "{}" field of g:unite_bibtex_description_fields. Check your vimrc.'.format(desc_field)
-            eval_fields = eval_fields + [eval("self." + desc_field)]
-        if field in desc_fields:
-            index = desc_fields.index(field)
-            f = eval_fields[index]
-            eval_fields[index] = "【" + f + "】"
-        return desc_format.format(*eval_fields) + " " + source_field
+                return 'Error at "{}" field of g:unite_bibtex_description_fields. Check your vimrc.'.format(desc_field)
+            desc_strings = desc_strings + [getattr(self, desc_field)]
+
+        if source_field in desc_fields:
+            index = desc_fields.index(source_field)
+            f = desc_strings[index]
+            desc_strings[index] = "【" + f + "】"
+        else:
+            if not source_field in ["combined","file"]:
+                source_string = " 【" + getattr(self, source_field) + "】"
+
+        return desc_format.format(*desc_strings) + source_field
 

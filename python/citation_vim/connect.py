@@ -22,7 +22,7 @@ class Citation(object):
         output = []
         for entry in entries:
             desc = entry.describe(field, desc_fields, desc_format)
-            output.append([eval("entry." + field), desc])
+            output.append([getattr(entry, field), desc])
         return output
 
 
