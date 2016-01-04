@@ -35,6 +35,15 @@ call unite#util#set_default('g:citation_vim_inner_prefix', "@")
 call unite#util#set_default('g:citation_vim_suffix', "]")
 call unite#util#set_default('g:citation_vim_description_format', "{}∶ {} ˝{}˝ ☆{}☆ ₍{}₎")
 call unite#util#set_default('g:citation_vim_description_fields', ["type", "key", "title", "author", "date"])
+call unite#util#set_default('g:citation_vim_dash', "‾⁻−₋‐⋯┄–—―∼┈─▭▬┉━┅₌⁼‗")
+call unite#util#set_default('g:citation_vim_bar', "‖│┃┆∥┇┊┋")
+call unite#util#set_default('g:citation_vim_bracket', "⊂〔₍⁽⊃〕₎⁾")
+call unite#util#set_default('g:citation_vim_arrow', "◀◁<‹▶▷>›")
+call unite#util#set_default('g:citation_vim_source', "【】")
+call unite#util#set_default('g:citation_vim_colon', "∶∷→⇒≫")
+call unite#util#set_default('g:citation_vim_blob', "♯♡◆◇◊○◎●◐◑∗∙⊙⊚⌂★☺☻▪■□▢▣▤▥▦▧▨▩")
+call unite#util#set_default('g:citation_vim_tiny', "、。‸₊⁺∘♢☆☜☞♢☼")
+call unite#util#set_default('g:citation_vim_text', "˝‘’‛“”‟′″‴‵‶‷")
 
 let s:script_folder_path = escape( expand( '<sfile>:p:h' ), '\' )
 
@@ -164,38 +173,49 @@ endfunction
 
 let s:hooks = {}
 function! s:hooks.syntax()
-  syntax region uniteSource__Citation_Text start=+[˝‘’‛“”‟′″‴‵‶‷]+ end=+[˝‘’‛“”‟′″‴‵‶‷]\|.[∶∷→⇒≫⊂⊃〔〕₍₎⁽⁾◁▷◀▶<>‹›♯♡♢◆◇◊○◎●◐◑∗∘∙⊙⊚⌂★☆☜☞☺☻☼₊⁺▪■□▢▣▤▥▦▧▨▩]+ 
+  let arrow = g:citation_vim_arrow
+  let source_field = g:citation_vim_source
+  let blob = g:citation_vim_blob
+  let colon = g:citation_vim_colon
+  let tiny = g:citation_vim_tiny
+  let bar = g:citation_vim_bar
+  let dash = g:citation_vim_dash
+  let bracket = g:citation_vim_bracket
+  let text = g:citation_vim_text
+
+  execute "syntax region uniteSource__Citation_Text start=/[" . text . "]/ end=/[" . text . "]/
         \ contains=uniteSource__Citation_Field,uniteSource__Citation_Split
         \ ,uniteSource__Citation_Arrow, uniteSource__Citation_Bar,uniteSource__Citation_Bracket   
-        \ containedin=uniteSource__Citation
+        \ containedin=uniteSource__Citation"
+  execute "syntax region uniteSource__Citation_Source start=/[" . source_field . "]/ end=/[" . source_field . "]/
+	 		        \ containedin=uniteSource__Citation"
+  execute 'syntax match uniteSource__Citation_Colon "\<\w*[' . colon . ']" 
+			        \ contained containedin=uniteSource__Citation'
+  execute "syntax region uniteSource__Citation_Bracket start=/[" . bracket . "]/ end=/[" . bracket . "]/ 
+			        \ containedin=uniteSource__Citation"
+  execute "syntax region uniteSource__Citation_Arrow start=/[" . arrow . "]/ end=/[" . arrow . "]/
+			        \ containedin=uniteSource__Citation"
+  execute "syntax region uniteSource__Citation_Blob start=/[" . blob . "]/ end=/[" . blob . "]/
+			        \ containedin=uniteSource__Citation"
+  execute "syntax region uniteSource__Citation_Tiny start=/[" . tiny . "]/ end=/[" . tiny . "]/
+			        \ containedin=uniteSource__Citation"
+  execute "syntax region uniteSource__Citation_Bar start=/[" . bar . "]/ end=/[" . bar . "]/
+			        \ containedin=uniteSource__Citation"
+  execute "syntax region uniteSource__Citation_Dash start=/[" . dash . "]/ end=/[" . dash . "]/
+			        \ containedin=uniteSource__Citation"
   syntax match uniteSource__Citation_Key "\<[\w-]\+\d\{4}[\w-]*\>\|\<\w*\d\{4}\w\+\>" contained
 			        \ containedin=uniteSource__Citation
               \ contains=uniteSource__Citation_Year
-  syntax region uniteSource__Citation_Field start='【' end='】'
-			        \ containedin=uniteSource__Citation
-  syntax match uniteSource__Citation_Type "\<\w*[∶∷→⇒≫]" 
-			        \ contained containedin=uniteSource__Citation
-  syntax region uniteSource__Citation_Bracket start='[⊂〔₍⁽]' end='[⊃〕₎⁾]' 
-			        \ containedin=uniteSource__Citation
-  syntax region uniteSource__Citation_Arrows start='[◀◁<‹]' end='[▶▷>›]' 
-			        \ containedin=uniteSource__Citation
-  syntax region uniteSource__Citation_Blob start='[♯♡◆◇◊○◎●◐◑∗∙⊙⊚⌂★☺☻▪■□▢▣▤▥▦▧▨▩]' end='[♯♡◆◇◊○◎●◐◑∗∙⊙⊚⌂★☺☻▪■□▢▣▤▥▦▧▨▩]' 
-			        \ containedin=uniteSource__Citation
-  syntax region uniteSource__Citation_Tiny start='[、。‸₊⁺∘♢☆☜☞♢☼]' end='[、。‸₊⁺∘☆☜☞♢☼]'
-			        \ containedin=uniteSource__Citation
-  syntax region uniteSource__Citation_Bar start='[‖│┃┆∥┇┊┋]' end='[‖│┃┆∥┇┊┋]'
-			        \ containedin=uniteSource__Citation
-  syntax region uniteSource__Citation_Dash start='[‾⁻−₋‐⋯┄–—―∼┈─▭▬┉━┅₌⁼‗]' end='[‾⁻−₋‐⋯┄–—―∼┈─▭▬┉━┅₌⁼‗]'
-			        \ containedin=uniteSource__Citation
   syntax match uniteSource__Citation_Split "\.\{2}" contained
 			        \ containedin=uniteSource__Citation
   syntax match uniteSource__Citation_Year "\d\{4}" contained
-  highlight default link uniteSource__Citation_Type Type
+
+  highlight default link uniteSource__Citation_Colon Type
   highlight default link uniteSource__Citation_Text Comment
   highlight default link uniteSource__Citation_Key Special
   highlight default link uniteSource__Citation_Bracket Number
-  highlight default link uniteSource__Citation_Field Error
-  highlight default link uniteSource__Citation_Arrows Underlined
+  highlight default link uniteSource__Citation_Source Error
+  highlight default link uniteSource__Citation_Arrow Underlined
   highlight default link uniteSource__Citation_Bar Conditional
   highlight default link uniteSource__Citation_Blob Define
   highlight default link uniteSource__Citation_Dash Function
