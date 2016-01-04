@@ -31,7 +31,7 @@ class zoteroParser(object):
         for zot_id, zot_entry in zot_data:
 
             item = Item()
-            item.abstract  = zot_entry.abstract,
+            item.abstract  = zot_entry.abstract
             item.author    = zot_entry.format_author()
             item.date      = zot_entry.date
             item.doi       = zot_entry.doi

@@ -23,9 +23,9 @@ class bibtexParser(object):
 
         for key in bib_data.entries:
             bib_entry = bib_data.entries[key]
-            if not field in ['author','key','combined'] and not field in bib_entry.fields:
+            if not source_field in ['author','key','combined'] and not source_field in bib_entry.fields:
                 continue
-            if field == 'author': 
+            if source_field == 'author': 
                 try:
                     bib_entry.persons[u'author']
                 except:
@@ -39,7 +39,7 @@ class bibtexParser(object):
             item.file      = self.format_file(bib_entry)
             item.isbn      = self.get_field(bib_entry, "isbn")
             item.journal   = self.get_field(bib_entry, "journal")
-            item.key       = key,
+            item.key       = key
             item.language  = self.get_field(bib_entry, "language")
             item.issue     = self.get_field(bib_entry, "number")
             item.notes     = self.get_field(bib_entry, "annote")
@@ -47,7 +47,7 @@ class bibtexParser(object):
             item.publisher = self.get_field(bib_entry, "publisher")
             item.tags      = self.get_field(bib_entry, "keyword")
             item.title     = self.get_field(bib_entry, "title")
-            item.type      = bib_entry.type,
+            item.type      = bib_entry.type
             item.url       = self.get_field(bib_entry, "url")
             item.volume    = self.get_field(bib_entry, "volume")
             item.combine()
