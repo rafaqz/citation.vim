@@ -1,5 +1,7 @@
 import sys
-sys.path.insert( 0, "/home/raf/.vim/plugged/citation.vim/python")
+import os.path
+module_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir)
+sys.path.insert(0, module_path)
 from citation_vim.connect import Citation
 
 field = "title"
