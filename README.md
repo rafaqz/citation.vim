@@ -3,14 +3,13 @@ citation.vim
 
 A citation source for unite.vim
 
-Citation.vim Imports zotero databases (with better_citation citation keys if
+Citation.vim Imports zotero databases (with better_bibtex citation keys if
 available) or exported bibtex files and inserts/runs/does whatever you want with
-them using Unite.vim 
+them using Unite.vim.
 
 It also allows you to use your documents as file managers - open referenced pdfs
-and urls directly from your citations or from a citation list. Browse all
-citation details, notes and abstracts within vim. Yank, insert or preview just
-about any of them.
+and urls directly from your citations or from the citation list. Browse all
+citation details, notes and abstracts within vim. Yank, insert or preview .
 
 ![Citation.vim screenshot](screenshot.png?raw=true "Citation.vim screenshot")
 
@@ -23,7 +22,7 @@ This plugin provides a *lot* of unite sources.
 
 citation/key
 - returns the citation key string like [@smith2004] to be used as a reference.
-- customisable prefix and suffix for latex/pandoc citations
+- customisable prefix and suffix to produce latex/pandoc etc. citation styles
 
 citation/file
 - Returns the file attached to a citation, great for opening pdfs from vim
@@ -136,7 +135,7 @@ or this one is nice for showing journal/publisher (citations rarely have both):
 Highlighting picks up text between some weird characters. Nothing on the keyboard, as they will be in
 the citation text too. 
 
-Copy and paste in from this list:
+Copy and paste characters from this list:
 - Apostrophes and quotes  ˝‘’‛“”‟′″‴‵‶‷
 - Brackets                ⊂〔₍⁽     ⊃〕₎⁾ 
 - Arrows                  ◀◁<‹    ▶▷>› 
@@ -148,10 +147,8 @@ Copy and paste in from this list:
 - And use these like a colon after words (notice that's not a normal colon!)
         ∶∷→⇒≫ 
 
-Tip: Use quoted fields near the middle. 
-
-Long lines will occasionally break the display. Its how unite works and theres
-not much we can do about it unfortunately.
+Long lines will occasionally break the display colors. It's a quirk of how unite
+shortens lines.
 
 ### Troubleshooting
 
