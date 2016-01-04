@@ -99,8 +99,6 @@ class zoteroData(object):
         """
 
         assert(isinstance(zotero_path, str))
-        print(u"libzotero.__init__(): zotero_path = %s" % bytes(zotero_path,
-            'utf-8'))
         # Set paths
         self.zotero_path = zotero_path
         self.storage_path = os.path.join(self.zotero_path, u"storage")
@@ -239,8 +237,12 @@ class zoteroData(object):
                         self.index[item_id].volume = item_value
                     elif item_name == u"issue":
                         self.index[item_id].issue = item_value
+                    elif item_name == u"pages":
+                        self.index[item_id].pages = item_value
                     elif item_name == u"title":
                         self.index[item_id].title = str(item_value)
+                    elif item_name == u"abstractNote":
+                        self.index[item_id].abstract = str(item_value)
             # Retrieve author information
             self.cur.execute(self.author_query)
             for item in self.cur.fetchall():

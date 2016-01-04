@@ -44,7 +44,7 @@ class zoteroItem(object):
         """
 
         if self.authors == []:
-            return u"Unkown author"
+            return ""
         if len(self.authors) > 5:
             return u"%s et al." % self.authors[0]
         if len(self.authors) > 2:

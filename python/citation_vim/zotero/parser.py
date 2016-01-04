@@ -22,33 +22,33 @@ class zoteroParser(object):
 
         try:
             zotero = zoteroData(file_path)
-            data = zotero.load()
+            zot_data = zotero.load()
         except Exception as e:
             print("Failed to read {}".format(file_path))
             print("Message: {}".format(str(e)))
 
         items = []
-        for entry_id, entry in data:
+        for zot_id, zot_entry in zot_data:
 
             item = Item()
-            item.abstract  = entry.abstract,
-            item.author    = entry.format_author()
-            item.date      = entry.date
-            item.doi       = entry.doi
-            item.file      = entry.fulltext
-            item.isbn      = entry.isbn
-            item.journal   = entry.publication
-            item.key       = self.format_key(entry.id, entry.key)
-            item.language  = entry.language
-            item.issue     = entry.issue
-            item.notes     = entry.format_notes()
-            item.pages     = entry.pages
-            item.publisher = entry.publisher
-            item.tags      = entry.format_tags()
-            item.title     = entry.title
-            item.type      = entry.type
-            item.url       = entry.url
-            item.volume    = entry.volume
+            item.abstract  = zot_entry.abstract,
+            item.author    = zot_entry.format_author()
+            item.date      = zot_entry.date
+            item.doi       = zot_entry.doi
+            item.file      = zot_entry.fulltext
+            item.isbn      = zot_entry.isbn
+            item.journal   = zot_entry.publication
+            item.key       = self.format_key(zot_entry.id, zot_entry.key)
+            item.language  = zot_entry.language
+            item.issue     = zot_entry.issue
+            item.notes     = zot_entry.format_notes()
+            item.pages     = zot_entry.pages
+            item.publisher = zot_entry.publisher
+            item.tags      = zot_entry.format_tags()
+            item.title     = zot_entry.title
+            item.type      = zot_entry.type
+            item.url       = zot_entry.url
+            item.volume    = zot_entry.volume
             item.combine()
             
             items.append(item)

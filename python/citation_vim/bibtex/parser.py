@@ -14,43 +14,42 @@ class bibtexParser(object):
         """
         items = []
         try:
-            path = self._check_path(file_path)
-            data = self._read_file(path)
+            bib_path = self._check_path(file_path)
+            bib_data = self._read_file(bib_path)
         except Exception as e:
             print("Failed to read {}".format(file_path))
             print("Message: {}".format(str(e)))
             return []
 
-        for key in data.entries:
-            entry = data.entries[key]
-            if not field in ['author','key','combined'] and not field in entry.fields:
+        for key in bib_data.entries:
+            bib_entry = bib_data.entries[key]
+            if not field in ['author','key','combined'] and not field in bib_entry.fields:
                 continue
             if field == 'author': 
                 try:
-                    entry.persons[u'author']
+                    bib_entry.persons[u'author']
                 except:
                     continue
-            print(entry.type)
 
             item = Item()
-            item.abstract  = self.get_field(entry, "abstract")
-            item.author    = self.format_author(entry)
-            item.date      = self.get_field(entry, "month") + self.get_field(entry, "year")
-            item.doi       = self.get_field(entry, "doi")
-            item.file      = self.format_file(entry)
-            item.isbn      = self.get_field(entry, "isbn")
-            item.journal   = self.get_field(entry, "journal")
+            item.abstract  = self.get_field(bib_entry, "abstract")
+            item.author    = self.format_author(bib_entry)
+            item.date      = self.get_field(bib_entry, "month") + self.get_field(bib_entry, "year")
+            item.doi       = self.get_field(bib_entry, "doi")
+            item.file      = self.format_file(bib_entry)
+            item.isbn      = self.get_field(bib_entry, "isbn")
+            item.journal   = self.get_field(bib_entry, "journal")
             item.key       = key,
-            item.language  = self.get_field(entry, "language")
-            item.issue     = self.get_field(entry, "number")
-            item.notes     = self.get_field(entry, "annote")
-            item.pages     = self.get_field(entry, "pages")
-            item.publisher = self.get_field(entry, "publisher")
-            item.tags      = self.get_field(entry, "keyword")
-            item.title     = self.get_field(entry, "title")
-            item.type      = entry.type,
-            item.url       = self.get_field(entry, "url")
-            item.volume    = self.get_field(entry, "volume")
+            item.language  = self.get_field(bib_entry, "language")
+            item.issue     = self.get_field(bib_entry, "number")
+            item.notes     = self.get_field(bib_entry, "annote")
+            item.pages     = self.get_field(bib_entry, "pages")
+            item.publisher = self.get_field(bib_entry, "publisher")
+            item.tags      = self.get_field(bib_entry, "keyword")
+            item.title     = self.get_field(bib_entry, "title")
+            item.type      = bib_entry.type,
+            item.url       = self.get_field(bib_entry, "url")
+            item.volume    = self.get_field(bib_entry, "volume")
             item.combine()
 
             items.append(item)

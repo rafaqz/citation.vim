@@ -36,7 +36,6 @@ class Citation(object):
         field       = vim.eval("a:field")
         script_folder = vim.eval('s:script_folder_path')
         script_folder = os.path.join(script_folder, '../../../python') 
-        print(script_folder)
         sys.path.insert(0, script_folder)
 
         return Citation.get_entries(field, file_path, file_format, desc_fields, desc_format)
