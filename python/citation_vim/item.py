@@ -27,22 +27,24 @@ class Item(object):
             self.notes)
 
     def describe(self, source_field, desc_fields, desc_format):
+        # Get strings for description fields.
         desc_strings = []
-        source_string = ""
         for desc_field in desc_fields:
             try:
                 getattr(self, desc_field)
             except AttributeError:
                 return 'Error at "{}" field of g:unite_bibtex_description_fields. Check your vimrc.'.format(desc_field)
-            desc_strings = desc_strings + [getattr(self, desc_field)]
 
+            desc_strings.append(getattr(self, desc_field))
+
+        # Insert the source field if not present in the description,
+        # and put brackets around it wherever it is.
+        source_string = ""
         if source_field in desc_fields:
-            index = desc_fields.index(source_field)
-            f = desc_strings[index]
-            desc_strings[index] = "【" + f + "】"
+            source_index = desc_fields.index(source_field)
+            desc_strings[source_index] = "【{}】".format(desc_strings[source_index]) 
         else:
             if not source_field in ["combined","file"]:
-                source_string = " 【" + getattr(self, source_field) + "】"
+                source_string = " 【{}】".format(getattr(self, source_field))
 
-        return desc_format.format(*desc_strings) + source_field
-
+        return desc_format.format(*desc_strings) + source_string
