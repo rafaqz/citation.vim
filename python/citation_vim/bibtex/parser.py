@@ -6,7 +6,7 @@ from citation_vim.item import Item
 
 class bibtexParser(object):
 
-    def load(self, field, file_path):
+    def load(self, source_field, file_path):
 
         """
         Returns: 
@@ -51,8 +51,8 @@ class bibtexParser(object):
             item.url       = self.get_field(bib_entry, "url")
             item.volume    = self.get_field(bib_entry, "volume")
             item.combine()
-
-            items.append(item)
+            if not getattr(item, source_field) == "":
+                items.append(item)
         return items
 
     def _read_file(self, filename):

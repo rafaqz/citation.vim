@@ -12,7 +12,7 @@ class zoteroParser(object):
     A zotero database as an array of Items.
     """
 
-    def load(self, field, file_path):
+    def load(self, source_field, file_path):
 
         if not valid_location(file_path):
             print("{} is not a valid zotero path".format(file_path))
@@ -50,8 +50,8 @@ class zoteroParser(object):
             item.url       = zot_entry.url
             item.volume    = zot_entry.volume
             item.combine()
-            
-            items.append(item)
+            if not getattr(item, source_field) == "":
+                items.append(item)
         return items
 
 
