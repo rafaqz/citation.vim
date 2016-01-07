@@ -35,15 +35,15 @@ call unite#util#set_default('g:citation_vim_inner_prefix', "@")
 call unite#util#set_default('g:citation_vim_suffix', "]")
 call unite#util#set_default('g:citation_vim_description_format', "{}∶ {} ˝{}˝ ☆{}☆ ₍{}₎")
 call unite#util#set_default('g:citation_vim_description_fields', ["type", "key", "title", "author", "date"])
-call unite#util#set_default('g:citation_vim_dash', "‾⁻−₋‐⋯┄–—―∼┈─▭▬┉━┅₌⁼‗")
-call unite#util#set_default('g:citation_vim_bar', "‖│┃┆∥┇┊┋")
-call unite#util#set_default('g:citation_vim_bracket', "⊂〔₍⁽⊃〕₎⁾")
-call unite#util#set_default('g:citation_vim_arrow', "◀◁<‹▶▷>›")
-call unite#util#set_default('g:citation_vim_source', "【】")
-call unite#util#set_default('g:citation_vim_colon', "∶∷→⇒≫")
-call unite#util#set_default('g:citation_vim_blob', "♯♡◆◇◊○◎●◐◑∗∙⊙⊚⌂★☺☻▪■□▢▣▤▥▦▧▨▩")
-call unite#util#set_default('g:citation_vim_tiny', "、。‸₊⁺∘♢☆☜☞♢☼")
-call unite#util#set_default('g:citation_vim_text', "˝‘’‛“”‟′″‴‵‶‷")
+call unite#util#set_default('g:citation_vim_highlight_dash', "‾⁻−₋‐⋯┄–—―∼┈─▭▬┉━┅₌⁼‗")
+call unite#util#set_default('g:citation_vim_highlight_bar', "‖│┃┆∥┇┊┋")
+call unite#util#set_default('g:citation_vim_highlight_bracket', "⊂〔₍⁽⊃〕₎⁾")
+call unite#util#set_default('g:citation_vim_highlight_arrow', "◀◁<‹▶▷>›")
+call unite#util#set_default('g:citation_vim_source_wrap', "【】")
+call unite#util#set_default('g:citation_vim_highlight_colon', "∶∷→⇒≫")
+call unite#util#set_default('g:citation_vim_highlight_blob', "♯♡◆◇◊○◎●◐◑∗∙⊙⊚⌂★☺☻▪■□▢▣▤▥▦▧▨▩")
+call unite#util#set_default('g:citation_vim_highlight_tiny', "、。‸₊⁺∘♢☆☜☞♢☼")
+call unite#util#set_default('g:citation_vim_highlight_text', "˝‘’‛“”‟′″‴‵‶‷")
 
 let s:script_folder_path = escape( expand( '<sfile>:p:h' ), '\' )
 
@@ -107,7 +107,6 @@ function! s:construct_sources(sub_sources)
         \  \n endfunction"
     endfor
 endfunction
-
 call s:construct_sources(s:sub_sources)
 
 " Return all sources (citation/sub_source) to Unite.
@@ -118,7 +117,6 @@ function! unite#sources#citation#define()
     endfor
     return l:sources
 endfunction 
-
 
 " Map entries for unite.
 function! s:map_entries(field) 
@@ -161,27 +159,18 @@ function! s:source_file.gather_candidates(args,context)
     \   "action__path": v:val[0],
     \ }')
 endfunction
-function! s:source_url.gather_candidates(args,context)
-    return map(s:get_source("url"),'{
-    \   "word": v:val[1],
-    \   "source": "citation/url",
-    \   "kind": ["word","uri"],
-    \   "action__text": v:val[0],
-    \   "action__path": v:val[0],
-    \ }')
-endfunction
 
 let s:hooks = {}
 function! s:hooks.syntax()
-  let arrow = g:citation_vim_arrow
-  let source_field = g:citation_vim_source
-  let blob = g:citation_vim_blob
-  let colon = g:citation_vim_colon
-  let tiny = g:citation_vim_tiny
-  let bar = g:citation_vim_bar
-  let dash = g:citation_vim_dash
-  let bracket = g:citation_vim_bracket
-  let text = g:citation_vim_text
+  let arrow = g:citation_vim_highlight_arrow
+  let source_field = g:citation_vim_source_wrap
+  let blob = g:citation_vim_highlight_blob
+  let colon = g:citation_vim_highlight_colon
+  let tiny = g:citation_vim_highlight_tiny
+  let bar = g:citation_vim_highlight_bar
+  let dash = g:citation_vim_highlight_dash
+  let bracket = g:citation_vim_highlight_bracket
+  let text = g:citation_vim_highlight_text
 
   execute "syntax region uniteSource__Citation_Text start=/[" . text . "]/ end=/[" . text . "]/
         \ contains=uniteSource__Citation_Field,uniteSource__Citation_Split

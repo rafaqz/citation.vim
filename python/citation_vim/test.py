@@ -9,7 +9,8 @@ file_path = sys.argv[1]
 file_format = sys.argv[2]
 desc_format = "{}∶ {} ˝{}˝ ☆{}☆ ₍{}₎"
 desc_fields = ["type", "key", "title", "author", "date"]
-items = Citation.get_entries(field, file_path, file_format, desc_fields, desc_format)
+wrap_chars = "[]"
+items = Citation.get_entries(field, file_path, file_format, desc_fields, desc_format, wrap_chars)
 for field, desc in items:
     print(field)
     print(desc)
