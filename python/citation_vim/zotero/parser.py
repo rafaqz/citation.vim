@@ -37,7 +37,7 @@ class zoteroParser(object):
             item.doi       = zot_entry.doi
             item.file      = zot_entry.fulltext
             item.isbn      = zot_entry.isbn
-            item.journal   = zot_entry.publication
+            item.publication   = zot_entry.publication
             item.key       = self.format_key(zot_entry.id, zot_entry.key)
             item.language  = zot_entry.language
             item.issue     = zot_entry.issue

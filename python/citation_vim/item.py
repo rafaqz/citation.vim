@@ -7,7 +7,7 @@ class Item(object):
     """
 
     def combine(self):
-        self.combined = u"\n[{}]\nKey: {}\nTitle: {}\nAuthor(s): {}\nDate: {}\nTags:{}\nAbstract: {}\nJournal: {}\nIssue: {}\nVolume: {}\nPages: {}\nPublisher: {}\nLang: {}\nFile(s): {}\nURL:{}\nDOI:{}\nISBN:{}\nAnnotation: {}".format(
+        self.combined = u"\n[{}]\nKey: {}\nTitle: {}\nAuthor(s): {}\nDate: {}\nTags:{}\nAbstract: {}\nPublication: {}\nIssue: {}\nVolume: {}\nPages: {}\nPublisher: {}\nLang: {}\nFile(s): {}\nURL:{}\nDOI:{}\nISBN:{}\nNotes: {}".format(
             self.type,
             self.key,
             self.title,
@@ -15,7 +15,7 @@ class Item(object):
             self.date,
             self.tags,
             self.abstract,
-            self.journal, 
+            self.publication, 
             self.issue, 
             self.volume, 
             self.pages, 

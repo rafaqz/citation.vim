@@ -76,7 +76,7 @@ let s:sub_sources = [
 \ "doi",
 \ "file",
 \ "isbn",
-\ "journal",
+\ "publication",
 \ "key",
 \ "language",
 \ "issue",

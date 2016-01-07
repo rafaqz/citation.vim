@@ -31,7 +31,7 @@ class bibtexParser(object):
             item.doi       = self.get_field(bib_entry, "doi")
             item.file      = self.format_file(bib_entry)
             item.isbn      = self.get_field(bib_entry, "isbn")
-            item.journal   = self.get_field(bib_entry, "journal")
+            item.publication = self.get_field(bib_entry, "journal")
             item.key       = key
             item.language  = self.get_field(bib_entry, "language")
             item.issue     = self.get_field(bib_entry, "number")
