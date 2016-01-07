@@ -23,18 +23,11 @@ class bibtexParser(object):
 
         for key in bib_data.entries:
             bib_entry = bib_data.entries[key]
-            if not source_field in ['author','key','combined'] and not source_field in bib_entry.fields:
-                continue
-            if source_field == 'author': 
-                try:
-                    bib_entry.persons[u'author']
-                except:
-                    continue
 
             item = Item()
             item.abstract  = self.get_field(bib_entry, "abstract")
             item.author    = self.format_author(bib_entry)
-            item.date      = self.get_field(bib_entry, "month") + self.get_field(bib_entry, "year")
+            item.date      = self.get_field(bib_entry, "year")
             item.doi       = self.get_field(bib_entry, "doi")
             item.file      = self.format_file(bib_entry)
             item.isbn      = self.get_field(bib_entry, "isbn")
