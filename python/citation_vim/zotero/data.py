@@ -310,12 +310,12 @@ class zoteroData(object):
                                     u"select items.key from items where itemID = %d" \
                                     % attachment_id)
                                 key = self.cur.fetchone()[0]
-                                self.index[item_id].fulltext = os.path.join( \
-                                    self.storage_path, key, item_attachment)
+                                self.index[item_id].fulltext.append(os.path.join( \
+                                    self.storage_path, key, item_attachment))
                         # If the attachment is linked, it is simply the full
                         # path to the attachment
                         else:
-                            self.index[item_id].fulltext = att
+                            self.index[item_id].fulltext.append(att)
             self.cur.close()
         return True
 

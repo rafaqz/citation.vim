@@ -28,27 +28,27 @@ class zoteroParser(object):
             print("Message: {}".format(str(e)))
 
         items = []
-        for zot_id, zot_entry in zot_data:
+        for zot_id, zot_item in zot_data:
 
             item = Item()
-            item.abstract  = zot_entry.abstract
-            item.author    = zot_entry.format_author()
-            item.date      = zot_entry.date
-            item.doi       = zot_entry.doi
-            item.file      = zot_entry.fulltext
-            item.isbn      = zot_entry.isbn
-            item.publication   = zot_entry.publication
-            item.key       = self.format_key(zot_entry.id, zot_entry.key)
-            item.language  = zot_entry.language
-            item.issue     = zot_entry.issue
-            item.notes     = zot_entry.format_notes()
-            item.pages     = zot_entry.pages
-            item.publisher = zot_entry.publisher
-            item.tags      = zot_entry.format_tags()
-            item.title     = zot_entry.title
-            item.type      = zot_entry.type
-            item.url       = zot_entry.url
-            item.volume    = zot_entry.volume
+            item.abstract  = zot_item.abstract
+            item.author    = zot_item.format_author()
+            item.date      = zot_item.date
+            item.doi       = zot_item.doi
+            item.file      = zot_item.format_fulltext()
+            item.isbn      = zot_item.isbn
+            item.publication = zot_item.publication
+            item.key       = self.format_key(zot_item.id, zot_item.key)
+            item.language  = zot_item.language
+            item.issue     = zot_item.issue
+            item.notes     = zot_item.format_notes()
+            item.pages     = zot_item.pages
+            item.publisher = zot_item.publisher
+            item.tags      = zot_item.format_tags()
+            item.title     = zot_item.title
+            item.type      = zot_item.type
+            item.url       = zot_item.url
+            item.volume    = zot_item.volume
             item.combine()
             if not getattr(item, source_field) == "":
                 items.append(item)

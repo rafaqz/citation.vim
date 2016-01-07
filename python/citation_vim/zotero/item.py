@@ -27,7 +27,7 @@ class zoteroItem(object):
         self.abstract = ""
         self.language = ""
         self.volume = ""
-        self.fulltext = ""
+        self.fulltext = []
         self.date = ""
         self.url = ""
         self.key = ""
@@ -70,3 +70,15 @@ class zoteroItem(object):
         """
 
         return u"\n\n".join(self.notes)
+
+    def format_fulltext(self):
+
+        """
+        Returns:
+        The first file.
+        """
+
+        if self.fulltext == []:
+            return ""
+        else:
+            return self.fulltext[0]
