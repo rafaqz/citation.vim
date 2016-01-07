@@ -239,6 +239,8 @@ class zoteroData(object):
                         self.index[item_id].issue = item_value
                     elif item_name == u"pages":
                         self.index[item_id].pages = item_value
+                    elif item_name == u"url":
+                        self.index[item_id].url = item_value
                     elif item_name == u"title":
                         self.index[item_id].title = str(item_value)
                     elif item_name == u"abstractNote":
@@ -301,8 +303,7 @@ class zoteroData(object):
                             item_attachment = item_attachment.encode(
                                 'latin-1').decode('utf-8')
                             attachment_id = item[2]
-                            if item_attachment[-4:].lower() in \
-                                self.attachment_ext:
+                            if item_attachment[-4:].lower() in self.attachment_ext:
                                 if item_id not in self.index:
                                     self.index[item_id] = zoteroItem(item_id)
                                 self.cur.execute( \
