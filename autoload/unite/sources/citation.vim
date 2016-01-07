@@ -90,6 +90,22 @@ let s:sub_sources = [
 \ "volume"
 \ ]
 
+let s:source = {
+\ 'name' : 'citation',
+\ 'description' : 'display citation sources',
+\}
+
+function! s:source.gather_candidates(args, context)
+  call unite#print_message('[citation] citation sources')
+  return map(s:sub_sources, '{
+\   "word"   : v:val,
+\   "source" : s:source.name,
+\   "kind"   : "source",
+\   "action__source_name" : "citation/" . v:val,
+\ }')
+endfunction
+
+
 " Build source variable and function programatically for all sub_sources.
 function! s:construct_sources(sub_sources)
     for sub_source in a:sub_sources
@@ -109,20 +125,10 @@ function! s:construct_sources(sub_sources)
 endfunction
 call s:construct_sources(s:sub_sources)
 
-" Return all sources (citation/sub_source) to Unite.
-function! unite#sources#citation#define() 
-    let l:sources = []
-    for sub_source in s:sub_sources
-        let l:sources += [s:source_{sub_source}]
-    endfor
-    return l:sources
-endfunction 
-
-" Map entries for unite.
 function! s:map_entries(field) 
     return map(s:get_source(a:field),'{
     \   "word": v:val[1],
-    \   "source": "citation",
+    \   "source": "citation/" . a:field,
     \   "kind": "word",
     \   "action__text": v:val[0],
     \ }')
@@ -150,6 +156,7 @@ function! s:source_key.gather_candidates(args,context)
     \   "action__text": prefix . v:val[0] . suffix,
     \ }')
 endfunction
+
 function! s:source_file.gather_candidates(args,context)
     return map(s:get_source("file"),'{
     \   "word": v:val[1],
@@ -159,6 +166,26 @@ function! s:source_file.gather_candidates(args,context)
     \   "action__path": v:val[0],
     \ }')
 endfunction
+
+function! s:source_url.gather_candidates(args,context)
+    return map(s:get_source("url"),'{
+    \   "word": v:val[1],
+    \   "source": "citation/url",
+    \   "kind": ["word","file", "uri"],
+    \   "action__text": v:val[0],
+    \   "action__path": v:val[0],
+    \ }')
+endfunction
+
+" Return source and sub-sources to Unite.
+function! unite#sources#citation#define() 
+    let l:sources = [s:source]
+    for sub_source in s:sub_sources
+        let l:sources += [s:source_{sub_source}]
+    endfor
+    return l:sources
+endfunction 
+
 
 let s:hooks = {}
 function! s:hooks.syntax()
