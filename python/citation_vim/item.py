@@ -38,16 +38,14 @@ class Item(object):
 
             desc_strings.append(getattr(self, desc_field))
 
-        source_wrap = wrap_chars[0] + "{}" + wrap_chars[1]
-
         # Insert the source field if not present in the description,
         # and put brackets around it wherever it is.
-        source_string = ""
+        source_string = u""
         if source_field in desc_fields:
             source_index = desc_fields.index(source_field)
-            desc_strings[source_index] = source_wrap.format(desc_strings[source_index]) 
+            desc_strings[source_index] = u'%s%s%s' % (wrap_chars[0], desc_strings[source_index], wrap_chars[1])
         else:
             if not source_field in ["combined","file"]:
-                source_string = source_wrap.format(getattr(self, source_field))
+                source_string = u'%s%s%s' % (wrap_chars[0], getattr(self, source_field), wrap_chars[1])
 
         return desc_format.format(*desc_strings) + source_string

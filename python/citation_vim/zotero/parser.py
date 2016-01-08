@@ -12,7 +12,7 @@ class zoteroParser(object):
     A zotero database as an array of Items.
     """
 
-    def load(self, source_field, file_path):
+    def load(self, source_field, file_path, cache_path):
 
         if not valid_location(file_path):
             print("{} is not a valid zotero path".format(file_path))
@@ -20,12 +20,8 @@ class zoteroParser(object):
 
         self.load_citekeys(file_path)
 
-        try:
-            zotero = zoteroData(file_path)
-            zot_data = zotero.load()
-        except Exception as e:
-            print("Failed to read {}".format(file_path))
-            print("Message: {}".format(str(e)))
+        zotero = zoteroData(file_path, cache_path)
+        zot_data = zotero.load()
 
         items = []
         for zot_id, zot_item in zot_data:

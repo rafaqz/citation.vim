@@ -88,7 +88,7 @@ class zoteroData(object):
 
     deleted_query = u"select itemID from deletedItems"
 
-    def __init__(self, zotero_path):
+    def __init__(self, zotero_path, cache_path):
 
         """
         Intialize libzotero.
@@ -98,19 +98,10 @@ class zoteroData(object):
         Keyword arguments:
         """
 
-        assert(isinstance(zotero_path, str))
         # Set paths
-        self.zotero_path = zotero_path
-        self.storage_path = os.path.join(self.zotero_path, u"storage")
-        self.zotero_database = os.path.join(self.zotero_path, u"zotero.sqlite")
-        if os.name == u"nt":
-            home_folder = os.environ[u"USERPROFILE"]
-        elif os.name == u"posix":
-            home_folder = os.environ[u"HOME"]
-        else:
-            print(u"libzotero.__init__(): you appear to be running an unsupported OS")
-
-        self.database_copy = os.path.join(home_folder, u".citation_vim.sqlite")
+        self.storage_path = os.path.join(zotero_path, u"storage")
+        self.zotero_database = os.path.join(zotero_path, u"zotero.sqlite")
+        self.database_copy = os.path.join(cache_path, u".citation_vim.sqlite")
         # Remember search results so results speed up over time
         self.search_cache = {}
         # Check whether verbosity is turned on
@@ -242,9 +233,9 @@ class zoteroData(object):
                     elif item_name == u"url":
                         self.index[item_id].url = item_value
                     elif item_name == u"title":
-                        self.index[item_id].title = str(item_value)
+                        self.index[item_id].title = item_value
                     elif item_name == u"abstractNote":
-                        self.index[item_id].abstract = str(item_value)
+                        self.index[item_id].abstract = item_value
             # Retrieve author information
             self.cur.execute(self.author_query)
             for item in self.cur.fetchall():

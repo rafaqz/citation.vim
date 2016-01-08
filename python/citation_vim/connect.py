@@ -8,7 +8,10 @@ import sys
 class Citation(object):
 
     @staticmethod
-    def get_entries(source_field, file_path, file_format, desc_fields, desc_format, wrap_chars):
+    def get_entries(source_field, file_path, cache_path, file_format, desc_fields, desc_format, wrap_chars):
+        file_path = os.path.expanduser(file_path)
+        cache_path = os.path.expanduser(cache_path)
+
         if file_format == "bibtex":
             from citation_vim.bibtex.parser import bibtexParser
             parser = bibtexParser()
@@ -18,7 +21,7 @@ class Citation(object):
         else:
             print("g:citation_vim_file_format variable must be either 'zotero' or 'bibtex'")
             return []
-        entries = parser.load(source_field, file_path)
+        entries = parser.load(source_field, file_path, cache_path)
         output = []
         for entry in entries:
             desc = entry.describe(source_field, desc_fields, desc_format, wrap_chars)
@@ -31,6 +34,7 @@ class Citation(object):
         import vim
         file_format   = vim.eval("g:citation_vim_file_format")
         file_path     = vim.eval("g:citation_vim_file_path")
+        cache_path    = vim.eval("g:citation_vim_cache_path")
         desc_format   = vim.eval("g:citation_vim_description_format")
         desc_fields   = vim.eval("g:citation_vim_description_fields")
         wrap_chars    = vim.eval("g:citation_vim_source_wrap")
@@ -38,5 +42,5 @@ class Citation(object):
         script_folder = os.path.join(vim.eval('s:script_folder_path'), '../../../python')
         sys.path.insert(0, script_folder)
 
-        return Citation.get_entries(source_field, file_path, file_format, desc_fields, desc_format, wrap_chars)
+        return Citation.get_entries(source_field, file_path, cache_path, file_format, desc_fields, desc_format, wrap_chars)
 
