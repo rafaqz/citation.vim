@@ -43,7 +43,7 @@ class zoteroData(object):
         """
 
     author_query = u"""
-        select items.itemID, creatorData.lastName
+        select items.itemID, creatorData.lastName, creatorData.firstName
         from items, itemCreators, creators, creatorData, creatorTypes
         where
             items.itemID = itemCreators.itemID
@@ -175,7 +175,6 @@ class zoteroData(object):
             self.cur.execute(self.info_query)
             for item in self.cur.fetchall():
                 item_id = item[0]
-                # print(item)
                 key = item[3]
                 if item_id not in ignored:
                     item_name = item[1]
@@ -241,10 +240,11 @@ class zoteroData(object):
             for item in self.cur.fetchall():
                 item_id = item[0]
                 if item_id not in ignored:
-                    item_author = item[1].title()
+                    item_lastname = item[1].title()
+                    item_firstname = item[2].title()
                     if item_id not in self.index:
                         self.index[item_id] = zoteroItem(item_id)
-                    self.index[item_id].authors.append(item_author)
+                    self.index[item_id].authors.append([item_lastname ,item_firstname])
             # Retrieve collection information
             self.cur.execute(self.collection_query)
             for item in self.cur.fetchall():

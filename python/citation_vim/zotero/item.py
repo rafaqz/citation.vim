@@ -46,12 +46,15 @@ class zoteroItem(object):
         if self.authors == []:
             return ""
         if len(self.authors) > 5:
-            return u"%s et al." % self.authors[0]
+            return u"%s et al." % self.authors[0][0]
         if len(self.authors) > 2:
-            return u", ".join(self.authors[:-1]) + u", & " + self.authors[-1]
+            auth_string = u""
+            for author in self.authors[:-1]:
+                auth_string += author[0] + ', '
+            return auth_string + u"& " + self.authors[-1][0]
         if len(self.authors) == 2:
-            return self.authors[0] + u" & " + self.authors[1]
-        return self.authors[0]
+            return self.authors[0][0] + u" & " + self.authors[1][0]
+        return ', '.join(self.authors[0])
 
     def format_tags(self):
 
