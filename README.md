@@ -3,6 +3,8 @@ citation.vim
 
 A citation source for unite.vim
 
+(https://github.com/rafaqz/citation.vim)
+
 Citation.vim Imports zotero databases (with better_bibtex citation keys if
 available) or exported bibtex files and inserts/runs/does whatever you want with
 them using Unite.vim.
@@ -32,24 +34,7 @@ citation/file
 citation/combined
 - Preview all available citation data on one page.
 
-And everything else! Some more useful than others...
-
-citation/abstract
-citation/author
-citation/date
-citation/doi
-citation/isbn
-citation/issue
-citation/journal
-citation/language
-citation/month
-citation/note
-citation/pages
-citation/publisher
-citation/tags
-citation/title
-citation/type
-citation/volume
+Enter `:Unite citation` in vim for the full list of sources.
 
 ### Usage
 
@@ -62,9 +47,9 @@ citation/volume
   Set variables:
 
       let g:citation_vim_file_path=["/path/to/your/bib/file/library.bib"]
-      let g:citation_vim_file_format="citation"
+      let g:citation_vim_file_format="bibtex"
 
-1. To use [zotero](http://pypi.python.org/pypi/pybtex)
+1. To use [zotero](https://www.zotero.org/)
   Set variables:
 
     let g:citation_vim_file_path=["/path/to/your/zotero/7XX8XX72/zotero/folder/"]
@@ -93,7 +78,7 @@ To immediately open a file or url from a citation under the cursor:
 
     nnoremap <silent><leader>co :<C-u>Unite -input=<C-R><C-W> -default-action=start -force-immediately citation/file<cr>
 
-To immediately browse the folder from a citation under the cursor:
+To immediately browse the file folder from a citation under the cursor:
 
     nnoremap <silent><leader>cf :<C-u>Unite -input=<C-R><C-W> -default-action=file -force-immediately citation/file<cr>
 
@@ -102,27 +87,19 @@ To view all citation information from a citation under the cursor:
     nnoremap <silent><leader>ci :<C-u>Unite -input=<C-R><C-W> -default-action=preview -force-immediately citation/combined<cr>
 
 
-To preview, append, yank citation data from unite:
 
-    nnoremap <silent>[unite]c  :<C-u>Unite -buffer-name=citation -default-action=append  -auto-preview bibtex/key<cr>
-    nnoremap <silent>[unite]cF :<C-u>Unite -buffer-name=citation -default-action=append  -auto-preview bibtex/file<cr>
-    nnoremap <silent>[unite]ca :<C-u>Unite -buffer-name=citation -default-action=append  -auto-preview bibtex/author<cr>
-    nnoremap <silent>[unite]cp :<C-u>Unite -buffer-name=citation -default-action=append  -auto-preview bibtex/publisher<cr>
-    nnoremap <silent>[unite]cj :<C-u>Unite -buffer-name=citation -default-action=append  -auto-preview bibtex/journal<cr>
-    nnoremap <silent>[unite]ct :<C-u>Unite -buffer-name=citation -default-action=append  -auto-preview bibtex/title<cr>
-    nnoremap <silent>[unite]cn :<C-u>Unite -buffer-name=citation -default-action=append  -auto-preview bibtex/annote<cr>
-    nnoremap <silent>[unite]cb :<C-u>Unite -buffer-name=citation -default-action=append  -auto-preview bibtex/abstract<cr>
-    nnoremap <silent>[unite]cI :<C-u>Unite -buffer-name=citation -default-action=preview -auto-preview bibtex/combined<cr>
+To preview, append, yank any other citation data from unite:
 
-To preview, append, yank citation data from unite:
-    nnoremap <silent>[unite]cc :<C-u>Unite -buffer-name=citation -start-insert -default-action=preview              bibtex/combined<cr>
+    nnoremap <silent>[unite]cp :<C-u>Unite -buffer-name=citation -default-action=append  -auto-preview citation/XXXXXX<cr>
 
+`:Unite citation` for the list of sources...
 
 
 
 ### Tweaks 
 
-Customise the unite display, using the names of citation sources and a python format string:
+Customise the unite display, using the names of citation sources and a python
+format string (the {} braces will be replaced by the sources):
 
     let g:citation_vim_description_format = "{}∶ {} \˝{}\˝ ₋{}₋ ₍{}₎"
     let g:citation_vim_description_fields = ["type", "key", "title", "author", "year"]
