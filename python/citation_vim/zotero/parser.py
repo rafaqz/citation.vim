@@ -2,10 +2,18 @@
 
 import os
 import json
+import shutil
+import sqlite3
 from citation_vim.zotero.data import valid_location, zoteroData
 from citation_vim.item import Item
 
 class zoteroParser(object):
+
+    bb_data_query = u"""
+        select lokijs.data
+        from lokijs
+        where lokijs.name = "db.json"
+        """
 
     """
     Returns: 
@@ -18,7 +26,7 @@ class zoteroParser(object):
             print("{} is not a valid zotero path".format(file_path))
             return []
 
-        self.load_citekeys(file_path)
+        self.load_citekeys(file_path, cache_path)
 
         zotero = zoteroData(file_path, cache_path)
         zot_data = zotero.load()
@@ -46,10 +54,9 @@ class zoteroParser(object):
             item.url       = zot_item.url
             item.volume    = zot_item.volume
             item.combine()
-            if not getattr(item, source_field) == "":
-                items.append(item)
+            # if not getattr(item, source_field) == "":
+            items.append(item)
         return items
-
 
     def format_key(self, id, key):
         if id in self.citekeys:
@@ -57,15 +64,20 @@ class zoteroParser(object):
         else:
             return key
 
-    def load_citekeys(self, file_path):
+    def load_citekeys(self, file_path, cache_path):
         """
         Loads better-bibtex citekeys if they exist.
         """
         self.citekeys = {}
-        bb_path = os.path.join(file_path, 'better-bibtex/db.json')
-        if os.path.exists(bb_path):
-            with open(bb_path) as bb:    
-                bb_json = json.load(bb)
-            for item in bb_json['collections'][0]['data']:
-                self.citekeys[item['itemID']] = item['citekey']
+
+        bb_database = os.path.join(file_path, 'betterbibtex-lokijs.sqlite')
+        bb_copy = os.path.join(cache_path, 'betterbibtex-lokijs.sqlite')
+        shutil.copyfile(bb_database, bb_copy)
+        conn = sqlite3.connect(bb_copy)
+        cur = conn.cursor()
+        cur.execute(self.bb_data_query)
+        bb_data = cur.fetchone()[0]
+        bb_json = json.loads(bb_data)
+        for item in bb_json['collections'][0]['data']:
+            self.citekeys[item['itemID']] = item['citekey']
 
