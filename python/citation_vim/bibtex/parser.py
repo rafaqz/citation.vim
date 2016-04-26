@@ -41,7 +41,7 @@ class bibtexParser(object):
             item.tags      = self.get_field(bib_entry, "keyword")
             item.title     = self.get_field(bib_entry, "title")
             item.type      = bib_entry.type
-            item.url       = self.get_field(bib_entry, "url")
+            item.url       = self.format_url(bib_entry)
             item.volume    = self.get_field(bib_entry, "volume")
             item.combine()
             if not getattr(item, source_field) == "":
@@ -81,7 +81,21 @@ class bibtexParser(object):
     def format_file(self, entry):
         output = ""
         if u"file" in entry.fields: 
-            output = entry.fields[u"file"].split(":")[1]
+            for file in entry.fields[u"file"].split(";"):
+                details = file.split(":")
+                if 2 < len(details) and details[2] == "application/pdf":
+                    output = details[1]
+                    break
+        return output
+
+    def format_url(self, entry):
+        output = ""
+        if u"file" in entry.fields: 
+            for file in entry.fields[u"file"].split(";"):
+                details = file.split(":")
+                if 2 < len(details) and details[2] != "application/pdf":
+                    output = details[1]
+                    break
         return output
 
     def format_tags(entry):
