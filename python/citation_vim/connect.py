@@ -15,17 +15,20 @@ class Citation(object):
         if file_format == "bibtex":
             from citation_vim.bibtex.parser import bibtexParser
             parser = bibtexParser()
+
         elif file_format == "zotero":
             from citation_vim.zotero.parser import zoteroParser
             parser = zoteroParser()
+
         else:
             print("g:citation_vim_file_format variable must be either 'zotero' or 'bibtex'")
             return []
+
         entries = parser.load(source_field, file_path, cache_path)
         output = []
         for entry in entries:
-            desc = entry.describe(source_field, desc_fields, desc_format, wrap_chars)
-            output.append([getattr(entry, source_field), desc])
+            description = entry.describe(source_field, desc_fields, desc_format, wrap_chars)
+            output.append([getattr(entry, source_field), description])
         return output
 
 
