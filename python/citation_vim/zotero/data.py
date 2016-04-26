@@ -7,6 +7,7 @@ import sys
 import shutil
 import sys
 import time
+from citation_vim.utils import compat_str
 
 class zoteroData(object):
 
@@ -211,8 +212,9 @@ class zoteroData(object):
                     if item_id not in self.index:
                         self.index[item_id] = zoteroItem(item_id)
                         self.index[item_id].key = key
+
                     if item_name == u"publicationTitle":
-                        self.index[item_id].publication = str(item_value)
+                        self.index[item_id].publication = compat_str(item_value)
                     elif item_name == u"date":
                         self.index[item_id].date = item_value
                     elif item_name == u"publisher":
