@@ -67,40 +67,40 @@ You can also enter `:Unite citation` in vim for the full list of sources.
 2. Install this plugin in vim however you like to do that.
 3. Choose your source
 
-If you're using bibtex install [pybtex](http://pypi.python.org/pypi/pybtex)
+  If you're using bibtex install [pybtex](http://pypi.python.org/pypi/pybtex)
 
-```bash
-sudo easy_install pybtex
-```
+  ```bash
+  sudo easy_install pybtex
+  ```
 
   Set variables:
 
-```vimscript
-let g:citation_vim_file_path=["/path/to/your/bib/file/library.bib"]
-let g:citation_vim_file_format="bibtex"
-```
+  ```vimscript
+  let g:citation_vim_file_path=["/path/to/your/bib/file/library.bib"]
+  let g:citation_vim_file_format="bibtex"
+  ```
 
-To use [zotero](https://www.zotero.org/)
-  Set variables:
+  To use [zotero](https://www.zotero.org/)
+    Set variables:
 
-```vimscript
-let g:citation_vim_file_path=["/path/to/your/zotero/7XX8XX72/zotero_folder/"]
-let g:citation_vim_file_format="zotero"
-```
+  ```vimscript
+  let g:citation_vim_file_path=["/path/to/your/zotero/7XX8XX72/zotero_folder/"]
+  let g:citation_vim_file_format="zotero"
+  ```
 
 4. Set your cache path:
 
-```vimscript
-  let g:citation_vim_cache_path='~/.vim/your_cache_path'
-```
+  ```vimscript
+    let g:citation_vim_cache_path='~/.vim/your_cache_path'
+  ```
 
 5. Set your citation suffix and prefix. Pandoc markdown style is the default.
 
-```vimscript
-let g:citation_vim_outer_prefix="["
-let g:citation_vim_inner_prefix="@"
-let g:citation_vim_suffix="]"
-```
+  ```vimscript
+  let g:citation_vim_outer_prefix="["
+  let g:citation_vim_inner_prefix="@"
+  let g:citation_vim_suffix="]"
+  ```
 
 6. Set some mappings. Copy and paste the following examples into your vimrc to get started.
 
