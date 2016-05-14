@@ -57,9 +57,9 @@ let s:plugin_path = escape(expand('<sfile>:h:h:h:h'), '\')
 
 if s:has_supported_python == 3
     echo s:plugin_path
-    exe 'py3file ' . s:plugin_path . '/python/citation_vim/connect.py'
+    exe 'py3file ' . s:plugin_path . '/python/citation_vim/citation.py'
 elseif s:has_supported_python == 2
-    exe 'pyfile ' . s:plugin_path . '/python/citation_vim/connect.py'
+    exe 'pyfile ' . s:plugin_path . '/python/citation_vim/citation.py'
 else
     function! s:DidNotLoad()
         echohl WarningMsg|echomsg "Citation.vim unavailable: requires Vim 7.3+"|echohl None
