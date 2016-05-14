@@ -15,6 +15,9 @@ citation details, notes and abstracts within vim. Yank, insert or preview .
 
 ![Citation.vim screenshot](screenshot.png?raw=true "Citation.vim screenshot")
 
+A recent addition is caching: zotero and bibtex file import is cached until the
+files change - this has drastically sped up loading of large citation databases.
+
 Many thanks to termoshtt for unite-bibtex and smathot for gnotero and LibZotero code.
 
 
@@ -42,23 +45,37 @@ Enter `:Unite citation` in vim for the full list of sources.
 1. Install this plugin in vim however you like to do that.
 1. If you're using bibtex install [pybtex](http://pypi.python.org/pypi/pybtex)
 
-    sudo easy_install pybtex
+```bash
+sudo easy_install pybtex
+```
 
   Set variables:
 
-      let g:citation_vim_file_path=["/path/to/your/bib/file/library.bib"]
-      let g:citation_vim_file_format="bibtex"
+```vimscript
+let g:citation_vim_file_path=["/path/to/your/bib/file/library.bib"]
+let g:citation_vim_file_format="bibtex"
+```
 
 1. To use [zotero](https://www.zotero.org/)
   Set variables:
 
-    let g:citation_vim_file_path=["/path/to/your/zotero/7XX8XX72/zotero/folder/"]
-    let g:citation_vim_file_format="zotero"
+```vimscript
+let g:citation_vim_file_path=["/path/to/your/zotero/7XX8XX72/zotero_folder/"]
+let g:citation_vim_file_format="zotero"
+```
+
+1. Set your cache path:
+
+```vimscript
+  let g:citation_vim_cache_path='~/.vim/your_cache_path'
+```
 
 1. Set your citation suffix and prefix. Pandoc markdown style is the default.
 
-    let g:citation_vim_outer_prefix="["
-    let g:citation_vim_inner_prefix="@"
+```vimscript
+let g:citation_vim_outer_prefix="["
+let g:citation_vim_inner_prefix="@"
+```
     let g:citation_vim_suffix="]"
 
 1. Set some mappings. Copy and paste the following examples into your vimrc to get started.
@@ -72,25 +89,35 @@ nnoremap [unite] <nop>
 
 To insert a citation:
 
-    nnoremap <silent>[unite]c       :<C-u>Unite -buffer-name=citation   -start-insert -default-action=append      bibtex<cr>
+```vimscript
+nnoremap <silent>[unite]c       :<C-u>Unite -buffer-name=citation   -start-insert -default-action=append      bibtex<cr>
+```
 
 To immediately open a file or url from a citation under the cursor:
 
-    nnoremap <silent><leader>co :<C-u>Unite -input=<C-R><C-W> -default-action=start -force-immediately citation/file<cr>
+```vimscript
+nnoremap <silent><leader>co :<C-u>Unite -input=<C-R><C-W> -default-action=start -force-immediately citation/file<cr>
+```
 
 To immediately browse the file folder from a citation under the cursor:
 
-    nnoremap <silent><leader>cf :<C-u>Unite -input=<C-R><C-W> -default-action=file -force-immediately citation/file<cr>
+```vimscript
+nnoremap <silent><leader>cf :<C-u>Unite -input=<C-R><C-W> -default-action=file -force-immediately citation/file<cr>
+```
 
 To view all citation information from a citation under the cursor:
 
-    nnoremap <silent><leader>ci :<C-u>Unite -input=<C-R><C-W> -default-action=preview -force-immediately citation/combined<cr>
+```vimscript
+nnoremap <silent><leader>ci :<C-u>Unite -input=<C-R><C-W> -default-action=preview -force-immediately citation/combined<cr>
+```
 
 
 
 To preview, append, yank any other citation data from unite:
 
-    nnoremap <silent>[unite]cp :<C-u>Unite -buffer-name=citation -default-action=append  -auto-preview citation/XXXXXX<cr>
+```vimscript
+nnoremap <silent>[unite]cp :<C-u>Unite -buffer-name=citation -default-action=append  -auto-preview citation/XXXXXX<cr>
+```
 
 `:Unite citation` for the list of sources...
 
@@ -101,18 +128,23 @@ To preview, append, yank any other citation data from unite:
 Customise the unite display, using the names of citation sources and a python
 format string (the {} braces will be replaced by the sources):
 
-    let g:citation_vim_description_format = "{}∶ {} \˝{}\˝ ₋{}₋ ₍{}₎"
-    let g:citation_vim_description_fields = ["type", "key", "title", "author", "year"]
+```vimscript
+let g:citation_vim_description_format = "{}∶ {} \˝{}\˝ ₋{}₋ ₍{}₎"
+let g:citation_vim_description_fields = ["type", "key", "title", "author", "year"]
+```
 
 or this one is nice for showing journal/publisher (citations rarely have both):
 
-    let g:citation_vim_description_format="{}→ ′{}′ ₊{}₊ │{}{}│"
-    let g:citation_vim_description_fields=["key", "title", "author", "publisher", "journal"]
+```vimscript
+let g:citation_vim_description_format="{}→ ′{}′ ₊{}₊ │{}{}│"
+let g:citation_vim_description_fields=["key", "title", "author", "publisher", "journal"]
+```
 
-Highlighting picks up text between some weird characters. Nothing on the keyboard, as they will be in
-the citation text too. 
+You might have noticed the weird characters in the description format string.
+They are used for highlighting sections, to avoid confusion with
+normal characters that might be in the citation.
 
-Copy and paste characters from this list:
+To change description highlighting characters, copy and paste characters from this list:
 - Apostrophes and quotes  ˝‘’‛“”‟′″‴‵‶‷
 - Brackets                ⊂〔₍⁽     ⊃〕₎⁾ 
 - Arrows                  ◀◁<‹    ▶▷>› 
@@ -121,7 +153,7 @@ Copy and paste characters from this list:
 - Bars                    ‖│┃┆∥┇┊┋
 - Dashes                  ‾⁻−₋‐⋯┄–—―∼┈─▭▬┉━┅₌⁼‗
 
-- And use these like a colon after words (notice that's not a normal colon!)
+- And use these like a colon after words (notice that's not a normal colon)
         ∶∷→⇒≫ 
 
 Long lines will occasionally break the display colors. It's a quirk of how unite
