@@ -37,13 +37,37 @@ citation/file
 citation/combined
 - Preview all available citation data on one page.
 
-Enter `:Unite citation` in vim for the full list of sources.
+The full list:
+
+citation/abstract
+citation/author
+citation/combined
+citation/date
+citation/doi
+citation/file
+citation/isbn
+citation/publication
+citation/key
+citation/language
+citation/issue
+citation/notes
+citation/pages
+citation/publisher
+citation/tags
+citation/title
+citation/type
+citation/url
+citation/volume
+
+You can also enter `:Unite citation` in vim for the full list of sources.
 
 ### Usage
 
 1. Install [unite.vim](https://github.com/Shougo/unite.vim)
-1. Install this plugin in vim however you like to do that.
-1. If you're using bibtex install [pybtex](http://pypi.python.org/pypi/pybtex)
+2. Install this plugin in vim however you like to do that.
+3. Choose your source
+
+If you're using bibtex install [pybtex](http://pypi.python.org/pypi/pybtex)
 
 ```bash
 sudo easy_install pybtex
@@ -56,7 +80,7 @@ let g:citation_vim_file_path=["/path/to/your/bib/file/library.bib"]
 let g:citation_vim_file_format="bibtex"
 ```
 
-1. To use [zotero](https://www.zotero.org/)
+To use [zotero](https://www.zotero.org/)
   Set variables:
 
 ```vimscript
@@ -64,21 +88,21 @@ let g:citation_vim_file_path=["/path/to/your/zotero/7XX8XX72/zotero_folder/"]
 let g:citation_vim_file_format="zotero"
 ```
 
-1. Set your cache path:
+4. Set your cache path:
 
 ```vimscript
   let g:citation_vim_cache_path='~/.vim/your_cache_path'
 ```
 
-1. Set your citation suffix and prefix. Pandoc markdown style is the default.
+5. Set your citation suffix and prefix. Pandoc markdown style is the default.
 
 ```vimscript
 let g:citation_vim_outer_prefix="["
 let g:citation_vim_inner_prefix="@"
+let g:citation_vim_suffix="]"
 ```
-    let g:citation_vim_suffix="]"
 
-1. Set some mappings. Copy and paste the following examples into your vimrc to get started.
+6. Set some mappings. Copy and paste the following examples into your vimrc to get started.
 
 
 ### Examples mappings:
