@@ -61,11 +61,11 @@ if s:has_supported_python == 3
 elseif s:has_supported_python == 2
     exe 'pyfile ' . s:plugin_path . '/python/citation_vim/citation.py'
 else
-    function! s:DidNotLoad()
+    function! DidNotLoad()
         echohl WarningMsg|echomsg "Citation.vim unavailable: requires Vim 7.3+"|echohl None
     endfunction
-    command! call s:DidNotLoad()
-    call s:DidNotLoad()
+    command! call DidNotLoad()
+    call DidNotLoad()
 endif
 
 let s:sub_sources = [
