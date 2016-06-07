@@ -76,7 +76,7 @@ You can also enter `:Unite citation` in vim for the full list of sources.
   Set variables:
 
   ```vimscript
-  let g:citation_vim_file_path=["/path/to/your/bib/file/library.bib"]
+  let g:citation_vim_bibtex_file=["/path/to/your/bib/file/library.bib"]
   let g:citation_vim_file_format="bibtex"
   ```
 
@@ -84,7 +84,7 @@ You can also enter `:Unite citation` in vim for the full list of sources.
     Set variables:
 
   ```vimscript
-  let g:citation_vim_file_path=["/path/to/your/zotero/7XX8XX72/zotero_folder/"]
+  let g:citation_vim_zotero_folder=["/path/to/your/zotero/7XX8XX72/zotero_folder/"]
   let g:citation_vim_file_format="zotero"
   ```
 

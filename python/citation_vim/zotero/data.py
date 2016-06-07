@@ -65,6 +65,16 @@ class zoteroData(object):
             collections.collectionName
         """
 
+    fulltext_query = u"""
+        select items.itemID, collections.collectionName
+        from items, collections, collectionItems
+        where
+            items.itemID = collectionItems.itemID
+            and collections.collectionID = collectionItems.collectionID
+        order by collections.collectionName != "To Read",
+            collections.collectionName
+        """
+
     type_query = u"""
         select items.itemID, itemTypes.typeName
         from items, itemTypes
@@ -102,7 +112,7 @@ class zoteroData(object):
         # Set paths
         self.storage_path = os.path.join(zotero_path, u"storage")
         self.zotero_database = os.path.join(zotero_path, u"zotero.sqlite")
-        self.database_copy = os.path.join(cache_path, u".citation_vim.sqlite")
+        self.database_copy = os.path.join(cache_path, u"zotero.sqlite")
         # Remember search results so results speed up over time
         self.search_cache = {}
         # Check whether verbosity is turned on
