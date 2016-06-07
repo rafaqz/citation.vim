@@ -11,19 +11,19 @@ class Citation(object):
     @staticmethod
     def connect():
         import vim
-        script_folder = os.path.join(vim.eval('s:script_folder_path'), '../../../python')
-        sys.path.insert(0, script_folder)
+        script_path = os.path.join(vim.eval('s:script_path'), '../../../python')
+        sys.path.insert(0, script_path)
 
         context = Citation.Context()
-        context.file_format   = vim.eval("g:citation_vim_file_format")
-        context.bibtex_file   = vim.eval("g:citation_bibtex_file")
-        context.zotero_folder = vim.eval("g:citation_zotero_folder")
-        context.cache_path    = vim.eval("g:citation_vim_cache_path")
-        context.desc_format   = vim.eval("g:citation_vim_description_format")
-        context.desc_fields   = vim.eval("g:citation_vim_description_fields")
-        context.wrap_chars    = vim.eval("g:citation_vim_source_wrap")
-        context.source        = vim.eval("a:source")
-        context.source_field  = vim.eval("a:field")
+        context.mode         = vim.eval("g:citation_vim_mode")
+        context.bibtex_file  = vim.eval("g:citation_bibtex_file")
+        context.zotero_path  = vim.eval("g:citation_zotero_path")
+        context.cache_path   = vim.eval("g:citation_vim_cache_path")
+        context.desc_format  = vim.eval("g:citation_vim_description_format")
+        context.desc_fields  = vim.eval("g:citation_vim_description_fields")
+        context.wrap_chars   = vim.eval("g:citation_vim_source_wrap")
+        context.source       = vim.eval("a:source")
+        context.source_field = vim.eval("a:field")
         builder = Citation.Builder(context)
         return builder.build_list()
 
@@ -35,8 +35,8 @@ class Citation(object):
         def __init__(self, context):
             self.context = context 
             self.bibtex_file = os.path.expanduser(context.bibtex_file)
-            self.zotero_folder = os.path.expanduser(context.zotero_folder)
-            self.zotero_database = os.path.join(self.zotero_folder, u"zotero.sqlite")
+            self.zotero_path = os.path.expanduser(context.zotero_path)
+            self.zotero_database = os.path.join(self.zotero_path, u"zotero.sqlite")
             self.cache_path = os.path.expanduser(context.cache_path)
             self.cache_file = os.path.join(self.cache_path, u"citation_vim_cache")
 
@@ -58,14 +58,14 @@ class Citation(object):
             return entries
 
         def get_parser(self):
-            if self.context.file_format == "bibtex":
+            if self.context.mode == "bibtex":
                 from citation_vim.bibtex.parser import bibtexParser
                 parser = bibtexParser(self.bibtex_file)
-            elif self.context.file_format == "zotero":
+            elif self.context.mode == "zotero":
                 from citation_vim.zotero.parser import zoteroParser
-                parser = zoteroParser(self.zotero_folder, self.cache_path)
+                parser = zoteroParser(self.zotero_path, self.cache_path)
             else:
-                print("g:citation_vim_file_format variable must be either 'zotero' or 'bibtex'")
+                print("g:citation_vim_mode variable must be either 'zotero' or 'bibtex'")
             return parser
 
         def load_cache(self):
@@ -79,9 +79,9 @@ class Citation(object):
         def has_cache(self):
             if not os.path.isfile(self.cache_file):
                 return False
-            if self.context.file_format == 'bibtex':
+            if self.context.mode == 'bibtex':
                 file_path = self.bibtex_file
-            elif self.context.file_format == 'zotero':
+            elif self.context.mode == 'zotero':
                 file_path = self.zotero_database
             filetime = datetime.fromtimestamp(os.path.getctime(file_path))
             cachetime = datetime.fromtimestamp(os.path.getctime(self.cache_file))
