@@ -90,18 +90,33 @@ let s:sub_sources = [
 \ "volume"
 \ ]
 
-let s:source = {
+let s:citation_source = {
 \ 'name' : 'citation',
 \ 'description' : 'display citation sources',
 \}
 
-function! s:source.gather_candidates(args, context)
+let s:fulltext_source = {
+\ 'name' : 'citation-fulltext',
+\ 'description' : 'search citation fulltext',
+\}
+
+function! s:citation_source.gather_candidates(args, context)
   call unite#print_message('[citation] citation sources')
   return map(s:sub_sources, '{
 \   "word"   : v:val,
-\   "source" : s:source.name,
+\   "source" : s:citation_source.name,
 \   "kind"   : "source",
 \   "action__source_name" : "citation/" . v:val,
+\ }')
+endfunction
+
+function! s:fulltext_source.gather_candidates(args, context)
+  call unite#print_message('[citation] fulltext sources')
+  return map(s:sub_sources, '{
+\   "word"   : v:val,
+\   "source" : s:fulltext_source.name,
+\   "kind"   : "source",
+\   "action__source_name" : "citation-fulltext/" . v:val,
 \ }')
 endfunction
 
@@ -109,33 +124,45 @@ endfunction
 " Build source variable and function programatically for all sub_sources.
 function! s:construct_sources(sub_sources)
     for sub_source in a:sub_sources
-        exec "let s:source_" . sub_source . " = { 
+        exec "let s:citation_source_" . sub_source . " = { 
         \       'action_table': {}, 
         \       'name': 'citation/" . sub_source . "', 
         \       'hooks': {},
         \       'syntax': 'uniteSource__Citation'
         \     }"
-        exec "function! s:source_" . sub_source . ".hooks.on_syntax(args, context)
+        exec "function! s:citation_source_" . sub_source . ".hooks.on_syntax(args, context)
         \  \n   call s:hooks.syntax()
         \  \n endfunction"
-        exec "function! s:source_" . sub_source . ".gather_candidates(args,context) 
-        \  \n   return s:map_entries('" . sub_source . "') 
+        exec "function! s:citation_source_" . sub_source . ".gather_candidates(args,context) 
+        \  \n   return s:map_entries('citation',context.custom_searchkey,'" . sub_source . "') 
+        \  \n endfunction"
+        exec "let s:fulltext_source_" . sub_source . " = { 
+        \       'action_table': {}, 
+        \       'name': 'fulltext/" . sub_source . "', 
+        \       'hooks': {},
+        \       'syntax': 'uniteSource__fulltext'
+        \     }"
+        exec "function! s:fulltext_source_" . sub_source . ".hooks.on_syntax(args, context)
+        \  \n   call s:hooks.syntax()
+        \  \n endfunction"
+        exec "function! s:fulltext_source_" . sub_source . ".gather_candidates(args,context) 
+        \  \n   return s:map_entries('fulltext',context.custom_searchkey,'" . sub_source . "') 
         \  \n endfunction"
     endfor
 endfunction
 call s:construct_sources(s:sub_sources)
 
-function! s:map_entries(field) 
-    return map(s:get_source(a:field),'{
+function! s:map_entries(source, searchkey, field) 
+    return map(s:get_source(a:source, a:searchkey, a:field),'{
     \   "word": v:val[1],
-    \   "source": "citation/" . a:field,
+    \   "source": a:source . a:field,
     \   "kind": "word",
     \   "action__text": v:val[0],
     \ }')
 endfunction
 
 " Get citation entries for a given field.
-function! s:get_source(field)
+function! s:get_source(source, searchkey, field)
     let l:out = []
     if s:has_supported_python == 3
       let l:out = py3eval("Citation.connect()")
@@ -146,31 +173,52 @@ function! s:get_source(field)
 endfunction
 
 " Override default gather_candidates function where necessary.
-function! s:source_key.gather_candidates(args,context)
-    let prefix = g:citation_vim_outer_prefix . g:citation_vim_inner_prefix
-    let suffix = g:citation_vim_suffix
-    return map(s:get_source("key"),'{
+function! s:citation_source_key.gather_candidates(args,context)
+    return s:_key_gather_candidates('citation','')
+endfunction
+function! s:fulltext_source_key.gather_candidates(args,context)
+    return s:_key_gather_candidates('citation-fulltext', context.custom_searchkey)
+endfunction
+
+function! s:_key_gather_candidates(source, searchkey)
+    let l:prefix = g:citation_vim_outer_prefix . g:citation_vim_inner_prefix
+    let l:suffix = g:citation_vim_suffix
+    return map(s:get_source(a:source, a:searchkey, "key"),'{
     \   "word": v:val[1],
-    \   "source": "citation/key",
+    \   "source": a:source . "/key",
     \   "kind": "word",
-    \   "action__text": prefix . v:val[0] . suffix,
+    \   "action__text": l:prefix . v:val[0] . l:suffix,
     \ }')
 endfunction
 
-function! s:source_file.gather_candidates(args,context)
-    return map(s:get_source("file"),'{
+function! s:citation_source_file.gather_candidates(args,context)
+    return s:file_gather_candidates('citation','')
+endfunction
+function! s:fulltext_source_file.gather_candidates(args,context)
+    return s:file_gather_candidates('citation-fulltext', context.custom_searchkey)
+endfunction
+
+function! s:file_gather_candidates(source, searchkey)
+    return map(s:get_source(a:source, a:searchkey, "file"),'{
     \   "word": v:val[1],
-    \   "source": "citation/file",
+    \   "source": a:source . "/file",
     \   "kind": ["word","file", "uri"],
     \   "action__text": v:val[0],
     \   "action__path": v:val[0],
     \ }')
 endfunction
 
-function! s:source_url.gather_candidates(args,context)
-    return map(s:get_source("url"),'{
+function! s:citation_source_url.gather_candidates(args,context)
+    return s:url_gather_candidates('citation','')
+endfunction
+function! s:fulltext_source_url.gather_candidates(args,context)
+    return s:url_gather_candidates('citation-fulltext', context.custom_searchkey)
+endfunction
+
+function! s:url_gather_candidates(source, searchkey)
+    return map(s:get_source(a:source, a:searchkey, "url"),'{
     \   "word": v:val[1],
-    \   "source": "citation/url",
+    \   "source": a:source . "/url",
     \   "kind": ["word","file", "uri"],
     \   "action__text": v:val[0],
     \   "action__path": v:val[0],
@@ -179,9 +227,10 @@ endfunction
 
 " Return source and sub-sources to Unite.
 function! unite#sources#citation#define() 
-    let l:sources = [s:source]
+    let l:sources = [s:citation_source, s:fulltext_source]
     for sub_source in s:sub_sources
-        let l:sources += [s:source_{sub_source}]
+        let l:sources += [s:citation_source_{sub_source}]
+        let l:sources += [s:fulltext_source_{sub_source}]
     endfor
     return l:sources
 endfunction 
