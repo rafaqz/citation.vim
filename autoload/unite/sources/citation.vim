@@ -101,8 +101,8 @@ let s:citation_source = {
 \ 'description' : 'display citation sources',
 \}
 
-let s:fulltext_source = {
-\ 'name' : 'citation-fulltext',
+let s:citation_fulltext_source = {
+\ 'name' : 'citation_fulltext',
 \ 'description' : 'search citation fulltext',
 \}
 
@@ -116,13 +116,13 @@ function! s:citation_source.gather_candidates(args, context)
 \ }')
 endfunction
 
-function! s:fulltext_source.gather_candidates(args, context)
+function! s:citation_fulltext_source.gather_candidates(args, context)
   call unite#print_message('[citation] fulltext sources')
   return map(s:sub_sources, '{
 \   "word"   : v:val,
-\   "source" : s:fulltext_source.name,
+\   "source" : s:citation_fulltext_source.name,
 \   "kind"   : "source",
-\   "action__source_name" : "citation-fulltext/" . v:val,
+\   "action__source_name" : "citation_fulltext/" . v:val,
 \ }')
 endfunction
 
@@ -139,19 +139,19 @@ function! s:construct_sources(sub_sources)
         \  \n   call s:hooks.syntax()
         \  \n endfunction"
         exec "function! s:citation_source_" . sub_source . ".gather_candidates(args,context) 
-        \  \n   return s:map_entries('citation',context.custom_searchkey,'" . sub_source . "') 
+        \  \n   return s:map_entries('citation',a:args,'" . sub_source . "') 
         \  \n endfunction"
-        exec "let s:fulltext_source_" . sub_source . " = { 
+        exec "let s:citation_fulltext_source_" . sub_source . " = { 
         \       'action_table': {}, 
-        \       'name': 'fulltext/" . sub_source . "', 
+        \       'name': 'citation_fulltext/" . sub_source . "', 
         \       'hooks': {},
-        \       'syntax': 'uniteSource__fulltext'
+        \       'syntax': 'uniteSource__Citation'
         \     }"
-        exec "function! s:fulltext_source_" . sub_source . ".hooks.on_syntax(args, context)
+        exec "function! s:citation_fulltext_source_" . sub_source . ".hooks.on_syntax(args, context)
         \  \n   call s:hooks.syntax()
         \  \n endfunction"
-        exec "function! s:fulltext_source_" . sub_source . ".gather_candidates(args,context) 
-        \  \n   return s:map_entries('fulltext',context.custom_searchkey,'" . sub_source . "') 
+        exec "function! s:citation_fulltext_source_" . sub_source . ".gather_candidates(args,context) 
+        \  \n   return s:map_entries('citation_fulltext',a:args,'" . sub_source . "') 
         \  \n endfunction"
     endfor
 endfunction
@@ -170,8 +170,8 @@ endfunction
 function! s:citation_source_key.gather_candidates(args,context)
     return s:_key_gather_candidates('citation','')
 endfunction
-function! s:fulltext_source_key.gather_candidates(args,context)
-    return s:_key_gather_candidates('citation-fulltext', context.custom_searchkey)
+function! s:citation_fulltext_source_key.gather_candidates(args,context)
+    return s:_key_gather_candidates('citation_fulltext', a:args)
 endfunction
 
 function! s:_key_gather_candidates(source, searchkey)
@@ -185,11 +185,11 @@ function! s:_key_gather_candidates(source, searchkey)
     \ }')
 endfunction
 
+function! s:citation_fulltext_source_file.gather_candidates(args,context)
+    return s:file_gather_candidates('citation_fulltext', a:args)
+endfunction
 function! s:citation_source_file.gather_candidates(args,context)
     return s:file_gather_candidates('citation','')
-endfunction
-function! s:fulltext_source_file.gather_candidates(args,context)
-    return s:file_gather_candidates('citation-fulltext', context.custom_searchkey)
 endfunction
 
 function! s:file_gather_candidates(source, searchkey)
@@ -205,8 +205,8 @@ endfunction
 function! s:citation_source_url.gather_candidates(args,context)
     return s:url_gather_candidates('citation','')
 endfunction
-function! s:fulltext_source_url.gather_candidates(args,context)
-    return s:url_gather_candidates('citation-fulltext', context.custom_searchkey)
+function! s:citation_fulltext_source_url.gather_candidates(args,context)
+    return s:url_gather_candidates('citation_fulltext', a:args[1])
 endfunction
 
 function! s:url_gather_candidates(source, searchkey)
@@ -221,14 +221,13 @@ endfunction
 
 " Return source and sub-sources to Unite.
 function! unite#sources#citation#define() 
-    let l:sources = [s:citation_source, s:fulltext_source]
+    let l:sources = [s:citation_source, s:citation_fulltext_source]
     for sub_source in s:sub_sources
         let l:sources += [s:citation_source_{sub_source}]
-        let l:sources += [s:fulltext_source_{sub_source}]
+        let l:sources += [s:citation_fulltext_source_{sub_source}]
     endfor
     return l:sources
 endfunction 
-
 
 let s:hooks = {}
 function! s:hooks.syntax()

@@ -23,7 +23,6 @@ class zoteroData(object):
         where items.itemID = itemAttachments.sourceItemID
         """
 
-
     info_query = u"""
         select items.itemID, fields.fieldName, itemDataValues.value, items.key
         from items, itemData, fields, itemDataValues
@@ -67,11 +66,12 @@ class zoteroData(object):
         """
 
     fulltext_query = u"""
-        select fulltextItems.itemID
-        from fulltextItems, fulltextWords
+        select itemAttachments.sourceItemID
+        from itemAttachments, fulltextItemWords, fulltextWords
         where
-            fulltextWords.wordID = blah
-            and fulltextItems.wordID = fulltextWords.wordID
+            fulltextWords.word = "{}"
+            and fulltextItemWords.wordID = fulltextWords.wordID
+            and itemAttachments.itemID = fulltextItemWords.itemID
         """
 
     type_query = u"""
@@ -98,22 +98,13 @@ class zoteroData(object):
 
     deleted_query = u"select itemID from deletedItems"
 
-    def __init__(self, zotero_path, cache_path):
+    def __init__(self, context):
 
-        """
-        Intialize libzotero.
-        Arguments:
-        zotero_path       --    A string to the Zotero folder.
-
-        Keyword arguments:
-        """
-
+        self.context = context
         # Set paths
-        self.storage_path = os.path.join(zotero_path, u"storage")
-        self.zotero_database = os.path.join(zotero_path, u"zotero.sqlite")
-        self.database_copy = os.path.join(cache_path, u"zotero.sqlite")
-        # Remember search results so results speed up over time
-        self.search_cache = {}
+        self.storage_path = os.path.join(context.zotero_path, u"storage")
+        self.zotero_database = os.path.join(context.zotero_path, u"zotero.sqlite")
+        self.database_copy = os.path.join(context.cache_path, u"zotero.sqlite")
         # Check whether verbosity is turned on
         self.verbose = "-v" in sys.argv
         # These dates are treated as special and are not parsed into a year
@@ -123,25 +114,31 @@ class zoteroData(object):
         # These extensions are recognized as fulltext attachments
         self.attachment_ext = u".pdf", u".epub"
         self.index = {}
-
-    def load(self):
-
-        try:
-            stats = os.stat(self.zotero_database)
-        except Exception as e:
-            print(u"libzotero.update(): %s" % e)
-            return []
-
-        self.index = {}
         self.collection_index = []
+        self.ignored = []
+        self.matches = []
+        self.fulltext = False
         # Copy the zotero database to the copy
         shutil.copyfile(self.zotero_database, self.database_copy)
         self.conn = sqlite3.connect(self.database_copy)
         self.cur = self.conn.cursor()
-        self.ignored = []
-        # First create a list of deleted items, so we can ignore those later
+
+    def exists(self):
+        try:
+            stats = os.stat(self.zotero_database)
+        except Exception as e:
+            print(u"libzotero.exists(): %s" % e)
+            return False
+        return True
+
+    def load(self):
+        if not self.exists(): 
+            return []
         self.ignore_deleted()
-        self.get_types(init = True)
+        if self.context.source == 'citation_fulltext':
+            self.fulltext = True
+            self.get_fulltext_matches()
+        self.get_types()
         self.get_info()
         return self.index.items()
 
@@ -150,20 +147,30 @@ class zoteroData(object):
         for item in self.cur.fetchall():
             self.ignored.append(item[0])
 
-    def get_types(self, init):
+    def get_fulltext_matches(self):
+        query = self.fulltext_query.format(self.context.searchkey)
+        self.cur.execute(query)
+        for item in self.cur.fetchall():
+            item_id = item[0]
+            if not item_id in self.ignored: 
+                self.matches.append(item_id)
+
+    def get_types(self):
         # Retrieve type information and filter unwanted types.
         self.cur.execute(self.type_query)
         for item in self.cur.fetchall():
             item_id = item[0]
             item_type = item[1]
-            if item_id in self.ignored or item_type in ["note","attachment"]:
-                # Ignore deleted items, notes, and attachments
-                self.ignored.append(item_id)
-            else:
-                if init:
-                    print('oinit')
+            if not item_id in self.ignored:
+                if item_type in ["note","attachment"]:
+                    # Ignore deleted items, notes, and attachments
+                    self.ignored.append(item_id)
+                else:
+                    if self.fulltext and not item_id in self.matches:
+                        continue
                     self.index[item_id] = zoteroItem(item_id)
                     self.index[item_id].type = item_type
+
 
     def get_info(self):
         # Retrieve information about date, publication, volume, issue and
@@ -175,41 +182,12 @@ class zoteroData(object):
                 key = item[3]
                 self.index[item_id].key = key
                 item_name = item[1]
-                # Parse date fields, because we only want a year or a #
-                # 'special' date
+                item_value = item[2]
                 if item_name == u"date":
-                    item_value = None
-                    for sd in self.special_dates:
-                        if sd in item[2].lower():
-                            item_value = sd
-                            break
-                    # Dates can have months, days, and years, or just a
-                    # year, and can be split by '-' and '/' characters.
-                    if item_value == None:
-                        # Detect whether the date should be split
-                        if u'/' in item[2]:
-                            split = u'/'
-                        elif u'-' in item[3]:
-                            split = u'-'
-                        else:
-                            split = None
-                        # If not, just use the last four characters
-                        if split == None:
-                            item_value = item[2][-4:]
-                        # Else take the first slice that is four characters
-                        else:
-                            l = item[2].split(split)
-                            for i in l:
-                                if len(i) == 4:
-                                    item_value = i
-                                    break
-                else:
-                    item_value = item[2]
-
-                if item_name == u"publicationTitle":
-                    self.index[item_id].publication = compat_str(item_value)
-                elif item_name == u"date":
+                    item_valye = self.parse_date(item)
                     self.index[item_id].date = item_value
+                elif item_name == u"publicationTitle":
+                    self.index[item_id].publication = compat_str(item_value)
                 elif item_name == u"publisher":
                     self.index[item_id].publisher = item_value
                 elif item_name == u"language":
@@ -288,6 +266,35 @@ class zoteroData(object):
                         self.index[item_id].fulltext.append(att)
         self.cur.close()
 
+    def parse_date(self, item):
+        # Parse date fields, because we only want a year or a #
+        # 'special' date
+        item_value = None
+        for sd in self.special_dates:
+            if sd in item[2].lower():
+                item_value = sd
+                break
+        # Dates can have months, days, and years, or just a
+        # year, and can be split by '-' and '/' characters.
+        if item_value == None:
+            # Detect whether the date should be split
+            if u'/' in item[2]:
+                split = u'/'
+            elif u'-' in item[3]:
+                split = u'-'
+            else:
+                split = None
+            # If not, just use the last four characters
+            if split == None:
+                item_value = item[2][-4:]
+            # Else take the first slice that is four characters
+            else:
+                l = item[2].split(split)
+                for i in l:
+                    if len(i) == 4:
+                        item_value = i
+                        break
+        return item_value
 
 def valid_location(path):
 

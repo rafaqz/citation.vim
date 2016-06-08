@@ -16,15 +16,15 @@ class Citation(object):
 
         context = Context()
         context.mode         = vim.eval("g:citation_vim_mode")
-        context.bibtex_file  = vim.eval("g:citation_vim_bibtex_file")
-        context.zotero_path  = vim.eval("g:citation_vim_zotero_path")
-        context.cache_path   = vim.eval("g:citation_vim_cache_path")
+        context.bibtex_file  = os.path.expanduser(vim.eval("g:citation_vim_bibtex_file"))
+        context.zotero_path  = os.path.expanduser(vim.eval("g:citation_vim_zotero_path"))
+        context.cache_path   = os.path.expanduser(vim.eval("g:citation_vim_cache_path"))
         context.desc_format  = vim.eval("g:citation_vim_description_format")
         context.desc_fields  = vim.eval("g:citation_vim_description_fields")
         context.wrap_chars   = vim.eval("g:citation_vim_source_wrap")
         context.source       = vim.eval("a:source")
         context.source_field = vim.eval("a:field")
-        context.searchkey    = vim.eval("a:searchkey")
+        context.searchkey    = vim.eval("a:searchkey[0]")
         builder = Builder(context)
         return builder.build_list()
 
@@ -33,13 +33,11 @@ class Context(object):
 
 class Builder(object):
 
-    def __init__(self, context):
+    def __init__(self, context, cache = True):
         self.context = context 
-        self.bibtex_file = os.path.expanduser(context.bibtex_file)
-        self.zotero_path = os.path.expanduser(context.zotero_path)
-        self.zotero_database = os.path.join(self.zotero_path, u"zotero.sqlite")
-        self.cache_path = os.path.expanduser(context.cache_path)
-        self.cache_file = os.path.join(self.cache_path, u"citation_vim_cache")
+        self.zotero_database = os.path.join(self.context.zotero_path, u"zotero.sqlite")
+        self.cache_file = os.path.join(self.context.cache_path, u"citation_vim_cache")
+        self.cache = cache
 
     def build_list(self):
         output = []
@@ -50,12 +48,16 @@ class Builder(object):
 
     def get_entries(self):
         entries = []
-        if self.has_cache():
-            entries = self.read_cache()
-        else:
-            parser = self.get_parser()
+        parser = self.get_parser()
+        if self.context.source == 'citation':
+            if self.has_cache() and self.cache:
+                entries = self.read_cache()
+            else:
+                entries = parser.load()
+                if self.cache:
+                    self.write_cache(entries)
+        elif self.context.source == 'citation_fulltext':
             entries = parser.load()
-            self.write_cache(entries)
         return entries
 
     def get_parser(self):

@@ -26,7 +26,7 @@ class zoteroParser(object):
             print("{} is not a valid zotero path".format(zotero_path))
             return []
 
-        zotero = zoteroData(self.zotero_path, self.cache_path)
+        zotero = zoteroData(self.context)
         zot_data = zotero.load()
         bb = betterBibtex(self.zotero_path, self.cache_path)
         citekeys = bb.load_citekeys()
