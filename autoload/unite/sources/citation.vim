@@ -28,8 +28,7 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-call unite#util#set_default('g:citation_vim_file_paths', "")
-call unite#util#set_default('g:citation_vim_file_format', "citation")
+call unite#util#set_default('g:citation_vim_mode', "citation")
 call unite#util#set_default('g:citation_vim_outer_prefix', "[")
 call unite#util#set_default('g:citation_vim_inner_prefix', "@")
 call unite#util#set_default('g:citation_vim_suffix', "]")
@@ -45,21 +44,17 @@ call unite#util#set_default('g:citation_vim_highlight_blob', "♯♡◆◇◊○
 call unite#util#set_default('g:citation_vim_highlight_tiny', "、。‸₊⁺∘♢☆☜☞♢☼")
 call unite#util#set_default('g:citation_vim_highlight_text', "˝‘’‛“”‟′″‴‵‶‷")
 
-let s:script_folder_path = escape( expand( '<sfile>:p:h' ), '\' )
+let s:script_path = escape( expand( '<sfile>:p:h' ), '\' )
+let s:plugin_path = escape(expand('<sfile>:h:h:h:h'), '\')
+let s:main_path = s:plugin_path . '/python/citation_vim/citation.py'
 
 let s:has_supported_python = 0
 if has('python3')"
     let s:has_supported_python = 3
+    exe 'py3file ' . s:main_path
 elseif has('python')"
     let s:has_supported_python = 2
-endif
-let s:plugin_path = escape(expand('<sfile>:h:h:h:h'), '\')
-
-if s:has_supported_python == 3
-    echo s:plugin_path
-    exe 'py3file ' . s:plugin_path . '/python/citation_vim/citation.py'
-elseif s:has_supported_python == 2
-    exe 'pyfile ' . s:plugin_path . '/python/citation_vim/citation.py'
+    exe 'pyfile ' . s:main_path
 else
     function! DidNotLoad()
         echohl WarningMsg|echomsg "Citation.vim unavailable: requires Vim 7.3+"|echohl None
