@@ -10,6 +10,7 @@ from citation_vim.citation import Citation, Context, Builder
 context = Context()
 context.source = "fulltext"
 context.source_field = "key"
+context.searchkey = ""
 context.bibtex_file = sys.argv[1]
 context.zotero_path = sys.argv[1]
 context.mode = sys.argv[2]

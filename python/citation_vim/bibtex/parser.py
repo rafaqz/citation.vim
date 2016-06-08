@@ -6,8 +6,8 @@ from citation_vim.item import Item
 
 class bibtexParser(object):
 
-    def __init__(self, bibtex_file):
-        self.bibtex_file = bibtex_file
+    def __init__(self, context):
+        self.context = context
 
     def load(self):
 
@@ -17,10 +17,10 @@ class bibtexParser(object):
         """
         items = []
         try:
-            bib_path = self._check_path(self.bibtex_file)
+            bib_path = self._check_path(self.context.bibtex_file)
             bib_data = self._read_file(bib_path)
         except Exception as e:
-            print("Failed to read {}".format(bibtex_file))
+            print("Failed to read {}".format(self.context.bibtex_file))
             print("Message: {}".format(str(e)))
             return []
 

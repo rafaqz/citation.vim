@@ -15,9 +15,10 @@ class zoteroParser(object):
     A zotero database as an array of Items.
     """
 
-    def __init__(self, zotero_path, cache_path):
-        self.zotero_path = zotero_path
-        self.cache_path = cache_path
+    def __init__(self, context):
+        self.context = context
+        self.zotero_path = context.zotero_path
+        self.cache_path = context.cache_path
 
     def load(self):
 

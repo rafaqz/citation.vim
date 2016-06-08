@@ -24,6 +24,7 @@ class Citation(object):
         context.wrap_chars   = vim.eval("g:citation_vim_source_wrap")
         context.source       = vim.eval("a:source")
         context.source_field = vim.eval("a:field")
+        context.searchkey    = vim.eval("a:searchkey")
         builder = Builder(context)
         return builder.build_list()
 
@@ -50,7 +51,7 @@ class Builder(object):
     def get_entries(self):
         entries = []
         if self.has_cache():
-            entries = self.load_cache()
+            entries = self.read_cache()
         else:
             parser = self.get_parser()
             entries = parser.load()
@@ -60,15 +61,15 @@ class Builder(object):
     def get_parser(self):
         if self.context.mode == "bibtex":
             from citation_vim.bibtex.parser import bibtexParser
-            parser = bibtexParser(self.bibtex_file)
+            parser = bibtexParser(self.context)
         elif self.context.mode == "zotero":
             from citation_vim.zotero.parser import zoteroParser
-            parser = zoteroParser(self.zotero_path, self.cache_path)
+            parser = zoteroParser(self.context)
         else:
-            print("g:citation_vim_mode variable must be either 'zotero' or 'bibtex'")
+            print("g:citation_vim_mode must be either 'zotero' or 'bibtex'")
         return parser
 
-    def load_cache(self):
+    def read_cache(self):
         with open(self.cache_file, 'rb') as in_file:
             return pickle.load(in_file)
         

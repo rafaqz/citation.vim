@@ -85,6 +85,17 @@ let s:sub_sources = [
 \ "volume"
 \ ]
 
+" Get citation entries for a given field.
+function! s:get_source(source, searchkey, field)
+    let l:out = []
+    if s:has_supported_python == 3
+      let l:out = py3eval("Citation.connect()")
+    elseif s:has_supported_python == 2
+      let l:out = pyeval("Citation.connect()")
+    endif
+    return l:out
+endfunction
+
 let s:citation_source = {
 \ 'name' : 'citation',
 \ 'description' : 'display citation sources',
@@ -114,7 +125,6 @@ function! s:fulltext_source.gather_candidates(args, context)
 \   "action__source_name" : "citation-fulltext/" . v:val,
 \ }')
 endfunction
-
 
 " Build source variable and function programatically for all sub_sources.
 function! s:construct_sources(sub_sources)
@@ -154,17 +164,6 @@ function! s:map_entries(source, searchkey, field)
     \   "kind": "word",
     \   "action__text": v:val[0],
     \ }')
-endfunction
-
-" Get citation entries for a given field.
-function! s:get_source(source, searchkey, field)
-    let l:out = []
-    if s:has_supported_python == 3
-      let l:out = py3eval("Citation.connect()")
-    elseif s:has_supported_python == 2
-      let l:out = pyeval("Citation.connect()")
-    endif
-    return l:out
 endfunction
 
 " Override default gather_candidates function where necessary.
