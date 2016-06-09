@@ -164,7 +164,7 @@ function! s:construct_sources(sub_sources)
           \  \n   call s:hooks.syntax()
           \  \n endfunction"
           exec "function! s:citation_source_" . sub_source . ".gather_candidates(args,context) 
-          \  \n   return s:map_entries('citation',a:args,'" . sub_source . "') 
+          \  \n   return s:map_entries('citation','" . sub_source . "',a:args) 
           \  \n endfunction"
       endfor
 endfunction
