@@ -7,7 +7,7 @@ import sys
 import shutil
 import sys
 import time
-from citation_vim.utils import compat_str
+from citation_vim.utils import compat_str, is_current
 from citation_vim.zotero.item import zoteroItem
 
 class zoteroData(object):
@@ -18,15 +18,15 @@ class zoteroData(object):
     """
 
     attachment_query = u"""
-        select items.itemID, itemAttachments.path, itemAttachments.itemID
-        from items, itemAttachments
-        where items.itemID = itemAttachments.sourceItemID
+        SELECT items.itemID, itemAttachments.path, itemAttachments.itemID
+        FROM items, itemAttachments
+        WHERE items.itemID = itemAttachments.sourceItemID
         """
 
     info_query = u"""
-        select items.itemID, fields.fieldName, itemDataValues.value, items.key
-        from items, itemData, fields, itemDataValues
-        where
+        SELECT items.itemID, fields.fieldName, itemDataValues.value, items.key
+        FROM items, itemData, fields, itemDataValues
+        WHERE
             items.itemID = itemData.itemID
             and itemData.fieldID = fields.fieldID
             and itemData.valueID = itemDataValues.valueID
@@ -44,59 +44,50 @@ class zoteroData(object):
         """
 
     author_query = u"""
-        select items.itemID, creatorData.lastName, creatorData.firstName
-        from items, itemCreators, creators, creatorData, creatorTypes
-        where
+        SELECT items.itemID, creatorData.lastName, creatorData.firstName
+        FROM items, itemCreators, creators, creatorData, creatorTypes
+        WHERE
             items.itemID = itemCreators.itemID
             and itemCreators.creatorID = creators.creatorID
             and creators.creatorDataID = creatorData.creatorDataID
             and itemCreators.creatorTypeID = creatorTypes.creatorTypeID
             and creatorTypes.creatorType != "editor"
-        order by itemCreators.orderIndex
+        ORDER by itemCreators.ORDERIndex
         """
 
     collection_query = u"""
-        select items.itemID, collections.collectionName
-        from items, collections, collectionItems
-        where
+        SELECT items.itemID, collections.collectionName
+        FROM items, collections, collectionItems
+        WHERE
             items.itemID = collectionItems.itemID
             and collections.collectionID = collectionItems.collectionID
-        order by collections.collectionName != "To Read",
+        ORDER by collections.collectionName != "To Read",
             collections.collectionName
         """
 
-    fulltext_query = u"""
-        select itemAttachments.sourceItemID
-        from itemAttachments, fulltextItemWords, fulltextWords
-        where
-            fulltextWords.word = "{}"
-            and fulltextItemWords.wordID = fulltextWords.wordID
-            and itemAttachments.itemID = fulltextItemWords.itemID
-        """
-
     type_query = u"""
-        select items.itemID, itemTypes.typeName
-        from items, itemTypes
-        where
+        SELECT items.itemID, itemTypes.typeName
+        FROM items, itemTypes
+        WHERE
             items.itemTypeID = itemTypes.itemTypeID
         """
 
     tag_query = u"""
-        select items.itemID, tags.name
-        from items, tags, itemTags
-        where
+        SELECT items.itemID, tags.name
+        FROM items, tags, itemTags
+        WHERE
             items.itemID = itemTags.itemID
             and tags.tagID = itemTags.tagID
         """
 
     note_query = u"""
-        select items.itemID, itemNotes.note
-        from items, itemNotes
-        where
+        SELECT items.itemID, itemNotes.note
+        FROM items, itemNotes
+        WHERE
             items.itemID = itemNotes.itemID
         """
 
-    deleted_query = u"select itemID from deletedItems"
+    deleted_query = u"SELECT itemID FROM deletedItems"
 
     def __init__(self, context):
 
@@ -119,7 +110,8 @@ class zoteroData(object):
         self.matches = []
         self.fulltext = False
         # Copy the zotero database to the copy
-        shutil.copyfile(self.zotero_database, self.database_copy)
+        if not is_current(self.zotero_database, self.database_copy):
+            shutil.copyfile(self.zotero_database, self.database_copy)
         self.conn = sqlite3.connect(self.database_copy)
         self.cur = self.conn.cursor()
 
@@ -135,7 +127,7 @@ class zoteroData(object):
         if not self.exists(): 
             return []
         self.ignore_deleted()
-        if self.context.source == 'citation_fulltext':
+        if len(self.context.searchkeys) > 0:
             self.fulltext = True
             self.get_fulltext_matches()
         self.get_types()
@@ -148,7 +140,24 @@ class zoteroData(object):
             self.ignored.append(item[0])
 
     def get_fulltext_matches(self):
-        query = self.fulltext_query.format(self.context.searchkey)
+
+        # Awfull string query building.
+        fulltext_select = u"""
+            SELECT itemAttachments.sourceItemID
+            FROM itemAttachments"""
+        fulltext_from = u", fulltextItemWords AS fIW#, fulltextWords AS fW#"
+        fulltext_where = u"""itemAttachments.itemID = fIW#.itemID
+            and fIW#.wordID = fW#.wordID
+            and fW#.word LIKE '{}%'"""
+        _froms = ''
+        wheres = ''
+
+        for i in range(len(self.context.searchkeys)):
+            if i > 0: 
+                wheres += '\nand '
+            _froms += fulltext_from.replace('#', str(i))
+            wheres += fulltext_where.replace('#', str(i)).format(self.context.searchkeys[i])
+        query = fulltext_select + _froms + '\nWHERE\n' + wheres
         self.cur.execute(query)
         for item in self.cur.fetchall():
             item_id = item[0]

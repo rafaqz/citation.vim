@@ -4,7 +4,6 @@ import os.path
 import string
 import sys
 import pickle
-from datetime import datetime, timedelta
 
 class Citation(object):
 
@@ -15,16 +14,22 @@ class Citation(object):
         sys.path.insert(0, script_path)
 
         context = Context()
-        context.mode         = vim.eval("g:citation_vim_mode")
         context.bibtex_file  = os.path.expanduser(vim.eval("g:citation_vim_bibtex_file"))
         context.zotero_path  = os.path.expanduser(vim.eval("g:citation_vim_zotero_path"))
         context.cache_path   = os.path.expanduser(vim.eval("g:citation_vim_cache_path"))
+        context.collection   = os.path.expanduser(vim.eval("g:citation_vim_collection"))
+        context.mode         = vim.eval("g:citation_vim_mode")
         context.desc_format  = vim.eval("g:citation_vim_description_format")
         context.desc_fields  = vim.eval("g:citation_vim_description_fields")
         context.wrap_chars   = vim.eval("g:citation_vim_source_wrap")
         context.source       = vim.eval("a:source")
         context.source_field = vim.eval("a:field")
-        context.searchkey    = vim.eval("a:searchkey[0]")
+        searchkeys = vim.eval("l:searchkeys")
+        if len(searchkeys) > 0:
+            context.searchkeys = searchkeys[0].split()
+        else:
+            context.searchkeys = []
+
         builder = Builder(context)
         return builder.build_list()
 
@@ -40,24 +45,41 @@ class Builder(object):
         self.cache = cache
 
     def build_list(self):
+        if self.context.source == 'citation_collection':
+            return self.get_collections()
+        else:
+            output = []
+            for entry in self.get_entries():
+                if self.context.collection == "" or self.context.collection in entry.collections:
+                    description = self.describe(entry)
+                    output.append([getattr(entry, self.context.source_field), 
+                                   description,
+                                   entry.file,
+                                 ])
+            return output
+
+    def get_collections(self):
         output = []
+        collections = {}
         for entry in self.get_entries():
-            description = self.describe(entry)
-            output.append([getattr(entry, self.context.source_field), description])
+            for col in entry.collections:
+                if not col in collections:
+                    collections[col] = col
+                    output.append([col, col])
         return output
 
     def get_entries(self):
         entries = []
         parser = self.get_parser()
-        if self.context.source == 'citation':
+        if len(self.context.searchkeys) > 0:
+            entries = parser.load()
+        else:
             if self.has_cache() and self.cache:
                 entries = self.read_cache()
             else:
                 entries = parser.load()
                 if self.cache:
                     self.write_cache(entries)
-        elif self.context.source == 'citation_fulltext':
-            entries = parser.load()
         return entries
 
     def get_parser(self):
@@ -80,15 +102,13 @@ class Builder(object):
             pickle.dump(itemlist, out_file)
 
     def has_cache(self):
-        if not os.path.isfile(self.cache_file):
-            return False
+        from citation_vim.utils import is_current
         if self.context.mode == 'bibtex':
             file_path = self.bibtex_file
         elif self.context.mode == 'zotero':
             file_path = self.zotero_database
-        filetime = datetime.fromtimestamp(os.path.getctime(file_path))
-        cachetime = datetime.fromtimestamp(os.path.getctime(self.cache_file))
-        return filetime < cachetime
+        return is_current(file_path, self.cache_file)
+
 
     def describe(self, entry):
         # Get strings for description fields.

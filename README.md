@@ -6,17 +6,15 @@ A citation source for unite.vim
 (https://github.com/rafaqz/citation.vim)
 
 Citation.vim Imports zotero databases (with better_bibtex citation keys if
-available) or exported bibtex files and inserts/runs/does whatever you want with
-them using Unite.vim.
+available) or exported bibtex files and inserts keys, opens pdfs, searches
+fulltext or does whatever you want with them using Unite.vim.
 
-It also allows you to use your documents as file managers - open referenced pdfs
-and urls directly from your citations or from the citation list. Browse all
-citation details, notes and abstracts within vim. Yank, insert or preview .
+It allows you to use your documents as file managers - open referenced pdfs
+and urls directly from your citations or from a citation list. Browse all
+citation details, notes and abstracts within vim. Yank, insert or preview.
+Pass args to filter by a pdf fulltext search of your zotero database.
 
 ![Citation.vim screenshot](screenshot.png?raw=true "Citation.vim screenshot")
-
-A recent addition is caching: zotero and bibtex file import is cached until the
-files change - this has drastically sped up loading of large citation databases.
 
 Many thanks to termoshtt for unite-bibtex and smathot for gnotero and LibZotero code.
 
@@ -61,6 +59,8 @@ citation/volume
 
 You can also enter `:Unite citation` in vim for the full list of sources.
 
+`:Unite collection` will list zotero collection to filter results. 
+
 ### Usage
 
 1. Install [unite.vim](https://github.com/Shougo/unite.vim)
@@ -77,7 +77,7 @@ You can also enter `:Unite citation` in vim for the full list of sources.
 
   ```vimscript
   let g:citation_vim_bibtex_file=["/path/to/your/bib/file/library.bib"]
-  let g:citation_vim_file_format="bibtex"
+  let g:citation_vim_mode="bibtex"
   ```
 
   To use [zotero](https://www.zotero.org/)
@@ -85,10 +85,11 @@ You can also enter `:Unite citation` in vim for the full list of sources.
 
   ```vimscript
   let g:citation_vim_zotero_folder=["/path/to/your/zotero/7XX8XX72/zotero_folder/"]
-  let g:citation_vim_file_format="zotero"
+  let g:citation_vim_mode="zotero"
+  let g:citation_vim_collection" = 'your_zotero_collection'
   ```
 
-4. Set your cache path:
+4. Set a cache path:
 
   ```vimscript
     let g:citation_vim_cache_path='~/.vim/your_cache_path'
@@ -120,22 +121,19 @@ nnoremap <silent>[unite]c       :<C-u>Unite -buffer-name=citation   -start-inser
 To immediately open a file or url from a citation under the cursor:
 
 ```vimscript
-nnoremap <silent><leader>co :<C-u>Unite -input=<C-R><C-W> -default-action=start -force-immediately citation/file<cr>
+nnoremap <silent>[unite]co :<C-u>Unite -input=<C-R><C-W> -default-action=start -force-immediately citation/file<cr>
 ```
 
 To immediately browse the file folder from a citation under the cursor:
 
 ```vimscript
-nnoremap <silent><leader>cf :<C-u>Unite -input=<C-R><C-W> -default-action=file -force-immediately citation/file<cr>
+nnoremap <silent>[unite]cf :<C-u>Unite -input=<C-R><C-W> -default-action=file -force-immediately citation/file<cr>
 ```
 
 To view all citation information from a citation under the cursor:
 
 ```vimscript
-nnoremap <silent><leader>ci :<C-u>Unite -input=<C-R><C-W> -default-action=preview -force-immediately citation/combined<cr>
-```
-
-
+nnoremap <silent>[unite]ci :<C-u>Unite -input=<C-R><C-W> -default-action=preview -force-immediately citation/combined<cr>
 
 To preview, append, yank any other citation data from unite:
 
@@ -143,8 +141,25 @@ To preview, append, yank any other citation data from unite:
 nnoremap <silent>[unite]cp :<C-u>Unite -buffer-name=citation -default-action=append  -auto-preview citation/XXXXXX<cr>
 ```
 
-`:Unite citation` for the list of sources...
+#### Search fulltext!!
 
+Search fo the word under the cursor:
+
+```vimscript
+nnoremap <silent>[unite]cs :<C-u>Unite  -default-action=yank  citation/key:<C-R><C-W><cr>
+```
+Selected words in visual mode (notice that spaces have to be escaped) :
+
+```vimscript
+vnoremap <silent>[unite]cs :<C-u>exec "Unite  -default-action=start citation/key:" . escape(@*,' ') <cr>
+```
+Type search terms in the prompt:
+
+```vimscript
+nnoremap <silent>[unite]cx :<C-u>exec "Unite  -default-action=start citation/key:" . escape(input('Search Key : '),' ') <cr>
+```
+
+`:Unite citation` for a full list of sources...
 
 
 ### Tweaks 

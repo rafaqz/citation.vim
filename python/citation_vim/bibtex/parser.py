@@ -30,6 +30,7 @@ class bibtexParser(object):
             item = Item()
             item.abstract  = self.get_field(bib_entry, "abstract")
             item.author    = self.format_author(bib_entry)
+            item.collections  = []
             item.date      = self.get_field(bib_entry, "year")
             item.doi       = self.get_field(bib_entry, "doi")
             item.file      = self.format_file(bib_entry)

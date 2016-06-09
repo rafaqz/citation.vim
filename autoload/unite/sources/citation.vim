@@ -25,10 +25,13 @@
 " }}}
 "=============================================================================
 
+"-----------------------------------------------------------------------
+" {{{ Initialise
 let s:save_cpo = &cpo
 set cpo&vim
 
 call unite#util#set_default('g:citation_vim_mode', "citation")
+call unite#util#set_default('g:citation_vim_collection', "")
 call unite#util#set_default('g:citation_vim_outer_prefix', "[")
 call unite#util#set_default('g:citation_vim_inner_prefix', "@")
 call unite#util#set_default('g:citation_vim_suffix', "]")
@@ -63,6 +66,19 @@ else
     call DidNotLoad()
 endif
 
+
+"-----------------------------------------------------------------------}}}
+" {{{ Sources
+let s:citation_source = {
+\ 'name' : 'citation',
+\ 'description' : 'display citation sources',
+\}
+
+let s:citation_collection_source = {
+\ 'name' : 'citation_collection',
+\ 'description' : 'search citation collection',
+\}
+
 let s:sub_sources = [
 \ "abstract",
 \ "author",
@@ -85,9 +101,16 @@ let s:sub_sources = [
 \ "volume"
 \ ]
 
-" Get citation entries for a given field.
-function! s:get_source(source, searchkey, field)
+"-----------------------------------------------------------------------}}}
+" {{{ Get source from python
+function! s:get_source(source, field, args)
     let l:out = []
+    if len(a:args) > 0
+      let l:searchkeys = a:args[0]
+    else
+      let l:searchkeys = ""
+    endif
+
     if s:has_supported_python == 3
       let l:out = py3eval("Citation.connect()")
     elseif s:has_supported_python == 2
@@ -96,18 +119,29 @@ function! s:get_source(source, searchkey, field)
     return l:out
 endfunction
 
-let s:citation_source = {
-\ 'name' : 'citation',
-\ 'description' : 'display citation sources',
-\}
+"-----------------------------------------------------------------------}}}
+" {{{ List collections
+function! s:citation_collection_source.gather_candidates(args, context)
+  call unite#print_message('[Citation] collections')
+  return map(s:get_source('citation_collection', '', ''), '{
+\   "word"   : v:val[0],
+\   "source" : s:citation_collection_source.name,
+\   "kind": ["command"],
+\   "action__command": s:set_collection(v:val[0]),
+\   "action__type": ": ",
+\   "action__path": v:val[1],
+\   "action__directory": fnamemodify(v:val[1], ":h"),
+\ }')
+endfunction
 
-let s:citation_fulltext_source = {
-\ 'name' : 'citation_fulltext',
-\ 'description' : 'search citation fulltext',
-\}
+function! s:set_collection(c)
+  return printf("let g:citation_vim_collection='%s'", a:c)
+endfunction
 
+"-----------------------------------------------------------------------}}}
+" {{{ List sources
 function! s:citation_source.gather_candidates(args, context)
-  call unite#print_message('[citation] citation sources')
+  call unite#print_message('[Citation] citation sources')
   return map(s:sub_sources, '{
 \   "word"   : v:val,
 \   "source" : s:citation_source.name,
@@ -116,119 +150,72 @@ function! s:citation_source.gather_candidates(args, context)
 \ }')
 endfunction
 
-function! s:citation_fulltext_source.gather_candidates(args, context)
-  call unite#print_message('[citation] fulltext sources')
-  return map(s:sub_sources, '{
-\   "word"   : v:val,
-\   "source" : s:citation_fulltext_source.name,
-\   "kind"   : "source",
-\   "action__source_name" : "citation_fulltext/" . v:val,
-\ }')
-endfunction
-
-" Build source variable and function programatically for all sub_sources.
+"-----------------------------------------------------------------------}}}
+" {{{ Build all sub_sources programatically.
 function! s:construct_sources(sub_sources)
-    for sub_source in a:sub_sources
-        exec "let s:citation_source_" . sub_source . " = { 
-        \       'action_table': {}, 
-        \       'name': 'citation/" . sub_source . "', 
-        \       'hooks': {},
-        \       'syntax': 'uniteSource__Citation'
-        \     }"
-        exec "function! s:citation_source_" . sub_source . ".hooks.on_syntax(args, context)
-        \  \n   call s:hooks.syntax()
-        \  \n endfunction"
-        exec "function! s:citation_source_" . sub_source . ".gather_candidates(args,context) 
-        \  \n   return s:map_entries('citation',a:args,'" . sub_source . "') 
-        \  \n endfunction"
-        exec "let s:citation_fulltext_source_" . sub_source . " = { 
-        \       'action_table': {}, 
-        \       'name': 'citation_fulltext/" . sub_source . "', 
-        \       'hooks': {},
-        \       'syntax': 'uniteSource__Citation'
-        \     }"
-        exec "function! s:citation_fulltext_source_" . sub_source . ".hooks.on_syntax(args, context)
-        \  \n   call s:hooks.syntax()
-        \  \n endfunction"
-        exec "function! s:citation_fulltext_source_" . sub_source . ".gather_candidates(args,context) 
-        \  \n   return s:map_entries('citation_fulltext',a:args,'" . sub_source . "') 
-        \  \n endfunction"
-    endfor
+      for sub_source in a:sub_sources
+          exec "let s:citation_source_" . sub_source . " = { 
+          \       'action_table': {}, 
+          \       'name': 'citation/" . sub_source . "', 
+          \       'hooks': {},
+          \       'syntax': 'uniteSource__citation'
+          \     }"
+          exec "function! s:citation_source_" . sub_source . ".hooks.on_syntax(args, context)
+          \  \n   call s:hooks.syntax()
+          \  \n endfunction"
+          exec "function! s:citation_source_" . sub_source . ".gather_candidates(args,context) 
+          \  \n   return s:map_entries('citation',a:args,'" . sub_source . "') 
+          \  \n endfunction"
+      endfor
 endfunction
 call s:construct_sources(s:sub_sources)
 
-function! s:map_entries(source, searchkey, field) 
-    return map(s:get_source(a:source, a:searchkey, a:field),'{
+function! s:map_entries(source, field, args) 
+    return map(s:get_source(a:source, a:field, a:args),'{
     \   "word": v:val[1],
-    \   "source": a:source . a:field,
-    \   "kind": "word",
+    \   "source": a:source . "/" . a:field,
+    \   "kind": ["word","file", "uri"],
     \   "action__text": v:val[0],
+    \   "action__path": v:val[2],
     \ }')
 endfunction
 
-" Override default gather_candidates function where necessary.
+"-----------------------------------------------------------------------}}}
+" {{{ Override built gather_candidates for key and url
 function! s:citation_source_key.gather_candidates(args,context)
-    return s:_key_gather_candidates('citation','')
-endfunction
-function! s:citation_fulltext_source_key.gather_candidates(args,context)
-    return s:_key_gather_candidates('citation_fulltext', a:args)
-endfunction
-
-function! s:_key_gather_candidates(source, searchkey)
     let l:prefix = g:citation_vim_outer_prefix . g:citation_vim_inner_prefix
     let l:suffix = g:citation_vim_suffix
-    return map(s:get_source(a:source, a:searchkey, "key"),'{
+    return map(s:get_source('citation', "key", a:args),'{
     \   "word": v:val[1],
-    \   "source": a:source . "/key",
-    \   "kind": "word",
+    \   "source": "citation/key",
+    \   "kind": ["word","file", "uri"],
     \   "action__text": l:prefix . v:val[0] . l:suffix,
+    \   "action__path": v:val[2],
     \ }')
 endfunction
 
-function! s:citation_fulltext_source_file.gather_candidates(args,context)
-    return s:file_gather_candidates('citation_fulltext', a:args)
-endfunction
-function! s:citation_source_file.gather_candidates(args,context)
-    return s:file_gather_candidates('citation','')
-endfunction
-
-function! s:file_gather_candidates(source, searchkey)
-    return map(s:get_source(a:source, a:searchkey, "file"),'{
+function! s:citation_source_key_gather_candidates(args, context)
+    return map(s:get_source('citation', "url", a:args),'{
     \   "word": v:val[1],
-    \   "source": a:source . "/file",
+    \   "source": "citation/url",
     \   "kind": ["word","file", "uri"],
     \   "action__text": v:val[0],
     \   "action__path": v:val[0],
     \ }')
 endfunction
 
-function! s:citation_source_url.gather_candidates(args,context)
-    return s:url_gather_candidates('citation','')
-endfunction
-function! s:citation_fulltext_source_url.gather_candidates(args,context)
-    return s:url_gather_candidates('citation_fulltext', a:args[1])
-endfunction
-
-function! s:url_gather_candidates(source, searchkey)
-    return map(s:get_source(a:source, a:searchkey, "url"),'{
-    \   "word": v:val[1],
-    \   "source": a:source . "/url",
-    \   "kind": ["word","file", "uri"],
-    \   "action__text": v:val[0],
-    \   "action__path": v:val[0],
-    \ }')
-endfunction
-
-" Return source and sub-sources to Unite.
+"-----------------------------------------------------------------------}}}
+" {{{ Return source and sub-sources to Unite.
 function! unite#sources#citation#define() 
-    let l:sources = [s:citation_source, s:citation_fulltext_source]
+    let l:sources = [s:citation_source, s:citation_collection_source]
     for sub_source in s:sub_sources
         let l:sources += [s:citation_source_{sub_source}]
-        let l:sources += [s:citation_fulltext_source_{sub_source}]
     endfor
     return l:sources
 endfunction 
 
+"-----------------------------------------------------------------------}}}
+" {{{ Syntax
 let s:hooks = {}
 function! s:hooks.syntax()
   let arrow = g:citation_vim_highlight_arrow
