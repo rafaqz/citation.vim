@@ -26,7 +26,7 @@ class Citation(object):
         context.source_field = vim.eval("a:field")
         searchkeys = vim.eval("l:searchkeys")
         if len(searchkeys) > 0:
-            context.searchkeys = searchkeys[0].split()
+            context.searchkeys = searchkeys.split()
         else:
             context.searchkeys = []
 

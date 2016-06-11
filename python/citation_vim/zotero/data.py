@@ -90,14 +90,11 @@ class zoteroData(object):
     deleted_query = u"SELECT itemID FROM deletedItems"
 
     def __init__(self, context):
-
         self.context = context
         # Set paths
         self.storage_path = os.path.join(context.zotero_path, u"storage")
         self.zotero_database = os.path.join(context.zotero_path, u"zotero.sqlite")
         self.database_copy = os.path.join(context.cache_path, u"zotero.sqlite")
-        # Check whether verbosity is turned on
-        self.verbose = "-v" in sys.argv
         # These dates are treated as special and are not parsed into a year
         # representation
         self.special_dates = u"in press", u"submitted", u"in preparation", \
@@ -140,7 +137,6 @@ class zoteroData(object):
             self.ignored.append(item[0])
 
     def get_fulltext_matches(self):
-
         # Awfull string query building.
         fulltext_select = u"""
             SELECT itemAttachments.sourceItemID
@@ -148,7 +144,7 @@ class zoteroData(object):
         fulltext_from = u", fulltextItemWords AS fIW#, fulltextWords AS fW#"
         fulltext_where = u"""itemAttachments.itemID = fIW#.itemID
             and fIW#.wordID = fW#.wordID
-            and fW#.word LIKE '{}%'"""
+            and fW#.word = '{}'"""
         _froms = ''
         wheres = ''
 
