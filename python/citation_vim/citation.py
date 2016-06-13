@@ -55,6 +55,7 @@ class Builder(object):
                     output.append([getattr(entry, self.context.source_field), 
                                    description,
                                    entry.file,
+                                   entry.combined,
                                  ])
             return output
 

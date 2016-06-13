@@ -61,6 +61,11 @@ You can also enter `:Unite citation` in vim for the full list of sources.
 
 `:Unite collection` will list zotero collection to filter results. 
 
+No matter what source is selected, execute/edit commands will always echo combined
+information for the citation, and file will always use the attached pdf/epub
+file path. This is useful for setting open/show info key commands to use within
+unite, no matter what source is being browsed (see example mappings).
+
 ### Usage
 
 1. Install [unite.vim](https://github.com/Shougo/unite.vim)
@@ -106,7 +111,7 @@ You can also enter `:Unite citation` in vim for the full list of sources.
 6. Set some mappings. Copy and paste the following examples into your vimrc to get started.
 
 
-### Examples mappings:
+### Example mappings:
 
 Set a unite leader:
 nmap <leader>u [unite]
@@ -141,6 +146,7 @@ To preview, append, yank any other citation data from unite:
 nnoremap <silent>[unite]cp :<C-u>Unite -buffer-name=citation -default-action=append  -auto-preview citation/XXXXXX<cr>
 ```
 
+
 #### Search fulltext!!
 
 Search fo the word under the cursor:
@@ -161,6 +167,17 @@ nnoremap <silent>[unite]cx :<C-u>exec "Unite  -default-action=start citation/key
 
 `:Unite citation` for a full list of sources...
 
+#### Open files or show info from any source
+
+```vimscript
+autocmd FileType unite call s:unite_my_settings()
+function! s:unite_my_settings()
+  nnoremap <silent><buffer><expr> <C-o> unite#do_action('start')
+  imap     <silent><buffer><expr> <C-o> unite#do_action('start')
+  nnoremap <silent><buffer><expr> <C-i> unite#do_action('execute')
+  imap     <silent><buffer><expr> <C-i> unite#do_action('execute')
+endfunction
+```
 
 ### Tweaks 
 

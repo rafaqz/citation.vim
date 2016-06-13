@@ -1,4 +1,4 @@
-#-*- coding:utf-8 -*-
+# -*- coding:utf-8 -*-
 
 import sqlite3
 import os
@@ -147,12 +147,12 @@ class zoteroData(object):
             and fW#.word = '{}'"""
         _froms = ''
         wheres = ''
-
         for i in range(len(self.context.searchkeys)):
             if i > 0: 
                 wheres += '\nand '
+            searchkey = self.context.searchkeys[i].lower()
             _froms += fulltext_from.replace('#', str(i))
-            wheres += fulltext_where.replace('#', str(i)).format(self.context.searchkeys[i])
+            wheres += fulltext_where.replace('#', str(i)).format(searchkey)
         query = fulltext_select + _froms + '\nWHERE\n' + wheres
         self.cur.execute(query)
         for item in self.cur.fetchall():
@@ -161,7 +161,7 @@ class zoteroData(object):
                 self.matches.append(item_id)
 
     def get_types(self):
-        # Retrieve type information and filter unwanted types.
+        # Retrieve type information and filter unwanted types
         self.cur.execute(self.type_query)
         for item in self.cur.fetchall():
             item_id = item[0]

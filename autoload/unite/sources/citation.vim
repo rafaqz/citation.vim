@@ -174,9 +174,10 @@ function! s:map_entries(source, field, args)
     return map(s:get_source(a:source, a:field, a:args),'{
     \   "word": v:val[1],
     \   "source": a:source . "/" . a:field,
-    \   "kind": ["word","file", "uri"],
+    \   "kind": ["word","file","uri","command"],
     \   "action__text": v:val[0],
     \   "action__path": v:val[2],
+    \   "action__command": s:set_message(v:val[3]),
     \ }')
 endfunction
 
@@ -188,9 +189,10 @@ function! s:citation_source_key.gather_candidates(args,context)
     return map(s:get_source('citation', "key", a:args),'{
     \   "word": v:val[1],
     \   "source": "citation/key",
-    \   "kind": ["word","file", "uri"],
+    \   "kind": ["word","file","uri","command"],
     \   "action__text": l:prefix . v:val[0] . l:suffix,
     \   "action__path": v:val[2],
+    \   "action__command": s:set_message(v:val[3]),
     \ }')
 endfunction
 
@@ -198,10 +200,15 @@ function! s:citation_source_key_gather_candidates(args, context)
     return map(s:get_source('citation', "url", a:args),'{
     \   "word": v:val[1],
     \   "source": "citation/url",
-    \   "kind": ["word","file", "uri"],
+    \   "kind": ["word","file","uri","command"],
     \   "action__text": v:val[0],
     \   "action__path": v:val[0],
+    \   "action__command": s:set_message(v:val[3]),
     \ }')
+endfunction
+
+function! s:set_message(m)
+  return printf('echo "%s"', a:m)
 endfunction
 
 "-----------------------------------------------------------------------}}}

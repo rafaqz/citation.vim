@@ -1,4 +1,4 @@
-#-*- coding:utf-8 -*-
+# -*- coding:utf-8 -*-
 
 class Item(object):
 
@@ -7,7 +7,7 @@ class Item(object):
     """
 
     def combine(self):
-        self.combined = u"\n[{}]\nKey: {}\nTitle: {}\nAuthor(s): {}\nDate: {}\nTags: {}\nCollection: {}\nAbstract: {}\nPublication: {}\nIssue: {}\nVolume: {}\nPages: {}\nPublisher: {}\nLang: {}\nFile(s): {}\nURL:{}\nDOI:{}\nISBN:{}\nNotes: {}".format(
+        self.combined = u"[{}]\\nKey: {}\\nTitle: {}\\nAuthor(s): {}\\nDate: {}\\nTags: {}\\nCollections: {}\\nAbstract: {}\\nPublication: {}\\nIssue: {}\\nVolume: {}\\nPages: {}\\nPublisher: {}\\nLang: {}\\nFile(s): {}\\nURL:{}\\nDOI:{}\\nISBN:{}\\nNotes: {}".format(
             self.type,
             self.key,
             self.title,
@@ -26,4 +26,5 @@ class Item(object):
             self.url, 
             self.doi, 
             self.isbn, 
-            self.notes)
+            self.notes
+         ).replace('"',"'")
