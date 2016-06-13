@@ -189,8 +189,7 @@ class zoteroData(object):
                 item_name = item[1]
                 item_value = item[2]
                 if item_name == u"date":
-                    item_valye = self.parse_date(item)
-                    self.index[item_id].date = item_value
+                    self.index[item_id].date = self.parse_date(item)
                 elif item_name == u"publicationTitle":
                     self.index[item_id].publication = compat_str(item_value)
                 elif item_name == u"publisher":
