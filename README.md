@@ -61,10 +61,11 @@ You can also enter `:Unite citation` in vim for the full list of sources.
 
 `:Unite collection` will list zotero collection to filter results. 
 
-No matter what source is selected, execute/edit commands will always echo combined
-information for the citation, and file will always use the attached pdf/epub
-file path. This is useful for setting open/show info key commands to use within
-unite, no matter what source is being browsed (see example mappings).
+No matter what source is selected, execute/edit and preview commands will always
+echo combined information for the citation, and file will always use the
+attached pdf/epub file path. This is useful for setting open/show info key
+commands to use within unite, no matter what source is being browsed (see
+example mappings).
 
 ### Usage
 
@@ -174,8 +175,8 @@ autocmd FileType unite call s:unite_my_settings()
 function! s:unite_my_settings()
   nnoremap <silent><buffer><expr> <C-o> unite#do_action('start')
   imap     <silent><buffer><expr> <C-o> unite#do_action('start')
-  nnoremap <silent><buffer><expr> <C-i> unite#do_action('execute')
-  imap     <silent><buffer><expr> <C-i> unite#do_action('execute')
+  nnoremap <silent><buffer><expr> <C-i> unite#do_action('preview')
+  imap     <silent><buffer><expr> <C-i> unite#do_action('preview')
 endfunction
 ```
 

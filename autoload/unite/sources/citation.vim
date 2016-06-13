@@ -155,16 +155,25 @@ endfunction
 function! s:construct_sources(sub_sources)
       for sub_source in a:sub_sources
           exec "let s:citation_source_" . sub_source . " = { 
-          \       'action_table': {}, 
           \       'name': 'citation/" . sub_source . "', 
+          \	      'default_action' : 'insert',
           \       'hooks': {},
-          \       'syntax': 'uniteSource__citation'
+          \       'syntax': 'uniteSource__citation',
+          \      	'action_table' : {
+          \	      	'preview' : {
+          \		      	'description' : 'preview : Combined citation info {word}',
+          \			      'is_quit' : 0,
+          \      		}
+          \	      }
           \     }"
           exec "function! s:citation_source_" . sub_source . ".hooks.on_syntax(args, context)
           \  \n   call s:hooks.syntax()
           \  \n endfunction"
           exec "function! s:citation_source_" . sub_source . ".gather_candidates(args,context) 
           \  \n   return s:map_entries('citation','" . sub_source . "',a:args) 
+          \  \n endfunction"
+          exec "function! s:citation_source_" . sub_source . ".action_table.preview.func(candidate)
+          \  \n execute a:candidate.action__command
           \  \n endfunction"
       endfor
 endfunction
