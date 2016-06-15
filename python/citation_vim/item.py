@@ -1,5 +1,7 @@
 # -*- coding:utf-8 -*-
 
+from citation_vim.utils import compat_str, is_current
+
 class Item(object):
 
     """
@@ -7,24 +9,26 @@ class Item(object):
     """
 
     def combine(self):
-        self.combined = u"[{}]\\nKey: {}\\nTitle: {}\\nAuthor(s): {}\\nDate: {}\\nTags: {}\\nCollections: {}\\nAbstract: {}\\nPublication: {}\\nIssue: {}\\nVolume: {}\\nPages: {}\\nPublisher: {}\\nLang: {}\\nFile(s): {}\\nURL:{}\\nDOI:{}\\nISBN:{}\\nNotes: {}".format(
-            self.type,
-            self.key,
-            self.title,
-            self.author, 
-            self.date,
-            self.tags,
-            ', '.join(self.collections),
-            self.abstract,
-            self.publication, 
-            self.issue, 
-            self.volume, 
-            self.pages, 
-            self.publisher, 
-            self.language, 
-            self.file, 
-            self.url, 
-            self.doi, 
-            self.isbn, 
-            self.notes
-         ).replace('"',"'")
+        pairs = {
+            'Key': self.key,
+            'Title': self.title,
+            'Author(s)': self.author,
+            'Date': self.date,
+            'Tags': self.tags,
+            'Collections': ', '.join(self.collections),
+            'Publication': self.publication,
+            'Issue': self.issue,
+            'Volume': self.volume,
+            'Pages': self.pages,
+            'Publisher': self.publisher,
+            'Language': self.language,
+            'Abstract': self.abstract,
+            'Notes': self.notes,
+            'File(s)': self.file,
+            'URL': self.url,
+            'DOI': self.doi,
+            'ISBN': self.isbn}
+        self.combined = u"Available citation information:\n"
+        for key, value in pairs.items():
+            if value:
+                self.combined += "  " + key + " : " + compat_str(value) + "\n"

@@ -89,6 +89,7 @@ let s:sub_sources = [
 \ "isbn",
 \ "publication",
 \ "key",
+\ "key_inner",
 \ "language",
 \ "issue",
 \ "notes",
@@ -205,7 +206,20 @@ function! s:citation_source_key.gather_candidates(args,context)
     \ }')
 endfunction
 
-function! s:citation_source_key_gather_candidates(args, context)
+function! s:citation_source_key_inner.gather_candidates(args,context)
+    let l:prefix = g:citation_vim_inner_prefix
+    return map(s:get_source('citation', "key", a:args),'{
+    \   "word": v:val[1],
+    \   "source": "citation/key",
+    \   "kind": ["word","file","uri","command"],
+    \   "action__text": l:prefix . v:val[0],
+    \   "action__path": v:val[2],
+    \   "action__command": s:set_message(v:val[3]),
+    \ }')
+endfunction
+
+
+function! s:citation_source_url_gather_candidates(args, context)
     return map(s:get_source('citation', "url", a:args),'{
     \   "word": v:val[1],
     \   "source": "citation/url",
@@ -216,6 +230,8 @@ function! s:citation_source_key_gather_candidates(args, context)
     \ }')
 endfunction
 
+"-----------------------------------------------------------------------}}}
+" {{{ Set prompt message
 function! s:set_message(m)
   return printf('echo "%s"', a:m)
 endfunction

@@ -49,39 +49,39 @@ class Builder(object):
             return self.get_collections()
         else:
             output = []
-            for entry in self.get_entries():
-                if self.context.collection == "" or self.context.collection in entry.collections:
-                    description = self.describe(entry)
-                    output.append([getattr(entry, self.context.source_field), 
+            for item in self.get_items():
+                if self.context.collection == "" or self.context.collection in item.collections:
+                    description = self.describe(item)
+                    output.append([getattr(item, self.context.source_field), 
                                    description,
-                                   entry.file,
-                                   entry.combined,
+                                   item.file,
+                                   item.combined,
                                  ])
             return output
 
     def get_collections(self):
         output = []
         collections = {}
-        for entry in self.get_entries():
-            for col in entry.collections:
+        for item in self.get_items():
+            for col in item.collections:
                 if not col in collections:
                     collections[col] = col
                     output.append([col, col])
         return output
 
-    def get_entries(self):
-        entries = []
+    def get_items(self):
+        items = []
         parser = self.get_parser()
         if len(self.context.searchkeys) > 0:
-            entries = parser.load()
+            items = parser.load()
         else:
             if self.has_cache() and self.cache:
-                entries = self.read_cache()
+                items = self.read_cache()
             else:
-                entries = parser.load()
+                items = parser.load()
                 if self.cache:
-                    self.write_cache(entries)
-        return entries
+                    self.write_cache(items)
+        return items
 
     def get_parser(self):
         if self.context.mode == "bibtex":
