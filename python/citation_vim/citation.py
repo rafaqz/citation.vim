@@ -40,7 +40,6 @@ class Builder(object):
 
     def __init__(self, context, cache = True):
         self.context = context 
-        self.zotero_database = os.path.join(self.context.zotero_path, u"zotero.sqlite")
         self.cache_file = os.path.join(self.context.cache_path, u"citation_vim_cache")
         self.cache = cache
 
@@ -70,17 +69,22 @@ class Builder(object):
         return output
 
     def get_items(self):
-        items = []
         parser = self.get_parser()
+
         if len(self.context.searchkeys) > 0:
-            items = parser.load()
-        else:
-            if self.has_cache() and self.cache:
+            return parser.load()
+
+        if self.has_cache() and self.cache:
+            try:
                 items = self.read_cache()
-            else:
-                items = parser.load()
-                if self.cache:
-                    self.write_cache(items)
+            except:
+                items = []
+            else:  
+                return items
+
+        items = parser.load()
+        if self.cache:
+            self.write_cache(items)
         return items
 
     def get_parser(self):
@@ -105,9 +109,10 @@ class Builder(object):
     def has_cache(self):
         from citation_vim.utils import is_current
         if self.context.mode == 'bibtex':
-            file_path = self.bibtex_file
+            file_path = self.context.bibtex_file
         elif self.context.mode == 'zotero':
-            file_path = self.zotero_database
+            zotero_database = os.path.join(self.context.zotero_path, u"zotero.sqlite")
+            file_path = zotero_database
         return is_current(file_path, self.cache_file)
 
 
