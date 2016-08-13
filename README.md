@@ -5,9 +5,9 @@ A citation source for unite.vim
 
 (https://github.com/rafaqz/citation.vim)
 
-Citation.vim Imports zotero databases (with better_bibtex citation keys if
-available) or exported bibtex files and inserts keys, opens pdfs, searches
-fulltext or does whatever you want with them using Unite.vim.
+Citation.vim imports zotero databases with better_bibtex citation keys if
+available, or exported bibtex files. It can insert keys and many other fields,
+open attached pdfs and urls, or search zoteros fulltext database.
 
 It allows you to use your documents as file managers - open referenced pdfs
 and urls directly from your citations or from a citation list. Browse all
@@ -24,8 +24,8 @@ Many thanks to termoshtt for unite-bibtex and smathot for gnotero and LibZotero 
 This plugin provides a *lot* of unite sources.
 
 citation/key
-- returns the citation key string like [@smith2004] to be used as a reference.
-- customisable prefix and suffix to produce latex/pandoc etc. citation styles
+- returns citation key string like [@smith2004] to be used as a reference.
+- change the customisable prefix and suffix to produce latex/pandoc etc. citation styles
 
 citation/file
 - Returns the file attached to a citation, great for opening pdfs from vim
@@ -59,13 +59,14 @@ citation/volume
 
 You can also enter `:Unite citation` in vim for the full list of sources.
 
-`:Unite collection` will list zotero collection to filter results. 
+`:Unite citation_collection` will list zotero collections: select one to filter results. 
 
 No matter what source is selected, execute/edit and preview commands will always
 echo combined information for the citation, and file will always use the
 attached pdf/epub file path. This is useful for setting open/show info key
-commands to use within unite, no matter what source is being browsed (see
-example mappings).
+commands to use within unite, no matter what source is being browsed - see
+the example mappings for how to do this.
+
 
 ### Usage
 
@@ -215,6 +216,7 @@ To change description highlighting characters, copy and paste characters from th
 
 Long lines will occasionally break the display colors. It's a quirk of how unite
 shortens lines.
+
 
 ### Troubleshooting
 
