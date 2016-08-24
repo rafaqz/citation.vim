@@ -122,16 +122,22 @@ nnoremap [unite] <nop>
 To insert a citation:
 
 ```vimscript
-nnoremap <silent>[unite]c       :<C-u>Unite -buffer-name=citation   -start-insert -default-action=append      bibtex<cr>
+nnoremap <silent>[unite]c       :<C-u>Unite -buffer-name=citation
+-start-insert -default-action=append      citation/key<cr>
 ```
 
-To immediately open a file or url from a citation under the cursor:
+To immediately open a file from a citation under the cursor:
 
 ```vimscript
 nnoremap <silent>[unite]co :<C-u>Unite -input=<C-R><C-W> -default-action=start -force-immediately citation/file<cr>
 ```
 
-To immediately browse the file folder from a citation under the cursor:
+Or open a url from a citation under the cursor:
+
+nnoremap <silent><leader>cu :<C-u>Unite -input=<C-R><C-W> -default-action=start -force-immediately citation/url<cr>
+
+
+To browse the file folder from a citation under the cursor:
 
 ```vimscript
 nnoremap <silent>[unite]cf :<C-u>Unite -input=<C-R><C-W> -default-action=file -force-immediately citation/file<cr>
@@ -142,21 +148,25 @@ To view all citation information from a citation under the cursor:
 ```vimscript
 nnoremap <silent>[unite]ci :<C-u>Unite -input=<C-R><C-W> -default-action=preview -force-immediately citation/combined<cr>
 
-To preview, append, yank any other citation data from unite:
+
+To preview, append, yank any other citation data you want from unite:
 
 ```vimscript
-nnoremap <silent>[unite]cp :<C-u>Unite -buffer-name=citation -default-action=append  -auto-preview citation/XXXXXX<cr>
+
+nnoremap <silent>[unite]cp :<C-u>Unite -default-action=yank citation/your_source_here<cr>
 ```
 
 
 #### Search fulltext!!
 
-Search fo the word under the cursor:
+Search for word by appending them after the command and a colon:
+
+Search for the word under the cursor:
 
 ```vimscript
 nnoremap <silent>[unite]cs :<C-u>Unite  -default-action=yank  citation/key:<C-R><C-W><cr>
 ```
-Selected words in visual mode (notice that spaces have to be escaped) :
+Search for selected words in visual mode (notice that spaces have to be escaped) :
 
 ```vimscript
 vnoremap <silent>[unite]cs :<C-u>exec "Unite  -default-action=start citation/key:" . escape(@*,' ') <cr>
