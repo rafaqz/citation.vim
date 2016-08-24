@@ -94,8 +94,14 @@ the example mappings for how to do this.
   ```vimscript
   let g:citation_vim_zotero_folder=["/path/to/your/zotero/7XX8XX72/zotero_folder/"]
   let g:citation_vim_mode="zotero"
+  ``` 
+
+  And optionally:
+
+  ```
   let g:citation_vim_collection" = 'your_zotero_collection'
   ```
+  Although this can be set on the fly with :Unite citation_colletion
 
 4. Set a cache path:
 
