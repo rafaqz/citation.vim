@@ -46,6 +46,7 @@ citation/file
 citation/isbn
 citation/publication
 citation/key
+citation/key_inner
 citation/language
 citation/issue
 citation/notes
