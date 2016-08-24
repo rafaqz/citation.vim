@@ -12,7 +12,7 @@ open attached pdfs and urls, or search zoteros fulltext database.
 It allows you to use your documents as file managers - open referenced pdfs
 and urls directly from your citations or from a citation list. Browse all
 citation details, notes and abstracts within vim. Yank, insert or preview.
-Pass args to filter by a pdf fulltext search of your zotero database.
+Pass keywords to filter results with a zoteros fulltext search.
 
 ![Citation.vim screenshot](screenshot.png?raw=true "Citation.vim screenshot")
 
@@ -37,26 +37,26 @@ citation/combined
 
 The full list:
 
-citation/abstract
-citation/author
-citation/combined
-citation/date
-citation/doi
-citation/file
-citation/isbn
-citation/publication
-citation/key
-citation/key_inner
-citation/language
-citation/issue
-citation/notes
-citation/pages
-citation/publisher
-citation/tags
-citation/title
-citation/type
-citation/url
-citation/volume
+- citation/abstract
+- citation/author
+- citation/combined
+- citation/date
+- citation/doi
+- citation/file
+- citation/isbn
+- citation/publication
+- citation/key
+- citation/key_inner
+- citation/language
+- citation/issue
+- citation/notes
+- citation/pages
+- citation/publisher
+- citation/tags
+- citation/title
+- citation/type
+- citation/url
+- citation/volume
 
 You can also enter `:Unite citation` in vim for the full list of sources.
 
@@ -181,6 +181,8 @@ nnoremap <silent>[unite]cx :<C-u>exec "Unite  -default-action=start citation/key
 `:Unite citation` for a full list of sources...
 
 #### Open files or show info from any source
+
+This autocomand set Control-o to open files and Control-i to show info
 
 ```vimscript
 autocmd FileType unite call s:unite_my_settings()
