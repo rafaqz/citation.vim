@@ -84,7 +84,7 @@ the example mappings for how to do this.
   Set variables:
 
   ```vimscript
-  let g:citation_vim_bibtex_file=["/path/to/your/bib/file/library.bib"]
+  let g:citation_vim_bibtex_file="/path/to/your/bib/file/library.bib"
   let g:citation_vim_mode="bibtex"
   ```
 
@@ -92,7 +92,7 @@ the example mappings for how to do this.
     Set variables:
 
   ```vimscript
-  let g:citation_vim_zotero_folder=["/path/to/your/zotero/7XX8XX72/zotero_folder/"]
+  let g:citation_vim_zotero_folder="/path/to/your/zotero/7XX8XX72/zotero_folder/"
   let g:citation_vim_mode="zotero"
   ``` 
 
