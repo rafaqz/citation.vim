@@ -91,10 +91,14 @@ the example mappings for how to do this.
   To use [zotero](https://www.zotero.org/)
     Set variables:
 
-  ```vimscript
+  ``` vimscript 
+  let g:citation_vim_mode="zotero" 
   let g:citation_vim_zotero_folder="/path/to/your/zotero/7XX8XX72/zotero_folder/"
-  let g:citation_vim_mode="zotero"
   ``` 
+
+  The zotero path is quite variable accross different systems, just make sure it
+  contains the file `zotero.sqlite`
+
 
   And optionally:
 
