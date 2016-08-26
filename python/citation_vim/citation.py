@@ -14,11 +14,14 @@ class Citation(object):
         sys.path.insert(0, script_path)
 
         context = Context()
-        context.bibtex_file  = os.path.expanduser(vim.eval("g:citation_vim_bibtex_file"))
-        context.zotero_path  = os.path.expanduser(vim.eval("g:citation_vim_zotero_path"))
+        context.mode = vim.eval("g:citation_vim_mode")
+        if context.mode == "bibtex":
+            context.bibtex_file  = os.path.expanduser(vim.eval("g:citation_vim_bibtex_file"))
+        elif context.mode == "zotero":
+            context.zotero_path = os.path.expanduser(vim.eval("g:citation_vim_zotero_path"))
+
         context.cache_path   = os.path.expanduser(vim.eval("g:citation_vim_cache_path"))
         context.collection   = os.path.expanduser(vim.eval("g:citation_vim_collection"))
-        context.mode         = vim.eval("g:citation_vim_mode")
         context.desc_format  = vim.eval("g:citation_vim_description_format")
         context.desc_fields  = vim.eval("g:citation_vim_description_fields")
         context.wrap_chars   = vim.eval("g:citation_vim_source_wrap")
