@@ -40,10 +40,13 @@ class betterBibtex(object):
                 return {}
 
         citekeys = {}
-        for item in bb_json['collections'][0]['data']:
-            if 'citekey' in item:
-                citekeys[item['itemID']] = item['citekey']
-            else:
-                citekeys[item['itemID']] = ""
+        try:
+            for item in bb_json['collections'][0]['data']:
+                if 'citekey' in item and 'itemID' in item:
+                    citekeys[item['itemID']] = item['citekey']
+                else:
+                    citekeys[item['itemID']] = ""
+        except:
+            return {}
 
         return citekeys
