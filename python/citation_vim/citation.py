@@ -62,7 +62,7 @@ class Builder(object):
             return output
 
     def get_collections(self):
-        output = []
+        output = [["<all>",""]]
         collections = {}
         for item in self.get_items():
             for col in item.collections:

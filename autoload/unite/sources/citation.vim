@@ -128,8 +128,9 @@ function! s:citation_collection_source.gather_candidates(args, context)
 \   "word"   : v:val[0],
 \   "source" : s:citation_collection_source.name,
 \   "kind": ["command"],
-\   "action__command": s:set_collection(v:val[0]),
+\   "action__command": s:set_collection(v:val[1]),
 \   "action__type": ": ",
+\   "action__text": v:val[1],
 \   "action__path": v:val[1],
 \   "action__directory": fnamemodify(v:val[1], ":h"),
 \ }')
