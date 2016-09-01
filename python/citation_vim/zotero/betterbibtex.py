@@ -3,6 +3,7 @@
 import os
 import shutil
 import json
+import pprint
 import sqlite3
 
 class betterBibtex(object):
@@ -39,14 +40,17 @@ class betterBibtex(object):
             except:
                 return {}
 
-        citekeys = {}
-        try:
-            for item in bb_json['collections'][0]['data']:
-                if 'citekey' in item and 'itemID' in item:
-                    citekeys[item['itemID']] = item['citekey']
-                else:
-                    citekeys[item['itemID']] = ""
-        except:
+        if not 'collections' in bb_json:
             return {}
+
+        citekeys = {}
+        for collection in bb_json['collections']:
+            # The array has variable structure so check all collections for key data
+            if all (k in collection for k in ("name","data")) and collection['name'] == 'keys':
+                for item in collection['data']:
+                    if 'citekey' in item and 'itemID' in item:
+                        citekeys[item['itemID']] = item['citekey']
+                    else:
+                        citekeys[item['itemID']] = ""
 
         return citekeys
