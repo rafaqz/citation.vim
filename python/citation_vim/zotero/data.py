@@ -116,7 +116,7 @@ class zoteroData(object):
         try:
             stats = os.stat(self.zotero_database)
         except Exception as e:
-            print(u"libzotero.exists(): %s" % e)
+            print(u"citaion_vim.zotero.data.exists(): %s" % e)
             return False
         return True
 
