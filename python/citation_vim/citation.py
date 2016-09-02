@@ -12,16 +12,31 @@ class Citation(object):
         import vim
         script_path = os.path.join(vim.eval('s:script_path'), '../../../python')
         sys.path.insert(0, script_path)
+        from citation_vim.utils import raiseError
 
         context = Context()
         context.mode = vim.eval("g:citation_vim_mode")
         if context.mode == "bibtex":
-            context.bibtex_file  = os.path.expanduser(vim.eval("g:citation_vim_bibtex_file"))
+            try:
+                file = vim.eval("g:citation_vim_bibtex_file")
+                context.bibtex_file  = os.path.expanduser(file)
+            except:
+                raiseError(u"Citation.vim Error: global variable 'g:citation_vim_bibtex_file' is not set")
         elif context.mode == "zotero":
-            context.zotero_path = os.path.expanduser(vim.eval("g:citation_vim_zotero_path"))
+            try:
+                file = vim.eval("g:citation_vim_zotero_path")
+                context.zotero_path = os.path.expanduser(file)
+            except:
+                raise(u"Citation.vim Error: global variable 'g:citation_vim_zotero_path' is not set")
+        else:
+            raiseError(u"Citation.vim Error: global variable 'g:citation_vim_mode' must be set to 'zotero' or 'bibtex'")
 
-        context.cache_path   = os.path.expanduser(vim.eval("g:citation_vim_cache_path"))
-        context.collection   = os.path.expanduser(vim.eval("g:citation_vim_collection"))
+        try:
+            context.cache_path = os.path.expanduser(vim.eval("g:citation_vim_cache_path"))
+        except: 
+            raiseError(u"Citation.vim Error: global variable 'g:citation_vim_cache_path' is not set")
+
+        context.collection   = vim.eval("g:citation_vim_collection")
         context.desc_format  = vim.eval("g:citation_vim_description_format")
         context.desc_fields  = vim.eval("g:citation_vim_description_fields")
         context.wrap_chars   = vim.eval("g:citation_vim_source_wrap")
@@ -35,6 +50,7 @@ class Citation(object):
 
         builder = Builder(context)
         return builder.build_list()
+        return []
 
 class Context(object):
     'empty context class'
@@ -42,8 +58,9 @@ class Context(object):
 class Builder(object):
 
     def __init__(self, context, cache = True):
+        from citation_vim.utils import check_path
         self.context = context 
-        self.cache_file = os.path.join(self.context.cache_path, u"citation_vim_cache")
+        self.cache_file = check_path(os.path.join(self.context.cache_path, u"citation_vim_cache"))
         self.cache = cache
 
     def build_list(self):
@@ -63,11 +80,9 @@ class Builder(object):
 
     def get_collections(self):
         output = [["<all>",""]]
-        collections = {}
         for item in self.get_items():
             for col in item.collections:
                 if not col in collections:
-                    collections[col] = col
                     output.append([col, col])
         return output
 
@@ -98,16 +113,24 @@ class Builder(object):
             from citation_vim.zotero.parser import zoteroParser
             parser = zoteroParser(self.context)
         else:
-            print("g:citation_vim_mode must be either 'zotero' or 'bibtex'")
+            raiseError(u"Citation.vim Error: g:citation_vim_mode must be either 'zotero' or 'bibtex'")
         return parser
 
     def read_cache(self):
-        with open(self.cache_file, 'rb') as in_file:
-            return pickle.load(in_file)
+        try:
+            with open(self.cache_file, 'rb') as in_file:
+                return pickle.load(in_file)
+        except Exception as e:
+            raiseError(u"citation_vim.citation.write_cache(): %s" % e)
         
     def write_cache(self, itemlist):
-        with open(self.cache_file, 'wb') as out_file:
-            pickle.dump(itemlist, out_file)
+        try:
+            with open(self.cache_file, 'wb') as out_file:
+                pickle.dump(itemlist, out_file)
+        except Exception as e:
+            raiseError(u"citation_vim.citation.write_cache(): %s" % e)
+
+
 
     def has_cache(self):
         from citation_vim.utils import is_current

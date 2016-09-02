@@ -9,6 +9,7 @@ import sys
 import time
 from citation_vim.utils import compat_str, is_current
 from citation_vim.zotero.item import zoteroItem
+from citation_vim.utils import raiseError
 
 class zoteroData(object):
 
@@ -116,8 +117,9 @@ class zoteroData(object):
         try:
             stats = os.stat(self.zotero_database)
         except Exception as e:
-            print(u"citaion_vim.zotero.data.exists(): %s" % e)
+            raiseError(u"citation_vim.zotero.data.exists(): %s" % e)
             return False
+        
         return True
 
     def load(self):
@@ -299,19 +301,3 @@ class zoteroData(object):
                         item_value = i
                         break
         return item_value
-
-def valid_location(path):
-
-    """
-    Checks if a given path is a valid Zotero folder, i.e., if it it contains
-    zotero.sqlite.
-
-    Arguments:
-    path      --    The path to check.
-
-    Returns:
-    True if path is a valid Zotero folder, False otherwise.
-    """
-
-    assert(isinstance(path, str))
-    return os.path.exists(os.path.join(path, u"zotero.sqlite"))

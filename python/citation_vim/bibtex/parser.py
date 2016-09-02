@@ -3,11 +3,13 @@ import os.path
 import sys
 from pybtex.database.input import bibtex
 from citation_vim.item import Item
+from citation_vim.utils import check_path, raiseError
 
 class bibtexParser(object):
 
     def __init__(self, context):
         self.context = context
+        self.bibtex_file = check_path(self.context.bibtex_file)
 
     def load(self):
 
@@ -15,14 +17,12 @@ class bibtexParser(object):
         Returns: 
         A bibtex file as an array of Items.
         """
+
         items = []
         try:
-            bib_path = self._check_path(self.context.bibtex_file)
-            bib_data = self._read_file(bib_path)
+            bib_data = self._read_file(self.bibtex_file)
         except Exception as e:
-            print("Failed to read {}".format(self.context.bibtex_file))
-            print("Message: {}".format(str(e)))
-            return []
+            raiseError(u"Failed to read {}".format(self.bibtex_file, '\r', u"Message: {}".format(str(e))))
 
         for key in bib_data.entries:
             bib_entry = bib_data.entries[key]
@@ -54,12 +54,6 @@ class bibtexParser(object):
     def _read_file(self, filename):
         parser = bibtex.Parser()
         return parser.parse_file(filename)
-
-    def _check_path(self, path):
-        path = os.path.abspath(os.path.expanduser(path))
-        if not os.path.exists(path):
-            raise RuntimeError("file:%s not found" % path)
-        return path
 
     def strip_chars(self, string):
         return string.replace("{","").replace("}","")

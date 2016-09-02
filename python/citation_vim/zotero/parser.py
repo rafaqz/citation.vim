@@ -4,16 +4,12 @@ import os
 import json
 import shutil
 import sqlite3
-from citation_vim.zotero.data import valid_location, zoteroData
+from citation_vim.zotero.data import zoteroData
 from citation_vim.zotero.betterbibtex import betterBibtex
+from citation_vim.utils import check_path, raiseError
 from citation_vim.item import Item
 
 class zoteroParser(object):
-
-    """
-    Returns: 
-    A zotero database as an array of Items.
-    """
 
     def __init__(self, context):
         self.context = context
@@ -21,8 +17,14 @@ class zoteroParser(object):
         self.cache_path = context.cache_path
 
     def load(self):
-        if not valid_location(self.zotero_path):
-            print("{} is not a valid zotero path".format(zotero_path))
+
+        """
+        Returns: 
+        A zotero database as an array of Items.
+        """
+
+        if not check_path(os.path.join(self.zotero_path, u"zotero.sqlite")):
+            raiseError(u"Citation.vim Error:", self.zotero_path, u"is not a valid zotero path")
             return []
 
         zotero = zoteroData(self.context)

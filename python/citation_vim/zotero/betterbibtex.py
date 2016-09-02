@@ -48,7 +48,7 @@ class betterBibtex(object):
             # The array has variable structure so check all collections for key data
             if all (k in collection for k in ("name","data")) and collection['name'] == 'keys':
                 for item in collection['data']:
-                    if 'citekey' in item and 'itemID' in item:
+                    if all (k in item for k in ("itemID","citekey")):
                         citekeys[item['itemID']] = item['citekey']
                     else:
                         citekeys[item['itemID']] = ""
