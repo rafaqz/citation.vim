@@ -80,10 +80,12 @@ class Builder(object):
 
     def get_collections(self):
         output = [["<all>",""]]
+        collections = {}
         for item in self.get_items():
             for col in item.collections:
                 if not col in collections:
                     output.append([col, col])
+                    collections[col] = col
         return output
 
     def get_items(self):
