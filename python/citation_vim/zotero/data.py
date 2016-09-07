@@ -129,7 +129,7 @@ class zoteroData(object):
         if len(self.context.searchkeys) > 0:
             self.fulltext = True
             self.get_fulltext_matches()
-        self.get_types()
+        self.filter_items()
         self.get_info()
         return self.index.items()
 
@@ -162,7 +162,7 @@ class zoteroData(object):
             if not item_id in self.ignored: 
                 self.matches.append(item_id)
 
-    def get_types(self):
+    def filter_items(self):
         # Retrieve type information and filter unwanted types
         self.cur.execute(self.type_query)
         for item in self.cur.fetchall():
@@ -173,6 +173,7 @@ class zoteroData(object):
                     # Ignore deleted items, notes, and attachments
                     self.ignored.append(item_id)
                 else:
+                    # Filter by search key
                     if self.fulltext and not item_id in self.matches:
                         continue
                     self.index[item_id] = zoteroItem(item_id)
@@ -254,10 +255,9 @@ class zoteroData(object):
                     # by "storage:"
                     if att[:8] == u"storage:":
                         item_attachment = att[8:]
-                        # The item attachment appears to be encoded in
+                        # The item attachment appars to be encoded in
                         # latin-1 encoding, which we don't want, so recode.
-                        item_attachment = item_attachment.encode(
-                            'latin-1').decode('utf-8')
+                        item_attachment = item_attachment.encode('latin-1').decode('utf-8')
                         attachment_id = item[2]
                         if item_attachment[-4:].lower() in self.attachment_ext:
                             self.cur.execute( \
@@ -269,7 +269,8 @@ class zoteroData(object):
                     # If the attachment is linked, it is simply the full
                     # path to the attachment
                     else:
-                        self.index[item_id].fulltext.append(att)
+                        item_attachment = att.encode('latin-1').decode('utf-8')
+                        self.index[item_id].fulltext.append(item_attachment)
         self.cur.close()
 
     def parse_date(self, item):
