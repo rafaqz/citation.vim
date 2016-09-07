@@ -58,9 +58,8 @@ class Context(object):
 class Builder(object):
 
     def __init__(self, context, cache = True):
-        from citation_vim.utils import check_path
         self.context = context 
-        self.cache_file = check_path(os.path.join(self.context.cache_path, u"citation_vim_cache"))
+        self.cache_file = os.path.join(self.context.cache_path, u"citation_vim_cache")
         self.cache = cache
 
     def build_list(self):
