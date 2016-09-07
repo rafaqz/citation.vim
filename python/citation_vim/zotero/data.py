@@ -101,7 +101,7 @@ class zoteroData(object):
         self.special_dates = u"in press", u"submitted", u"in preparation", \
             u"unpublished"
         # These extensions are recognized as fulltext attachments
-        self.attachment_ext = u".pdf", u".epub"
+        self.attachment_ext = u".pdf", u".ps", u".epub"
         self.index = {}
         self.collection_index = []
         self.ignored = []
