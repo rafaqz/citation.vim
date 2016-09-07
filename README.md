@@ -226,7 +226,7 @@ They are used for highlighting sections, to avoid confusion with
 normal characters that might be in the citation.
 
 To change description highlighting characters, copy and paste characters from this list:
-- Apostrophes and quotes  ˝‘’‛“”‟′″‴‵‶‷
+- Quotes                  ˝“”‟″‴‶‷
 - Brackets                ⊂〔₍⁽     ⊃〕₎⁾ 
 - Arrows                  ◀◁<‹    ▶▷>› 
 - Blobs                   ♯♡◆◇◊○◎●◐◑∗∙⊙⊚⌂★☺☻▪■□▢▣▤▥▦▧▨▩
