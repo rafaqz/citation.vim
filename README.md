@@ -60,7 +60,7 @@ The full list:
 
 You can also enter `:Unite citation` in vim for the full list of sources.
 
-`:Unite citation_collection` will list zotero collections: select one to filter results. 
+`:Unite citation_collection` will list zotero collections: select one to filter results.
 
 No matter what source is selected, execute/edit and preview commands will always
 echo combined information for the citation, and file will always use the
@@ -91,10 +91,10 @@ the example mappings for how to do this.
   To use [zotero](https://www.zotero.org/)
     Set variables:
 
-  ``` vimscript 
-  let g:citation_vim_mode="zotero" 
-  let g:citation_vim_zotero_folder="/path/to/your/zotero/7XX8XX72/zotero_folder/"
-  ``` 
+  ``` vimscript
+  let g:citation_vim_mode="zotero"
+  let g:citation_vim_zotero_path="/path/to/your/zotero/7XX8XX72/zotero_folder/"
+  ```
 
   The zotero path is quite variable accross different systems, just make sure it
   contains the file `zotero.sqlite`
@@ -204,7 +204,7 @@ function! s:unite_my_settings()
 endfunction
 ```
 
-### Tweaks 
+### Tweaks
 
 Customise the unite display, using the names of citation sources and a python
 format string (the {} braces will be replaced by the sources):
@@ -227,15 +227,15 @@ normal characters that might be in the citation.
 
 To change description highlighting characters, copy and paste characters from this list:
 - Quotes                  ˝“”‟″‴‶‷
-- Brackets                ⊂〔₍⁽     ⊃〕₎⁾ 
-- Arrows                  ◀◁<‹    ▶▷>› 
+- Brackets                ⊂〔₍⁽     ⊃〕₎⁾
+- Arrows                  ◀◁<‹    ▶▷>›
 - Blobs                   ♯♡◆◇◊○◎●◐◑∗∙⊙⊚⌂★☺☻▪■□▢▣▤▥▦▧▨▩
 - Tiny                    、。‸₊⁺∘♢☆☜☞♢☼
 - Bars                    ‖│┃┆∥┇┊┋
 - Dashes                  ‾⁻−₋‐⋯┄–—―∼┈─▭▬┉━┅₌⁼‗
 
 - And use these like a colon after words (notice that's not a normal colon)
-        ∶∷→⇒≫ 
+        ∶∷→⇒≫
 
 Long lines will occasionally break the display colors. It's a quirk of how unite
 shortens lines.
