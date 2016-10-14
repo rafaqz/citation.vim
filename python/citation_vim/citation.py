@@ -33,13 +33,14 @@ class Citation(object):
 
         try:
             context.cache_path = os.path.expanduser(vim.eval("g:citation_vim_cache_path"))
-        except: 
+        except:
             raiseError(u"Citation.vim Error: global variable 'g:citation_vim_cache_path' is not set")
 
         context.collection   = vim.eval("g:citation_vim_collection")
         context.desc_format  = vim.eval("g:citation_vim_description_format")
         context.desc_fields  = vim.eval("g:citation_vim_description_fields")
         context.wrap_chars   = vim.eval("g:citation_vim_source_wrap")
+        context.et_al_limit  = vim.eval("g:citation_vim_et_al_limit")
         context.source       = vim.eval("a:source")
         context.source_field = vim.eval("a:field")
         searchkeys = vim.eval("l:searchkeys")
@@ -58,7 +59,7 @@ class Context(object):
 class Builder(object):
 
     def __init__(self, context, cache = True):
-        self.context = context 
+        self.context = context
         self.cache_file = os.path.join(self.context.cache_path, u"citation_vim_cache")
         self.cache = cache
 
@@ -70,7 +71,7 @@ class Builder(object):
             for item in self.get_items():
                 if self.context.collection == "" or self.context.collection in item.collections:
                     description = self.describe(item)
-                    output.append([getattr(item, self.context.source_field), 
+                    output.append([getattr(item, self.context.source_field),
                                    description,
                                    item.file,
                                    item.combined,
@@ -98,7 +99,7 @@ class Builder(object):
                 items = self.read_cache()
             except:
                 items = []
-            else:  
+            else:
                 return items
 
         items = parser.load()
@@ -123,7 +124,7 @@ class Builder(object):
                 return pickle.load(in_file)
         except Exception as e:
             raiseError(u"citation_vim.citation.write_cache(): %s" % e)
-        
+
     def write_cache(self, itemlist):
         try:
             with open(self.cache_file, 'wb') as out_file:

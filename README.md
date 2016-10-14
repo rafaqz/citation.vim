@@ -121,7 +121,15 @@ the example mappings for how to do this.
   let g:citation_vim_suffix="]"
   ```
 
-6. Set some mappings. Copy and paste the following examples into your vimrc to get started.
+6. Set the et al. limit. If the number of authors is greater than the limit only
+   the first author with `et al.` appended is shown or printed in case of
+   `citation/author`. (Default: 5)
+
+  ```vimscript
+  let g:citation_vim_et_al_limit=2
+  ```
+
+7. Set some mappings. Copy and paste the following examples into your vimrc to get started.
 
 
 ### Example mappings:

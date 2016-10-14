@@ -15,11 +15,12 @@ class zoteroParser(object):
         self.context = context
         self.zotero_path = context.zotero_path
         self.cache_path = context.cache_path
+        self.et_al_limit = context.et_al_limit
 
     def load(self):
 
         """
-        Returns: 
+        Returns:
         A zotero database as an array of Items.
         """
 
@@ -73,7 +74,7 @@ class zoteroParser(object):
 
         if zot_item.authors == []:
             return ""
-        if len(zot_item.authors) > 5:
+        if len(zot_item.authors) > int(self.et_al_limit):
             return u"%s et al." % zot_item.authors[0][0]
         if len(zot_item.authors) > 2:
             auth_string = u""
