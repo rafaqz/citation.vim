@@ -46,7 +46,7 @@ call unite#util#set_default('g:citation_vim_source_wrap', "【】")
 call unite#util#set_default('g:citation_vim_highlight_colon', "∶∷→⇒≫")
 call unite#util#set_default('g:citation_vim_highlight_blob', "♯♡◆◇◊○◎●◐◑∗∙⊙⊚⌂★☺☻▪■□▢▣▤▥▦▧▨▩")
 call unite#util#set_default('g:citation_vim_highlight_tiny', "、。‸₊⁺∘♢☆☜☞♢☼")
-call unite#util#set_default('g:citation_vim_highlight_text', "˝“”‟″‴‶‷")
+call unite#util#set_default('g:citation_vim_highlight_text', "″‴‶‷")
 
 let s:script_path = escape( expand( '<sfile>:p:h' ), '\' )
 let s:plugin_path = escape(expand('<sfile>:h:h:h:h'), '\')
