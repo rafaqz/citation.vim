@@ -1,6 +1,6 @@
 "=============================================================================
 " FILE: autoload/unite/source/citation.vim
-" AUTHOR:  Rafael Schouten <rafaelschouten@gmail.com>, 
+" AUTHOR:  Rafael Schouten <rafaelschouten@gmail.com>,
 " Forked From: unite-bibtex, Toshiki TERAMUREA
 " Last Modified: 8 Dec 2015.
 " License: MIT license  {{{
@@ -31,6 +31,7 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 call unite#util#set_default('g:citation_vim_mode', "zotero")
+call unite#util#set_default('g:citation_vim_et_al_limit', 5)
 call unite#util#set_default('g:citation_vim_collection', "")
 call unite#util#set_default('g:citation_vim_outer_prefix', "[")
 call unite#util#set_default('g:citation_vim_inner_prefix', "@")
@@ -156,8 +157,8 @@ endfunction
 " {{{ Build all sub_sources programatically.
 function! s:construct_sources(sub_sources)
       for sub_source in a:sub_sources
-          exec "let s:citation_source_" . sub_source . " = { 
-          \       'name': 'citation/" . sub_source . "', 
+          exec "let s:citation_source_" . sub_source . " = {
+          \       'name': 'citation/" . sub_source . "',
           \	      'default_action' : 'insert',
           \       'hooks': {},
           \       'syntax': 'uniteSource__citation',
@@ -171,8 +172,8 @@ function! s:construct_sources(sub_sources)
           exec "function! s:citation_source_" . sub_source . ".hooks.on_syntax(args, context)
           \  \n   call s:hooks.syntax()
           \  \n endfunction"
-          exec "function! s:citation_source_" . sub_source . ".gather_candidates(args,context) 
-          \  \n   return s:map_entries('citation','" . sub_source . "',a:args) 
+          exec "function! s:citation_source_" . sub_source . ".gather_candidates(args,context)
+          \  \n   return s:map_entries('citation','" . sub_source . "',a:args)
           \  \n endfunction"
           exec "function! s:citation_source_" . sub_source . ".action_table.preview.func(candidate)
           \  \n execute a:candidate.action__command
@@ -181,7 +182,7 @@ function! s:construct_sources(sub_sources)
 endfunction
 call s:construct_sources(s:sub_sources)
 
-function! s:map_entries(source, field, args) 
+function! s:map_entries(source, field, args)
     return map(s:get_source(a:source, a:field, a:args),'{
     \   "word": v:val[1],
     \   "source": a:source . "/" . a:field,
@@ -239,13 +240,13 @@ endfunction
 
 "-----------------------------------------------------------------------}}}
 " {{{ Return source and sub-sources to Unite.
-function! unite#sources#citation#define() 
+function! unite#sources#citation#define()
     let l:sources = [s:citation_source, s:citation_collection_source]
     for sub_source in s:sub_sources
         let l:sources += [s:citation_source_{sub_source}]
     endfor
     return l:sources
-endfunction 
+endfunction
 
 "-----------------------------------------------------------------------}}}
 " {{{ Syntax
@@ -263,13 +264,13 @@ function! s:hooks.syntax()
 
   execute "syntax region uniteSource__Citation_Text start=/[" . text . "]/ end=/[" . text . "]/
         \ contains=uniteSource__Citation_Field,uniteSource__Citation_Split
-        \ ,uniteSource__Citation_Arrow, uniteSource__Citation_Bar,uniteSource__Citation_Bracket   
+        \ ,uniteSource__Citation_Arrow, uniteSource__Citation_Bar,uniteSource__Citation_Bracket
         \ containedin=uniteSource__Citation"
   execute "syntax region uniteSource__Citation_Source start=/[" . source_field . "]/ end=/[" . source_field . "]/
 	 		        \ containedin=uniteSource__Citation"
-  execute 'syntax match uniteSource__Citation_Colon "\<\w*[' . colon . ']" 
+  execute 'syntax match uniteSource__Citation_Colon "\<\w*[' . colon . ']"
 			        \ contained containedin=uniteSource__Citation'
-  execute "syntax region uniteSource__Citation_Bracket start=/[" . bracket . "]/ end=/[" . bracket . "]/ 
+  execute "syntax region uniteSource__Citation_Bracket start=/[" . bracket . "]/ end=/[" . bracket . "]/
 			        \ containedin=uniteSource__Citation"
   execute "syntax region uniteSource__Citation_Arrow start=/[" . arrow . "]/ end=/[" . arrow . "]/
 			        \ containedin=uniteSource__Citation"

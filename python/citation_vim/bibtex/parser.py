@@ -10,11 +10,12 @@ class bibtexParser(object):
     def __init__(self, context):
         self.context = context
         self.bibtex_file = check_path(self.context.bibtex_file)
+        self.et_al_limit = context.et_al_limit
 
     def load(self):
 
         """
-        Returns: 
+        Returns:
         A bibtex file as an array of Items.
         """
 
@@ -64,20 +65,37 @@ class bibtexParser(object):
         return output
 
     def format_author(self, entry):
+
+        """
+        Returns:
+        A pretty representation of the author.
+        """
+
         try:
             persons = entry.persons[u"author"]
             if sys.version_info[0] == 2:
-                authors = [unicode(au) for au in persons]
+                authors = [unicode(au).split(",") for au in persons]
             elif sys.version_info[0] == 3:
-                authors = [str(au) for au in persons]
+                authors = [str(au).split(",") for au in persons]
         except KeyError:
-            authors = [""]
-        authors = self.strip_chars("; ".join(authors))
-        return authors
+            authors = []
+
+        if authors == []:
+            return ""
+        if len(authors) > int(self.et_al_limit):
+            return u"%s et al." % authors[0][0]
+        if len(authors) > 2:
+            auth_string = u""
+            for author in authors[:-1]:
+                auth_string += author[0] + ', '
+            return auth_string + u"& " + authors[-1][0]
+        if len(authors) == 2:
+            return authors[0][0] + u" & " + authors[1][0]
+        return ', '.join(authors[0])
 
     def format_file(self, entry):
         output = ""
-        if u"file" in entry.fields: 
+        if u"file" in entry.fields:
             for file in entry.fields[u"file"].split(";"):
                 details = file.split(":")
                 if 2 < len(details) and details[2] == "application/pdf":
@@ -87,7 +105,7 @@ class bibtexParser(object):
 
     def format_url(self, entry):
         output = ""
-        if u"file" in entry.fields: 
+        if u"file" in entry.fields:
             for file in entry.fields[u"file"].split(";"):
                 details = file.split(":")
                 if 2 < len(details) and details[2] != "application/pdf":
@@ -97,7 +115,7 @@ class bibtexParser(object):
 
     def format_tags(entry):
         output = ""
-        if u"keywords" in entry.fields: 
+        if u"keywords" in entry.fields:
             output = ", ".join(entry.fields[u"keywords"])
         return output
 
