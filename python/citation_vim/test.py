@@ -16,6 +16,7 @@ context.source = sys.argv[4]
 context.source_field = sys.argv[5] 
 context.searchkeys = sys.argv[6].split()
 context.desc_format = u"{}∶ {} \"{}\" -{}- ({})"
+context.et_al_limit = 5
 context.desc_fields = ["type", "key", "title", "author", "date"]
 context.wrap_chars = "[]"
 builder = Builder(context, cache = False)
