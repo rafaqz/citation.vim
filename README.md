@@ -253,4 +253,21 @@ shortens lines.
 
 You can correct your .bib file with `pybtex-convert`:
 
-    pybtex-convert /path/to/your.bib out.bib
+```sh
+pybtex-convert /path/to/your.bib out.bib
+```
+
+Test your setup with test.py:
+
+```sh
+python test.py /your/bibtext/path bibtex ~/your/cache/path key ""
+```
+
+or
+
+```sh
+python test.py /your/zotero/path zotero ~/your/cache/path key ""
+```
+
+Use other sources instead of key if you are having problems with them. You can
+also test a search term in the final argument.
