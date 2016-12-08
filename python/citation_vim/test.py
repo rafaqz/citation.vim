@@ -7,7 +7,7 @@ sys.path.insert(0, module_path)
 from citation_vim.citation import Citation, Context, Builder
 
 context = Context()
-context.source = citation
+context.source = 'citation'
 context.bibtex_file = sys.argv[1]
 context.zotero_path = sys.argv[1]
 context.collection = ''
