@@ -285,8 +285,6 @@ class zoteroData(object):
                     if att[:8] == u"storage:":
                         item_attachment = att[8:]
                         if self.context.zotero_version != 5:
-                            # The item attachment appars to be encoded in
-                            # latin-1 encoding, which we don't want, so recode.
                             item_attachment = item_attachment.encode('latin-1').decode('utf-8')
                         attachment_id = item[2]
                         if item_attachment[-4:].lower() in self.attachment_ext:
@@ -301,6 +299,8 @@ class zoteroData(object):
                     else:
                         if self.context.zotero_version != 5:
                             item_attachment = att.encode('latin-1').decode('utf-8')
+                        else: 
+                            item_attachment = att
                         self.index[item_id].fulltext.append(item_attachment)
         self.cur.close()
 
