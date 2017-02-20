@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- coding:utf-8 -*-
 
 import sqlite3
 import os
@@ -18,10 +18,16 @@ class zoteroData(object):
     Modified from LibZotero in gnotero.
     """
 
-    attachment_query = u"""
+    attachment_query_v4 = u"""
         SELECT items.itemID, itemAttachments.path, itemAttachments.itemID
         FROM items, itemAttachments
         WHERE items.itemID = itemAttachments.sourceItemID
+        """
+
+    attachment_query_v5 = u"""
+        SELECT items.itemID, itemAttachments.path, itemAttachments.itemID
+        FROM items, itemAttachments
+        WHERE items.itemID = itemAttachments.parentItemID
         """
 
     info_query = u"""
@@ -44,7 +50,7 @@ class zoteroData(object):
                 or fields.fieldName = "title")
         """
 
-    author_query = u"""
+    author_query_v4 = u"""
         SELECT items.itemID, creatorData.lastName, creatorData.firstName
         FROM items, itemCreators, creators, creatorData, creatorTypes
         WHERE
@@ -56,6 +62,17 @@ class zoteroData(object):
         ORDER by itemCreators.ORDERIndex
         """
 
+    author_query_v5 = u"""
+        SELECT items.itemID, creators.lastName, creators.firstName
+        FROM items, itemCreators, creators, creatorTypes
+        WHERE
+            items.itemID = itemCreators.itemID
+            and itemCreators.creatorID = creators.creatorID
+            and creators.creatorID = creators.creatorID
+            and itemCreators.creatorTypeID = creatorTypes.creatorTypeID
+            and creatorTypes.creatorType != "editor"
+        ORDER by itemCreators.ORDERIndex
+        """
     collection_query = u"""
         SELECT items.itemID, collections.collectionName
         FROM items, collections, collectionItems
@@ -140,9 +157,14 @@ class zoteroData(object):
 
     def get_fulltext_matches(self):
         # Awfull string query building.
-        fulltext_select = u"""
-            SELECT itemAttachments.sourceItemID
-            FROM itemAttachments"""
+        if self.context.zotero_version == 5:
+            fulltext_select = u"""
+                SELECT itemAttachments.parentItemID
+                FROM itemAttachments"""
+        else:
+            fulltext_select = u"""
+                SELECT itemAttachments.sourceItemID
+                FROM itemAttachments"""
         fulltext_from = u", fulltextItemWords AS fIW#, fulltextWords AS fW#"
         fulltext_where = u"""itemAttachments.itemID = fIW#.itemID
             and fIW#.wordID = fW#.wordID
@@ -155,6 +177,7 @@ class zoteroData(object):
             searchkey = self.context.searchkeys[i].lower()
             _froms += fulltext_from.replace('#', str(i))
             wheres += fulltext_where.replace('#', str(i)).format(searchkey)
+
         query = fulltext_select + _froms + '\nWHERE\n' + wheres
         self.cur.execute(query)
         for item in self.cur.fetchall():
@@ -216,7 +239,10 @@ class zoteroData(object):
                 elif item_name == u"abstractNote":
                     self.index[item_id].abstract = item_value
         # Retrieve author information
-        self.cur.execute(self.author_query)
+        if self.context.zotero_version == 5:
+            self.cur.execute(self.author_query_v5)
+        else:
+            self.cur.execute(self.author_query_v4)
         for item in self.cur.fetchall():
             item_id = item[0]
             if item_id in self.index:
@@ -245,7 +271,10 @@ class zoteroData(object):
                 item_note = item[1]
                 self.index[item_id].notes.append(item_note)
         # Retrieve attachments
-        self.cur.execute(self.attachment_query)
+        if self.context.zotero_version == 5:
+            self.cur.execute(self.attachment_query_v5)
+        else:
+            self.cur.execute(self.attachment_query_v4)
         for item in self.cur.fetchall():
             item_id = item[0]
             if item_id in self.index:
@@ -255,9 +284,10 @@ class zoteroData(object):
                     # by "storage:"
                     if att[:8] == u"storage:":
                         item_attachment = att[8:]
-                        # The item attachment appars to be encoded in
-                        # latin-1 encoding, which we don't want, so recode.
-                        item_attachment = item_attachment.encode('latin-1').decode('utf-8')
+                        if self.context.zotero_version != 5:
+                            # The item attachment appars to be encoded in
+                            # latin-1 encoding, which we don't want, so recode.
+                            item_attachment = item_attachment.encode('latin-1').decode('utf-8')
                         attachment_id = item[2]
                         if item_attachment[-4:].lower() in self.attachment_ext:
                             self.cur.execute( \
@@ -269,7 +299,8 @@ class zoteroData(object):
                     # If the attachment is linked, it is simply the full
                     # path to the attachment
                     else:
-                        item_attachment = att.encode('latin-1').decode('utf-8')
+                        if self.context.zotero_version != 5:
+                            item_attachment = att.encode('latin-1').decode('utf-8')
                         self.index[item_id].fulltext.append(item_attachment)
         self.cur.close()
 

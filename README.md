@@ -94,6 +94,7 @@ the example mappings for how to do this.
   ``` vimscript
   let g:citation_vim_mode="zotero"
   let g:citation_vim_zotero_path="/path/to/your/zotero/7XX8XX72/zotero_folder/"
+  let g:citation_vim_zotero_version=5 (default is 4, 5 for zotero 5)
   ```
 
   The zotero path is quite variable accross different systems, just make sure it
@@ -266,8 +267,9 @@ python test.py /your/bibtext/path bibtex ~/your/cache/path key ""
 or
 
 ```sh
-python test.py /your/zotero/path zotero ~/your/cache/path key ""
+python test.py /your/zotero/path zotero ~/your/cache/path key "" 4
 ```
 
-Use other sources instead of key if you are having problems with them. You can
-also test a search term in the final argument.
+Use other sources instead of "key" if you are having problems with them. You can
+also test a search term in the final argument. In zotero mode the 6th arg is the
+zotero version.

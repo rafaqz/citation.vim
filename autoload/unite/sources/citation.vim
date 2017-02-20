@@ -31,6 +31,8 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 call unite#util#set_default('g:citation_vim_mode', "zotero")
+call unite#util#set_default('g:citation_vim_zotero_version', 4)
+call unite#util#set_default('g:citation_vim_zotero_path', "~/Zotero")
 call unite#util#set_default('g:citation_vim_et_al_limit', 5)
 call unite#util#set_default('g:citation_vim_collection', "")
 call unite#util#set_default('g:citation_vim_outer_prefix', "[")
