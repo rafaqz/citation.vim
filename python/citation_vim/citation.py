@@ -37,6 +37,7 @@ class Citation(object):
             raiseError(u"Citation.vim Error: global variable 'g:citation_vim_cache_path' is not set")
 
         context.collection   = vim.eval("g:citation_vim_collection")
+        context.key_format   = vim.eval("g:citation_vim_key_format")
         context.desc_format  = vim.eval("g:citation_vim_description_format")
         context.desc_fields  = vim.eval("g:citation_vim_description_fields")
         context.wrap_chars   = vim.eval("g:citation_vim_source_wrap")

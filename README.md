@@ -100,6 +100,15 @@ the example mappings for how to do this.
   The zotero path is quite variable accross different systems, just make sure it
   contains the file `zotero.sqlite`
 
+  If you don't have the better bibtex plugin (e.g. in zotero 5) and you want
+  readable keys (like smith2010Sometitle), set a key formatter. This will not
+  produce fixed keys like the better-bibtex plugin, so make sure to manage your
+  duplicates and watch for key changes after editing author, date or title in
+  zotero. Author and Title can be in lower case or sentence case.
+
+  ``` vimscript
+  let g:citation_vim_key_format'="{author}{date}{Title}"
+  ```
 
   And optionally:
 
@@ -114,7 +123,7 @@ the example mappings for how to do this.
     let g:citation_vim_cache_path='~/.vim/your_cache_path'
   ```
 
-5. Set your citation suffix and prefix. Pandoc markdown style is the default.
+5. Set your citation suffix and prefix. This pandoc markdown style is the default:
 
   ```vimscript
   let g:citation_vim_outer_prefix="["

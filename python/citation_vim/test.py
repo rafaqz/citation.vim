@@ -17,9 +17,10 @@ context.source_field = sys.argv[4]
 context.searchkeys = sys.argv[5].split()
 if context.mode == 'zotero':
     context.zotero_version = int(sys.argv[6])
+context.key_format = "{author}{date}{Title}"
 context.desc_format = u"{}∶ {} \"{}\" -{}- ({})"
-context.et_al_limit = 5
 context.desc_fields = ["type", "key", "title", "author", "date"]
+context.et_al_limit = 5
 context.wrap_chars = "[]"
 builder = Builder(context, cache = False)
 items = builder.build_list()

@@ -16,6 +16,7 @@ class zoteroParser(object):
         self.zotero_path = context.zotero_path
         self.cache_path = context.cache_path
         self.et_al_limit = context.et_al_limit
+        self.key_format = context.key_format
 
     def load(self):
 
@@ -44,7 +45,6 @@ class zoteroParser(object):
             item.file        = self.format_fulltext(zot_item)
             item.isbn        = zot_item.isbn
             item.publication = zot_item.publication
-            item.key         = self.format_key(zot_item, citekeys)
             item.language    = zot_item.language
             item.issue       = zot_item.issue
             item.notes       = self.format_notes(zot_item)
@@ -55,16 +55,46 @@ class zoteroParser(object):
             item.type        = zot_item.type
             item.url         = zot_item.url
             item.volume      = zot_item.volume
+            item.key         = self.format_key(zot_item, citekeys)
             item.combine()
             items.append(item)
         return items
 
     def format_key(self, zot_item, citekeys):
+
+        """
+        Returns:
+        A key from either better bibtex, manual generation or zotero
+        """
+
         if zot_item.id in citekeys:
             return citekeys[zot_item.id]
+        elif self.context.key_format > "":
+            title = zot_item.title.partition(' ')[0]
+            author = self.format_first_author(zot_item)
+            replacements = {
+                u"title": title.lower(),
+                u"Title": title.capitalize(), 
+                u"author": author.lower(), 
+                u"Author": author.capitalize(),
+                u"date": zot_item.date 
+            }
+            key_format = u'%s' % self.context.key_format
+            return key_format.format(**replacements)
         else:
             return zot_item.key
 
+    def format_first_author(self, zot_item):
+
+        """
+        Returns:
+        The first authors surname, if it exists.
+        """
+
+        if zot_item.authors == []:
+            return ""
+        return zot_item.authors[0][0]
+        
     def format_author(self, zot_item):
 
         """
