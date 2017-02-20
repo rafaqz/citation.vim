@@ -92,9 +92,9 @@ the example mappings for how to do this.
     Set variables:
 
   ``` vimscript
-  let g:citation_vim_mode="zotero"
-  let g:citation_vim_zotero_path="/path/to/your/zotero/7XX8XX72/zotero_folder/"
-  let g:citation_vim_zotero_version=5 (default is 4, 5 for zotero 5)
+  let g:citation_vim_mode="zotero" (default)
+  let g:citation_vim_zotero_path="/path/to/your/zotero/7XX8XX72/zotero_folder/" ("~/Zotero" is default)
+  let g:citation_vim_zotero_version=5 (default is 4, use 5 for zotero 5.x)
   ```
 
   The zotero path is quite variable accross different systems, just make sure it
@@ -107,7 +107,7 @@ the example mappings for how to do this.
   zotero. Author and Title can be in lower case or sentence case.
 
   ``` vimscript
-  let g:citation_vim_key_format'="{author}{date}{Title}"
+  let g:citation_vim_key_format'="{author}{date}{Title}" (default)
   ```
 
   And optionally:
