@@ -13,21 +13,18 @@ class bibtexParser(object):
 
     def load(self):
         """
-        Returns: A bibtex file as an array of Items.
+        Returns: A bibtex file as an array of standardised Items.
         """
         items = []
         bib_data = self._read_file(self.bibtex_file)
 
         for key in bib_data.entries:
             bib_entry = bib_data.entries[key]
+            authors = self.parse_authors(bib_entry)
 
             item = Item()
-            item.key       = key
             item.collections  = []
             item.type      = bib_entry.type
-            item.author    = self.format_author(bib_entry)
-            item.url       = self.format_url(bib_entry)
-            item.file      = self.format_file(bib_entry)
             item.abstract  = self.get_field(bib_entry, "abstract")
             item.date      = self.get_field(bib_entry, "year")
             item.doi       = self.get_field(bib_entry, "doi")
@@ -41,19 +38,23 @@ class bibtexParser(object):
             item.tags      = self.get_field(bib_entry, "keyword")
             item.title     = self.get_field(bib_entry, "title")
             item.volume    = self.get_field(bib_entry, "volume")
+            item.url       = self.format_url(bib_entry)
+            item.file      = self.format_file(bib_entry)
+            item.author    = self.format_author(authors)
+            item.key       = self.format_key(authors, bib_entry, key)
             item.combine()
             items.append(item)
         return items
 
     def _read_file(self, filename):
         """
-        Returns: A bibtex file from pybtex parser
+        Returns: A bibtex file from the pybtex parser
         """
         try:
             parser = bibtex.Parser()
             output = parser.parse_file(filename)
-        except Exception as e:
-            raiseError(u"Failed to read {}".format(self.bibtex_file, '\r', u"Message: {}".format(str(e))))
+        except:
+            raiseError(u"Failed to read {}".format(self.bibtex_file))
         return output
 
     def strip_braces(self, string):
@@ -70,9 +71,9 @@ class bibtexParser(object):
         output = self.strip_braces(output)
         return output
 
-    def format_author(self, entry):
+    def parse_authors(self, entry):
         """
-        Returns: Authors - format depending on et_al_limit.
+        Returns: Array of authors
         """
         try:
             persons = entry.persons[u"author"]
@@ -82,8 +83,22 @@ class bibtexParser(object):
                 authors = [str(au).split(",") for au in persons]
         except KeyError:
             authors = []
+        return authors
 
-        if authors == []:
+    def format_first_author(self, authors):
+        """
+        Returns: The first authors surname, if one exists.
+        """
+        if authors == []: 
+            return ""
+
+        return authors[0][0]
+
+    def format_author(self, authors):
+        """
+        Returns: Authors - format depending on et_al_limit.
+        """
+        if authors == []: 
             return ""
         if len(authors) > int(self.context.et_al_limit):
             return u"%s et al." % authors[0][0]
@@ -98,7 +113,7 @@ class bibtexParser(object):
 
     def format_file(self, entry):
         """
-        Returns: File attachment path
+        Returns: Attachment file path
         """
         attachment = ""
         if u"file" in entry.fields:
@@ -138,4 +153,24 @@ class bibtexParser(object):
         if u"keywords" in entry.fields:
             tags = ", ".join(entry.fields[u"keywords"])
         return tags
+
+    def format_key(self, authors, bib_entry, key):
+        """
+        Returns:
+        A key manual format or default bibtex key.
+        """
+        if self.context.key_format > "":
+            title = self.get_field(bib_entry, "title").partition(' ')[0]
+            author = self.format_first_author(authors)
+            replacements = {
+                u"title": title.lower(),
+                u"Title": title.capitalize(), 
+                u"author": author.lower(), 
+                u"Author": author.capitalize(),
+                u"date": self.get_field(bib_entry, "year")
+            }
+            key_format = u"%s" % self.context.key_format
+            key = key_format.format(**replacements)
+
+        return key
 

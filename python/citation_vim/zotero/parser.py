@@ -21,10 +21,11 @@ class zoteroParser(object):
     def load(self):
         """
         Returns:
-        A zotero database as an array of Items.
+        A zotero database as an array of standardised Items.
         """
         if not check_path(os.path.join(self.zotero_path, u"zotero.sqlite")):
-            raiseError(u"Citation.vim Error:", self.zotero_path, u"is not a valid zotero path")
+            raiseError(u"Citation.vim Error:", self.zotero_path, \
+                    u"is not a valid zotero path")
             return []
 
         zotero = zoteroData(self.context)
@@ -36,36 +37,34 @@ class zoteroParser(object):
         for zot_id, zot_item in zot_data:
             item = Item()
             item.abstract    = zot_item.abstract
-            item.author      = self.format_author(zot_item)
             item.collections = zot_item.collections
-            item.date        = zot_item.date
             item.doi         = zot_item.doi
-            item.file        = self.format_fulltext(zot_item)
             item.isbn        = zot_item.isbn
             item.publication = zot_item.publication
             item.language    = zot_item.language
             item.issue       = zot_item.issue
-            item.notes       = self.format_notes(zot_item)
             item.pages       = zot_item.pages
             item.publisher   = zot_item.publisher
-            item.tags        = self.format_tags(zot_item)
             item.title       = zot_item.title
             item.type        = zot_item.type
             item.url         = zot_item.url
             item.volume      = zot_item.volume
-            item.key         = self.format_key(zot_item, citekeys)
+            item.author      = self.format_author(zot_item)
+            item.date        = self.format_date(zot_item)
+            item.file        = self.format_fulltext(zot_item)
+            item.notes       = self.format_notes(zot_item)
+            item.tags        = self.format_tags(zot_item)
+            item.key         = self.format_key(item, zot_item, citekeys)
             item.combine()
             items.append(item)
         return items
 
-    def format_key(self, zot_item, citekeys):
+    def format_key(self, item, zot_item, citekeys):
         """
         Returns:
-        A key from either better bibtex, manual generation or zotero
+        A user formatted key if present, or a better bibtex key, or zotero hash.
         """
-        if zot_item.id in citekeys:
-            return citekeys[zot_item.id]
-        elif self.context.key_format > "":
+        if self.context.key_format > "":
             title = zot_item.title.partition(' ')[0]
             author = self.format_first_author(zot_item)
             replacements = {
@@ -73,16 +72,18 @@ class zoteroParser(object):
                 u"Title": title.capitalize(), 
                 u"author": author.lower(), 
                 u"Author": author.capitalize(),
-                u"date": zot_item.date 
+                u"date": item.date.replace(' ', '-').capitalize() # Date may be 'In-press' 
             }
             key_format = u'%s' % self.context.key_format
             return key_format.format(**replacements)
+        elif zot_item.id in citekeys:
+            return citekeys[zot_item.id]
         else:
             return zot_item.key
 
     def format_first_author(self, zot_item):
         """
-        Returns: The first authors surname, if it exists.
+        Returns: The first authors surname, if one exists.
         """
         if zot_item.authors == []:
             return ""
@@ -130,18 +131,18 @@ class zoteroParser(object):
         """
         Returns: The year or special string.
         """
-        # These dates are treated as special and are not parsed into a year
+        # Some dates are treated as special and are not parsed into a year
         # representation
         special_dates = u"in press", u"submitted", u"in preparation", \
             u"unpublished"
-        for sd in special_dates:
-            if sd in zot_item.date.lower():
-                item_value = sd
-                return item_value
+        for specialdate in special_dates:
+            if specialdate in zot_item.date.lower():
+                return specialdate
 
         # Dates can have months, days, and years, or just a
         # year, and can be split by '-' and '/' characters.
         # Detect whether the date should be split
+        date = ""
         if u'/' in zot_item.date:
             split = u'/'
         elif u'-' in zot_item.date:
@@ -150,12 +151,12 @@ class zoteroParser(object):
             split = None
         # If not, just use the last four characters
         if split == None:
-            item_value = zot_item.date[-4:]
+            date = zot_item.date[-4:]
         # Else take the first slice that is four characters
         else:
             l = zot_item.date.split(split)
             for i in l:
                 if len(i) == 4:
-                    item_value = i
+                    date = i
                     break
-        return item_value
+        return date
