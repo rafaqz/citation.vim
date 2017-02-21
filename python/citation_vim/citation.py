@@ -9,6 +9,11 @@ class Citation(object):
 
     @staticmethod
     def connect():
+        """
+        Loads variables from vimscript and returns the source array.
+        Prints errors from python to appear in the vim console.
+        """
+
         try:
             import vim
             script_path = os.path.join(vim.eval('s:script_path'), '../../../python')
@@ -46,48 +51,56 @@ class Citation(object):
             context.zotero_version = int(vim.eval("g:citation_vim_zotero_version"))
             context.source       = vim.eval("a:source")
             context.source_field = vim.eval("a:field")
-            searchkeys = vim.eval("l:searchkeys")
-            if len(searchkeys) > 0:
-                context.searchkeys = searchkeys.split()
+
+            context.cache = True
+            searchkeys_string = vim.eval("l:searchkeys")
+            if len(searchkeys_string) > 0:
+                context.cache = False
+                context.searchkeys = searchkeys_string.split()
             else:
                 context.searchkeys = []
 
-
             builder = Builder(context)
-            return builder.build_list()
+            return builder.build_source()
+
         except:
             import traceback
             exc_type, exc_value, exc_traceback = sys.exc_info()
             lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
-            print("Citation.vim error:\n" + "".join(u">> " + line for line in lines))
-        return []
+            print("Citation.vim error:\n" + "".join(line for line in lines))
 
 class Context(object):
     'empty context class'
 
 class Builder(object):
 
-    def __init__(self, context, cache = True):
+    def __init__(self, context):
         self.context = context
         self.cache_file = os.path.join(self.context.cache_path, u"citation_vim_cache")
-        self.cache = cache
+        self.cache = context.cache
 
-    def build_list(self):
+    def build_source(self):
+        """
+        Returns source array.
+        """
         if self.context.source == 'citation_collection':
             return self.get_collections()
-        else:
-            output = []
-            for item in self.get_items():
-                if self.context.collection == "" or self.context.collection in item.collections:
-                    description = self.describe(item)
-                    output.append([getattr(item, self.context.source_field),
-                                   description,
-                                   item.file,
-                                   item.combined,
-                                 ])
-            return output
+
+        output = []
+        for item in self.get_items():
+            if self.context.collection == "" or self.context.collection in item.collections:
+                description = self.describe(item)
+                output.append([getattr(item, self.context.source_field),
+                               description,
+                               item.file,
+                               item.combined,
+                ])
+        return output
 
     def get_collections(self):
+        """
+        Returns an array of collections.
+        """
         output = [["<all>",""]]
         collections = {}
         for item in self.get_items():
@@ -98,25 +111,23 @@ class Builder(object):
         return output
 
     def get_items(self):
+        """
+        Returns items cache or runs parser and 
+        creates cache
+        """
+        if self.cache and self.is_cached(): 
+            return self.read_cache()
+
         parser = self.get_parser()
-
-        if len(self.context.searchkeys) > 0:
-            return parser.load()
-
-        if self.has_cache() and self.cache:
-            try:
-                items = self.read_cache()
-            except:
-                items = []
-            else:
-                return items
-
         items = parser.load()
         if self.cache:
             self.write_cache(items)
         return items
 
     def get_parser(self):
+        """
+        Returns a bibtex or zotero parser.
+        """
         if self.context.mode == "bibtex":
             from citation_vim.bibtex.parser import bibtexParser
             parser = bibtexParser(self.context)
@@ -124,26 +135,33 @@ class Builder(object):
             from citation_vim.zotero.parser import zoteroParser
             parser = zoteroParser(self.context)
         else:
-            raiseError(u"Citation.vim Error: g:citation_vim_mode must be either 'zotero' or 'bibtex'")
+            raiseError(u"g:citation_vim_mode must be either 'zotero' or 'bibtex'")
         return parser
 
     def read_cache(self):
+        """
+        Returns items from the cache file.
+        """
         try:
             with open(self.cache_file, 'rb') as in_file:
                 return pickle.load(in_file)
         except Exception as e:
-            raiseError(u"citation_vim.citation.write_cache(): %s" % e)
+            raiseError(u"citation.read_cache(): %s" % e)
 
-    def write_cache(self, itemlist):
+    def write_cache(self, items):
+        """
+        Writes the cache file.
+        """
         try:
             with open(self.cache_file, 'wb') as out_file:
-                pickle.dump(itemlist, out_file)
+                pickle.dump(items, out_file)
         except Exception as e:
-            raiseError(u"citation_vim.citation.write_cache(): %s" % e)
+            raiseError(u"citation.write_cache(): %s" % e)
 
-
-
-    def has_cache(self):
+    def is_cached(self):
+        """
+        Returns boolean based on cache and target file dates
+        """
         from citation_vim.utils import is_current
         if self.context.mode == 'bibtex':
             file_path = self.context.bibtex_file
@@ -152,9 +170,10 @@ class Builder(object):
             file_path = zotero_database
         return is_current(file_path, self.cache_file)
 
-
-    def describe(self, entry):
-        # Get strings for description fields.
+    def describe(self, item):
+        """
+        Returns visible text descriptions for unite, from user selected fields.
+        """
         wrap = self.context.wrap_chars
         source_field = self.context.source_field
         desc_fields = self.context.desc_fields
@@ -163,19 +182,18 @@ class Builder(object):
 
         for desc_field in desc_fields:
             try:
-                getattr(entry, desc_field)
+                getattr(item, desc_field)
             except AttributeError:
-                return 'Error at "{}" field of g:unite_bibtex_description_fields. Check your vimrc.'.format(desc_field)
+                raiseError('"{}" in g:citation_vim_description_fields.'.format(desc_field))
+            desc_strings.append(getattr(item, desc_field))
 
-            desc_strings.append(getattr(entry, desc_field))
-
-        # Insert the source field if not present in the description,
-        # and put brackets around it wherever it is.
+        # Insert the source field if not present in the description.
+        # Put brackets around it wherever it is.
         if source_field in desc_fields:
             source_index = desc_fields.index(source_field)
             desc_strings[source_index] = u'%s%s%s' % (wrap[0], desc_strings[source_index], wrap[1])
         else:
             if not source_field in ["combined","file"]:
-                source_string = u'%s%s%s' % (wrap[0], getattr(entry, source_field), wrap[1])
+                source_string = u'%s%s%s' % (wrap[0], getattr(item, source_field), wrap[1])
 
         return self.context.desc_format.format(*desc_strings) + source_string

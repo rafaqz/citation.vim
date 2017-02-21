@@ -19,12 +19,10 @@ class zoteroParser(object):
         self.key_format = context.key_format
 
     def load(self):
-
         """
         Returns:
         A zotero database as an array of Items.
         """
-
         if not check_path(os.path.join(self.zotero_path, u"zotero.sqlite")):
             raiseError(u"Citation.vim Error:", self.zotero_path, u"is not a valid zotero path")
             return []
@@ -61,12 +59,10 @@ class zoteroParser(object):
         return items
 
     def format_key(self, zot_item, citekeys):
-
         """
         Returns:
         A key from either better bibtex, manual generation or zotero
         """
-
         if zot_item.id in citekeys:
             return citekeys[zot_item.id]
         elif self.context.key_format > "":
@@ -85,23 +81,17 @@ class zoteroParser(object):
             return zot_item.key
 
     def format_first_author(self, zot_item):
-
         """
-        Returns:
-        The first authors surname, if it exists.
+        Returns: The first authors surname, if it exists.
         """
-
         if zot_item.authors == []:
             return ""
         return zot_item.authors[0][0]
         
     def format_author(self, zot_item):
-
         """
-        Returns:
-        A pretty representation of the author.
+        Returns: A pretty representation of the author.
         """
-
         if zot_item.authors == []:
             return ""
         if len(zot_item.authors) > int(self.et_al_limit):
@@ -116,31 +106,56 @@ class zoteroParser(object):
         return ', '.join(zot_item.authors[0])
 
     def format_tags(self, zot_item):
-
         """
-        Returns:
-        Comma separated tags.
+        Returns: Comma separated tags.
         """
-
         return u", ".join(zot_item.tags)
 
     def format_notes(self, zot_item):
-
         """
-        Returns:
-        Linebreak separated notes.
+        Returns: Linebreak separated notes.
         """
-
         return u"\n\n".join(zot_item.notes)
 
     def format_fulltext(self, zot_item):
-
         """
-        Returns:
-        The first file.
+        Returns: The first file.
         """
-
         if zot_item.fulltext == []:
             return ""
         else:
             return zot_item.fulltext[0]
+
+    def format_date(self, zot_item):
+        """
+        Returns: The year or special string.
+        """
+        # These dates are treated as special and are not parsed into a year
+        # representation
+        special_dates = u"in press", u"submitted", u"in preparation", \
+            u"unpublished"
+        for sd in special_dates:
+            if sd in zot_item.date.lower():
+                item_value = sd
+                return item_value
+
+        # Dates can have months, days, and years, or just a
+        # year, and can be split by '-' and '/' characters.
+        # Detect whether the date should be split
+        if u'/' in zot_item.date:
+            split = u'/'
+        elif u'-' in zot_item.date:
+            split = u'-'
+        else:
+            split = None
+        # If not, just use the last four characters
+        if split == None:
+            item_value = zot_item.date[-4:]
+        # Else take the first slice that is four characters
+        else:
+            l = zot_item.date.split(split)
+            for i in l:
+                if len(i) == 4:
+                    item_value = i
+                    break
+        return item_value

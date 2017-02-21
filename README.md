@@ -270,13 +270,13 @@ pybtex-convert /path/to/your.bib out.bib
 Test your setup with test.py:
 
 ```sh
-python test.py /your/bibtext/path bibtex ~/your/cache/path key ""
+python test.py /your/bibtext/path bibtex key
 ```
 
 or
 
 ```sh
-python test.py /your/zotero/path zotero ~/your/cache/path key "" 4
+python test.py /your/zotero/path zotero key "" 4
 ```
 
 Use other sources instead of "key" if you are having problems with them. You can

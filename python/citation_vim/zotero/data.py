@@ -18,16 +18,13 @@ class zoteroData(object):
     Modified from LibZotero in gnotero.
     """
 
-    attachment_query_v4 = u"""
-        SELECT items.itemID, itemAttachments.path, itemAttachments.itemID
-        FROM items, itemAttachments
-        WHERE items.itemID = itemAttachments.sourceItemID
-        """
+    deleted_query = u"SELECT itemID FROM deletedItems"
 
-    attachment_query_v5 = u"""
-        SELECT items.itemID, itemAttachments.path, itemAttachments.itemID
-        FROM items, itemAttachments
-        WHERE items.itemID = itemAttachments.parentItemID
+    type_query = u"""
+        SELECT items.itemID, itemTypes.typeName
+        FROM items, itemTypes
+        WHERE
+            items.itemTypeID = itemTypes.itemTypeID
         """
 
     info_query = u"""
@@ -48,6 +45,18 @@ class zoteroData(object):
                 or fields.fieldName = "language"
                 or fields.fieldName = "issue"
                 or fields.fieldName = "title")
+        """
+
+    attachment_query_v4 = u"""
+        SELECT items.itemID, itemAttachments.path, itemAttachments.itemID
+        FROM items, itemAttachments
+        WHERE items.itemID = itemAttachments.sourceItemID
+        """
+
+    attachment_query_v5 = u"""
+        SELECT items.itemID, itemAttachments.path, itemAttachments.itemID
+        FROM items, itemAttachments
+        WHERE items.itemID = itemAttachments.parentItemID
         """
 
     author_query_v4 = u"""
@@ -83,11 +92,11 @@ class zoteroData(object):
             collections.collectionName
         """
 
-    type_query = u"""
-        SELECT items.itemID, itemTypes.typeName
-        FROM items, itemTypes
+    note_query = u"""
+        SELECT items.itemID, itemNotes.note
+        FROM items, itemNotes
         WHERE
-            items.itemTypeID = itemTypes.itemTypeID
+            items.itemID = itemNotes.itemID
         """
 
     tag_query = u"""
@@ -98,48 +107,40 @@ class zoteroData(object):
             and tags.tagID = itemTags.tagID
         """
 
-    note_query = u"""
-        SELECT items.itemID, itemNotes.note
-        FROM items, itemNotes
-        WHERE
-            items.itemID = itemNotes.itemID
-        """
-
-    deleted_query = u"SELECT itemID FROM deletedItems"
-
     def __init__(self, context):
         self.context = context
         # Set paths
         self.storage_path = os.path.join(context.zotero_path, u"storage")
         self.zotero_database = os.path.join(context.zotero_path, u"zotero.sqlite")
         self.database_copy = os.path.join(context.cache_path, u"zotero.sqlite")
-        # These dates are treated as special and are not parsed into a year
-        # representation
-        self.special_dates = u"in press", u"submitted", u"in preparation", \
-            u"unpublished"
-        # These extensions are recognized as fulltext attachments
+        # These extensions are recognized as openable file attachments
         self.attachment_ext = u".pdf", u".ps", u".epub"
         self.index = {}
         self.collection_index = []
         self.ignored = []
-        self.matches = []
+        self.fulltext_matches = []
         self.fulltext = False
-        # Copy the zotero database to the copy
+        # Copy the zotero database
         if not is_current(self.zotero_database, self.database_copy):
             shutil.copyfile(self.zotero_database, self.database_copy)
         self.conn = sqlite3.connect(self.database_copy)
         self.cur = self.conn.cursor()
 
     def exists(self):
+        """
+        Returns: True/False for database existance.
+        """
         try:
             stats = os.stat(self.zotero_database)
         except Exception as e:
             raiseError(u"citation_vim.zotero.data.exists(): %s" % e)
             return False
-        
         return True
 
     def load(self):
+        """
+        Returns filtered, completed items
+        """
         if not self.exists(): 
             return []
         self.ignore_deleted()
@@ -148,15 +149,26 @@ class zoteroData(object):
             self.get_fulltext_matches()
         self.filter_items()
         self.get_info()
+        self.get_authors()
+        self.get_collections()
+        self.get_tags()
+        self.get_notes()
+        self.get_attachments()
         return self.index.items()
 
     def ignore_deleted(self):
+        """
+        Populate self.ignored with deleted ids.
+        """
         self.cur.execute(self.deleted_query)
         for item in self.cur.fetchall():
             self.ignored.append(item[0])
 
     def get_fulltext_matches(self):
-        # Awfull string query building.
+        """
+        Populate self.fulltext_matches with ids.
+        Uses awfull string query building.
+        """
         if self.context.zotero_version == 5:
             fulltext_select = u"""
                 SELECT itemAttachments.parentItemID
@@ -174,38 +186,40 @@ class zoteroData(object):
         for i in range(len(self.context.searchkeys)):
             if i > 0: 
                 wheres += '\nand '
-            searchkey = self.context.searchkeys[i].lower()
+            searchkey = "jamaica" #self.context.searchkeys[i].lower()
             _froms += fulltext_from.replace('#', str(i))
             wheres += fulltext_where.replace('#', str(i)).format(searchkey)
-
         query = fulltext_select + _froms + '\nWHERE\n' + wheres
         self.cur.execute(query)
         for item in self.cur.fetchall():
             item_id = item[0]
             if not item_id in self.ignored: 
-                self.matches.append(item_id)
+                self.fulltext_matches.append(item_id)
 
     def filter_items(self):
-        # Retrieve type information and filter unwanted types
+        """
+        Populates self.index with new items, filtering out 
+        ignored types and unmatched searches
+        """
         self.cur.execute(self.type_query)
         for item in self.cur.fetchall():
             item_id = item[0]
             item_type = item[1]
-            if not item_id in self.ignored:
-                if item_type in ["note","attachment"]:
-                    # Ignore deleted items, notes, and attachments
-                    self.ignored.append(item_id)
-                else:
-                    # Filter by search key
-                    if self.fulltext and not item_id in self.matches:
-                        continue
-                    self.index[item_id] = zoteroItem(item_id)
-                    self.index[item_id].type = item_type
+            if item_id in self.ignored:
+                continue
+            if item_type in ["note","attachment"]:
+                self.ignored.append(item_id)
+                continue
+            if self.fulltext and not item_id in self.fulltext_matches:
+                continue
 
+            self.index[item_id] = zoteroItem(item_id)
+            self.index[item_id].type = item_type
 
     def get_info(self):
-        # Retrieve information about date, publication, volume, issue and
-        # title
+        """
+        Adds flat data to self.index Items
+        """
         self.cur.execute(self.info_query)
         for item in self.cur.fetchall():
             item_id = item[0]
@@ -215,7 +229,7 @@ class zoteroData(object):
                 item_name = item[1]
                 item_value = item[2]
                 if item_name == u"date":
-                    self.index[item_id].date = self.parse_date(item)
+                    self.index[item_id].date = item_value
                 elif item_name == u"publicationTitle":
                     self.index[item_id].publication = compat_str(item_value)
                 elif item_name == u"publisher":
@@ -238,7 +252,11 @@ class zoteroData(object):
                     self.index[item_id].title = item_value
                 elif item_name == u"abstractNote":
                     self.index[item_id].abstract = item_value
-        # Retrieve author information
+
+    def get_authors(self):
+        """
+        Adds author arrays to self.index Items
+        """
         if self.context.zotero_version == 5:
             self.cur.execute(self.author_query_v5)
         else:
@@ -249,28 +267,44 @@ class zoteroData(object):
                 item_lastname = item[1]
                 item_firstname = item[2]
                 self.index[item_id].authors.append([item_lastname ,item_firstname])
-        # Retrieve collection information
+
+    def get_collections(self):
+        """
+        Adds collection arrays to self.index Items
+        """
         self.cur.execute(self.collection_query)
         for item in self.cur.fetchall():
             item_id = item[0]
             if item_id in self.index:
                 item_collection = item[1]
                 self.index[item_id].collections.append(item_collection)
-        # Retrieve tag information
+
+    def get_tags(self):
+        """
+        Adds tags arrays to self.index Items
+        """
         self.cur.execute(self.tag_query)
         for item in self.cur.fetchall():
             item_id = item[0]
             if item_id in self.index:
                 item_tag = item[1]
                 self.index[item_id].tags.append(item_tag)
-        # Retrieve note information
+                
+    def get_notes(self):
+        """
+        Adds notes arrays to self.index Items
+        """
         self.cur.execute(self.note_query)
         for item in self.cur.fetchall():
             item_id = item[0]
             if item_id in self.index:
                 item_note = item[1]
                 self.index[item_id].notes.append(item_note)
-        # Retrieve attachments
+
+    def get_attachments(self):
+        """
+        Adds attachment arrays to self.index Items
+        """
         if self.context.zotero_version == 5:
             self.cur.execute(self.attachment_query_v5)
         else:
@@ -290,7 +324,7 @@ class zoteroData(object):
                         if item_attachment[-4:].lower() in self.attachment_ext:
                             self.cur.execute( \
                                 u"select items.key from items where itemID = %d" \
-                                % attachment_id)
+                               % attachment_id)
                             key = self.cur.fetchone()[0]
                             self.index[item_id].fulltext.append(os.path.join( \
                                 self.storage_path, key, item_attachment))
@@ -303,33 +337,3 @@ class zoteroData(object):
                             item_attachment = att
                         self.index[item_id].fulltext.append(item_attachment)
         self.cur.close()
-
-    def parse_date(self, item):
-        # Parse date fields, because we only want a year or a #
-        # 'special' date
-        item_value = None
-        for sd in self.special_dates:
-            if sd in item[2].lower():
-                item_value = sd
-                break
-        # Dates can have months, days, and years, or just a
-        # year, and can be split by '-' and '/' characters.
-        if item_value == None:
-            # Detect whether the date should be split
-            if u'/' in item[2]:
-                split = u'/'
-            elif u'-' in item[3]:
-                split = u'-'
-            else:
-                split = None
-            # If not, just use the last four characters
-            if split == None:
-                item_value = item[2][-4:]
-            # Else take the first slice that is four characters
-            else:
-                l = item[2].split(split)
-                for i in l:
-                    if len(i) == 4:
-                        item_value = i
-                        break
-        return item_value

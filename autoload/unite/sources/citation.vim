@@ -56,17 +56,23 @@ let s:main_path = s:plugin_path . '/python/citation_vim/citation.py'
 
 let s:has_supported_python = 0
 if has('python3')"
-    let s:has_supported_python = 3
-    exe 'py3file ' . s:main_path
+    try
+        exe 'py3file ' . s:main_path
+        let s:has_supported_python = 3
+    catch 
+        echo "Citation.vim Error:" 
+        echo "Python3 file load failed"
+    endtry
 elseif has('python')"
-    let s:has_supported_python = 2
-    exe 'pyfile ' . s:main_path
+    try
+        exe 'pyfile ' . s:main_path
+        let s:has_supported_python = 2
+    catch 
+        echo "Citation.vim Error:" 
+        echo "Python2 file load failed"
+    endtry
 else
-    function! DidNotLoad()
-        echohl WarningMsg|echomsg "Citation.vim unavailable: requires Vim 7.3+"|echohl None
-    endfunction
-    command! call DidNotLoad()
-    call DidNotLoad()
+    echo "Citation.vim unavailable: requires python 2 or 3 and Vim 7.3+"
 endif
 
 
@@ -108,17 +114,27 @@ let s:sub_sources = [
 "-----------------------------------------------------------------------}}}
 " {{{ Get source from python
 function! s:get_source(source, field, args)
-    let l:out = []
     if len(a:args) > 0
-      let l:searchkeys = a:args[0]
+        let l:searchkeys = a:args[0]
     else
-      let l:searchkeys = ""
+        let l:searchkeys = ""
     endif
 
+    let l:out = []
     if s:has_supported_python == 3
-      let l:out = py3eval("Citation.connect()")
+        try
+            let l:out = py3eval("Citation.connect()")
+        catch 
+            echo "Citation.vim Error:" 
+            echo "Python3 connection error"
+        endtry
     elseif s:has_supported_python == 2
-      let l:out = pyeval("Citation.connect()")
+        try
+            let l:out = pyeval("Citation.connect()")
+        catch 
+            echo "Citation.vim Error:" 
+            echo "Python2 connection error"
+        endtry
     endif
     return l:out
 endfunction
@@ -146,41 +162,41 @@ endfunction
 "-----------------------------------------------------------------------}}}
 " {{{ List sources
 function! s:citation_source.gather_candidates(args, context)
-  call unite#print_message('[Citation] citation sources')
-  return map(s:sub_sources, '{
-\   "word"   : v:val,
-\   "source" : s:citation_source.name,
-\   "kind"   : "source",
-\   "action__source_name" : "citation/" . v:val,
-\ }')
+    call unite#print_message('[Citation] citation sources')
+    return map(s:sub_sources, '{
+  \   "word"   : v:val,
+  \   "source" : s:citation_source.name,
+  \   "kind"   : "source",
+  \   "action__source_name" : "citation/" . v:val,
+  \ }')
 endfunction
 
 "-----------------------------------------------------------------------}}}
 " {{{ Build all sub_sources programatically.
 function! s:construct_sources(sub_sources)
-      for sub_source in a:sub_sources
-          exec "let s:citation_source_" . sub_source . " = {
-          \       'name': 'citation/" . sub_source . "',
-          \	      'default_action' : 'insert',
-          \       'hooks': {},
-          \       'syntax': 'uniteSource__citation',
-          \      	'action_table' : {
-          \	      	'preview' : {
-          \		      	'description' : 'preview : Combined citation info {word}',
-          \			      'is_quit' : 0,
-          \      		}
-          \	      }
-          \     }"
-          exec "function! s:citation_source_" . sub_source . ".hooks.on_syntax(args, context)
-          \  \n   call s:hooks.syntax()
-          \  \n endfunction"
-          exec "function! s:citation_source_" . sub_source . ".gather_candidates(args,context)
-          \  \n   return s:map_entries('citation','" . sub_source . "',a:args)
-          \  \n endfunction"
-          exec "function! s:citation_source_" . sub_source . ".action_table.preview.func(candidate)
-          \  \n execute a:candidate.action__command
-          \  \n endfunction"
-      endfor
+    for sub_source in a:sub_sources
+        exec "let s:citation_source_" . sub_source . " = {
+        \       'name': 'citation/" . sub_source . "',
+        \	      'default_action' : 'insert',
+        \       'hooks': {},
+        \       'syntax': 'uniteSource__citation',
+        \      	'action_table' : {
+        \	      	'preview' : {
+        \		      	'description' : 'preview : Combined citation info {word}',
+        \			      'is_quit' : 0,
+        \      		}
+        \	      }
+        \     }"
+        exec "function! s:citation_source_" . sub_source . ".hooks.on_syntax(args, context)
+        \  \n   call s:hooks.syntax()
+        \  \n endfunction"
+        exec "function! s:citation_source_" . sub_source . ".gather_candidates(args,context)
+        \  \n   return s:map_entries('citation','" . sub_source . "',a:args)
+        \  \n endfunction"
+        exec "function! s:citation_source_" . sub_source . ".action_table.preview.func(candidate)
+        \  \n execute a:candidate.action__command
+        \  \n endfunction"
+    endfor
 endfunction
 call s:construct_sources(s:sub_sources)
 
@@ -237,7 +253,7 @@ endfunction
 "-----------------------------------------------------------------------}}}
 " {{{ Set prompt message
 function! s:set_message(m)
-  return printf('echo "%s"', a:m)
+    return printf('echo "%s"', a:m)
 endfunction
 
 "-----------------------------------------------------------------------}}}
