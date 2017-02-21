@@ -301,7 +301,7 @@ function! s:hooks.syntax()
 			        \ containedin=uniteSource__Citation"
   execute "syntax region uniteSource__Citation_Dash start=/[" . dash . "]/ end=/[" . dash . "]/
 			        \ containedin=uniteSource__Citation"
-  syntax match uniteSource__Citation_Key "\<[\w-]\+\d\{4}[\w-]*\>\|\<\w*\d\{4}\w\+\>" contained
+  syntax match uniteSource__Citation_Key "\<[\S-]\+\d\{4}[\S-]*\>\|\<\S*\d\{4}\S\+\>" contained
 			        \ containedin=uniteSource__Citation
               \ contains=uniteSource__Citation_Year
   syntax match uniteSource__Citation_Split "\.\{2}" contained

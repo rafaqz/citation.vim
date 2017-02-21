@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os.path
 import sys
+import string
 from pybtex.database.input import bibtex
 from citation_vim.item import Item
 from citation_vim.utils import check_path, raiseError
@@ -91,8 +92,7 @@ class bibtexParser(object):
         """
         if authors == []: 
             return ""
-
-        return authors[0][0]
+        return self.strip_braces(authors[0][0]).replace(' ', '_') 
 
     def format_author(self, authors):
         """
