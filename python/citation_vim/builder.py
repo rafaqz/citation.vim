@@ -47,8 +47,7 @@ class Builder(object):
 
     def get_items(self):
         """
-        Returns items cache or runs parser and 
-        creates cache
+        Returns items from cache or parser 
         """
         if self.cache and self.is_cached(): 
             return self.read_cache()
@@ -80,8 +79,8 @@ class Builder(object):
         try:
             with open(self.cache_file, 'rb') as in_file:
                 return pickle.load(in_file)
-        except Exception as e:
-            raiseError(u"citation.read_cache(): %s" % e)
+        except:
+            raiseError(u"Cache could not be read")
 
     def write_cache(self, items):
         """
@@ -90,8 +89,8 @@ class Builder(object):
         try:
             with open(self.cache_file, 'wb') as out_file:
                 pickle.dump(items, out_file)
-        except Exception as e:
-            raiseError(u"citation.write_cache(): %s" % e)
+        except: 
+            raiseError(u"Cache could not be written")
 
     def is_cached(self):
         """

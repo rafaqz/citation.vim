@@ -9,7 +9,7 @@ class Citation(object):
     def connect():
 
         """
-        Loads variables from vimscript and returns the source array.
+        Loads variables from vimscript and passes them to the builder.
         Prints errors from python to appear in the vim console.
         """
 

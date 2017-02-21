@@ -61,7 +61,7 @@ if has('python3')"
         let s:has_supported_python = 3
     catch 
         echo "Citation.vim Error:" 
-        echo "Python3 file load failed"
+        echo "Python3 failed to load citation.py"
     endtry
 elseif has('python')"
     try
@@ -69,10 +69,11 @@ elseif has('python')"
         let s:has_supported_python = 2
     catch 
         echo "Citation.vim Error:" 
-        echo "Python2 file load failed"
+        echo "Python2 failed to load citation.py"
     endtry
 else
-    echo "Citation.vim unavailable: requires python 2 or 3 and Vim 7.3+"
+    echo "Citation.vim unavailable:"
+    echo "requires python 2 or 3 and Vim 7.3+"
 endif
 
 
