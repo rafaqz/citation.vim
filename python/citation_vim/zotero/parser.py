@@ -95,7 +95,7 @@ class zoteroParser(object):
         """
         if zot_item.authors == []:
             return ""
-        if len(zot_item.authors) > int(self.et_al_limit):
+        if len(zot_item.authors) > self.et_al_limit:
             return u"%s et al." % zot_item.authors[0][0]
         if len(zot_item.authors) > 2:
             auth_string = u""

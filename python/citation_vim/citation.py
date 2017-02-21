@@ -47,7 +47,7 @@ class Citation(object):
             context.desc_format  = vim.eval("g:citation_vim_description_format")
             context.desc_fields  = vim.eval("g:citation_vim_description_fields")
             context.wrap_chars   = vim.eval("g:citation_vim_source_wrap")
-            context.et_al_limit  = vim.eval("g:citation_vim_et_al_limit")
+            context.et_al_limit  = int(vim.eval("g:citation_vim_et_al_limit"))
             context.zotero_version = int(vim.eval("g:citation_vim_zotero_version"))
             context.source       = vim.eval("a:source")
             context.source_field = vim.eval("a:field")

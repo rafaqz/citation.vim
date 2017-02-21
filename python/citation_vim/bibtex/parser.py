@@ -100,7 +100,7 @@ class bibtexParser(object):
         """
         if authors == []: 
             return ""
-        if len(authors) > int(self.context.et_al_limit):
+        if len(authors) > self.context.et_al_limit:
             return u"%s et al." % authors[0][0]
         if len(authors) > 2:
             auth_string = u""
