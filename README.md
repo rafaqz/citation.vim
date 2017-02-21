@@ -232,13 +232,6 @@ let g:citation_vim_description_format = "{}∶ {} \˝{}\˝ ₋{}₋ ₍{}₎"
 let g:citation_vim_description_fields = ["type", "key", "title", "author", "year"]
 ```
 
-or this one is nice for showing journal/publisher (citations rarely have both):
-
-```vimscript
-let g:citation_vim_description_format="{}→ ′{}′ ₊{}₊ │{}{}│"
-let g:citation_vim_description_fields=["key", "title", "author", "publisher", "journal"]
-```
-
 You might have noticed the weird characters in the description format string.
 They are used for highlighting sections, to avoid confusion with
 normal characters that might be in the citation.
