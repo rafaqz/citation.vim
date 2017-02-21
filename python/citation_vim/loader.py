@@ -53,6 +53,6 @@ def get_searchkeys():
     return []
 
 def can_cache(searchkeys):
-    if searchkeys > []:
+    if searchkeys == []:
         return True
     return False
