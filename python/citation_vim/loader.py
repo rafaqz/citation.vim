@@ -8,17 +8,13 @@ def get_vim_context(context):
 
     context.mode = vim.eval("g:citation_vim_mode")
     if context.mode == "bibtex":
-        context.bibtex_file = context.get_bibtex_file()
+        context.bibtex_file = get_bibtex_file()
     elif context.mode == "zotero":
         context.zotero_path = get_zotero_path()
     else:
         raiseError(u"'g:citation_vim_mode' must be set to 'zotero' or 'bibtex'")
 
-    try:
-        context.cache_path = os.path.expanduser(vim.eval("g:citation_vim_cache_path"))
-    except:
-        raiseError(u"'g:citation_vim_cache_path' is not set")
-
+    context.cache_path = get_cache_path()
     context.collection   = vim.eval("g:citation_vim_collection")
     context.key_format   = vim.eval("g:citation_vim_key_format")
     context.desc_format  = vim.eval("g:citation_vim_description_format")
@@ -29,13 +25,8 @@ def get_vim_context(context):
     context.source       = vim.eval("a:source")
     context.source_field = vim.eval("a:field")
 
-    context.cache = True
-    searchkeys_string = vim.eval("l:searchkeys")
-    if len(searchkeys_string) > 0:
-        context.cache = False
-        context.searchkeys = searchkeys_string.split()
-    else:
-        context.searchkeys = []
+    context.searchkeys = get_searchkeys()
+    context.cache = can_cache(context.searchkeys)
 
     return context
 
@@ -52,3 +43,20 @@ def get_bibtex_file():
         return os.path.expanduser(file)
     except:
         raiseError(u"'g:citation_vim_bibtex_file' is not set")
+
+def get_cache_path():
+    try:
+        return os.path.expanduser(vim.eval("g:citation_vim_cache_path"))
+    except:
+        raiseError(u"'g:citation_vim_cache_path' is not set")
+
+def get_searchkeys():
+    searchkeys = vim.eval("l:searchkeys")
+    if len(searchkeys) > 0:
+        return searchkeys.split()
+    return []
+
+def can_cache(searchkeys):
+    if searchkeys > []:
+        return True
+    return False
