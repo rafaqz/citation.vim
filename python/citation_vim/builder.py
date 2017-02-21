@@ -3,12 +3,10 @@
 import os.path
 import string
 import pickle
-
-class Context(object):
-    'empty context class'
+from citation_vim.utils import raiseError
 
 class Builder(object):
-
+    
     def __init__(self, context):
         self.context = context
         self.cache_file = os.path.join(self.context.cache_path, u"citation_vim_cache")
