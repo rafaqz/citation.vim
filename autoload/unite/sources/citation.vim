@@ -145,14 +145,14 @@ endfunction
 function! s:citation_collection_source.gather_candidates(args, context)
   call unite#print_message('[Citation] collections')
   return map(s:get_source('citation_collection', '', ''), '{
-\   "word"   : v:val[0],
+\   "word"   : v:val,
 \   "source" : s:citation_collection_source.name,
 \   "kind": ["command"],
-\   "action__command": s:set_collection(v:val[1]),
+\   "action__command": s:set_collection(v:val),
 \   "action__type": ": ",
-\   "action__text": v:val[1],
-\   "action__path": v:val[1],
-\   "action__directory": fnamemodify(v:val[1], ":h"),
+\   "action__text": v:val,
+\   "action__path": v:val,
+\   "action__directory": fnamemodify(v:val, ":h"),
 \ }')
 endfunction
 

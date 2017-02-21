@@ -23,10 +23,11 @@ class Builder(object):
         for item in self.get_items():
             if self.context.collection == "" or self.context.collection in item.collections:
                 description = self.describe(item)
-                output.append([getattr(item, self.context.source_field),
-                               description,
-                               item.file,
-                               item.combined,
+                output.append([
+                    getattr(item, self.context.source_field),
+                    description,
+                    item.file,
+                    item.combined,
                 ])
         return output
 
@@ -34,12 +35,12 @@ class Builder(object):
         """
         Returns an array of collections.
         """
-        output = [["<all>",""]]
+        output = ["<all>"]
         collections = {}
         for item in self.get_items():
             for col in item.collections:
                 if not col in collections:
-                    output.append([col, col])
+                    output.append(col)
                     collections[col] = col
         return output
 
@@ -99,7 +100,7 @@ class Builder(object):
             file_path = self.context.bibtex_file
         elif self.context.mode == 'zotero':
             zotero_database = os.path.join(self.context.zotero_path, u"zotero.sqlite") 
-            file_path = zotero_databaseer
+            file_path = zotero_database
         return is_current(file_path, self.cache_file)
 
     def describe(self, item):
