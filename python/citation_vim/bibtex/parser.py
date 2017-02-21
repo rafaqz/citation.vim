@@ -64,19 +64,19 @@ class bibtexParser(object):
         """
         return string.replace("{","").replace("}","")
 
-    def get_field(self, entry, field):
+    def get_field(self, bib_entry, field):
         """
         Returns cleaned field value for any bibtex field. 
         """
-        output = entry.fields[field] if field in entry.fields else ""
+        output = bib_entry.fields[field] if field in bib_entry.fields else ""
         return self.strip_braces(output)
 
-    def parse_authors(self, entry):
+    def parse_authors(self, bib_entry):
         """
         Returns: Array of authors
         """
         try:
-            persons = entry.persons[u"author"]
+            persons = bib_entry.persons[u"author"]
             if sys.version_info[0] == 2:
                 authors = [unicode(au).split(",") for au in persons]
             elif sys.version_info[0] == 3:
@@ -93,8 +93,8 @@ class bibtexParser(object):
             return ""
         return self.strip_braces(authors[0][0]).replace(' ', '_') 
 
-    def format_title_word(self, entry):
-        return self.get_field(entry, "title").partition(' ')[0]
+    def format_title_word(self, bib_entry):
+        return self.get_field(bib_entry, "title").partition(' ')[0]
 
     def format_author(self, authors):
         """
@@ -113,39 +113,39 @@ class bibtexParser(object):
             return authors[0][0] + u" & " + authors[1][0]
         return ', '.join(authors[0])
 
-    def format_file(self, entry):
+    def format_file(self, bib_entry):
         """
         Returns: Attachment file path
         """
         attachment = ""
-        if u"file" in entry.fields:
-            for file in entry.fields[u"file"].split(";"):
+        if u"file" in bib_entry.fields:
+            for file in bib_entry.fields[u"file"].split(";"):
                 details = file.split(":")
                 if 2 < len(details) and details[2] == "application/pdf":
                     attachment = details[1]
                     break
         return attachment
 
-    def format_url(self, entry):
+    def format_url(self, bib_entry):
         """
         Returns: Url string
         """
         url = ""
-        if u"file" in entry.fields:
-            for file in entry.fields[u"file"].split(";"):
+        if u"file" in bib_entry.fields:
+            for file in bib_entry.fields[u"file"].split(";"):
                 details = file.split(":")
                 if 2 < len(details) and details[2] != "application/pdf":
                     url = details[1]
                     break
         return url
 
-    def format_tags(entry):
+    def format_tags(bib_entry):
         """
         Returns: Tags/keywords string
         """
         tags = ""
-        if u"keywords" in entry.fields:
-            tags = ", ".join(entry.fields[u"keywords"])
+        if u"keywords" in bib_entry.fields:
+            tags = ", ".join(bib_entry.fields[u"keywords"])
         return tags
 
     def format_key(self, authors, bib_entry, key):
