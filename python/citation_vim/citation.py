@@ -18,8 +18,8 @@ class Citation(object):
             from citation_vim.utils import raiseError
             from citation_vim.builder import Builder
             from citation_vim.context import Context
-            from citation_vim.loader import get_vim_context
-            return Builder(get_vim_context(Context())).build_source()
+            from citation_vim.loader import Loader
+            return Builder(Loader().context).build_source()
         except:
             print_exception()
 
