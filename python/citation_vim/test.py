@@ -20,12 +20,12 @@ context = Context()
 context.bibtex_file = sys.argv[1]
 context.zotero_path = sys.argv[1]
 context.mode = sys.argv[2]
-context.cache_path = ""
-context.source_field = sys.argv[4] 
+context.source_field = sys.argv[3] 
 if context.mode == 'zotero':
-    context.searchkeys = sys.argv[5].split()
-    context.zotero_version = int(sys.argv[6])
+    context.searchkeys = sys.argv[4].split()
+    context.zotero_version = int(sys.argv[5])
 
+context.cache_path = ""
 context.collection = ''
 context.source = 'citation'
 context.key_format = "{author}{date}{Title}"
