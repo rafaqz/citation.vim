@@ -128,14 +128,6 @@ class bibtexParser(object):
         """
         Returns: Url string
         """
-        attachment = ""
-        if u"file" in entry.fields:
-            for file in entry.fields[u"file"].split(";"):
-                details = file.split(":")
-                if 2 < len(details) and details[2] == "application/pdf":
-                    attachment = details[1]
-                    break
-        return attachment
         url = ""
         if u"file" in entry.fields:
             for file in entry.fields[u"file"].split(";"):
