@@ -5,7 +5,6 @@ import vim
 from citation_vim.utils import raiseError
 
 def get_vim_context(context):
-
     context.mode = vim.eval("g:citation_vim_mode")
     if context.mode == "bibtex":
         context.bibtex_file = get_bibtex_file()
@@ -13,7 +12,6 @@ def get_vim_context(context):
         context.zotero_path = get_zotero_path()
     else:
         raiseError(u"'g:citation_vim_mode' must be set to 'zotero' or 'bibtex'")
-
     context.cache_path = get_cache_path()
     context.collection   = vim.eval("g:citation_vim_collection")
     context.key_format   = vim.eval("g:citation_vim_key_format")
@@ -24,10 +22,8 @@ def get_vim_context(context):
     context.zotero_version = int(vim.eval("g:citation_vim_zotero_version"))
     context.source       = vim.eval("a:source")
     context.source_field = vim.eval("a:field")
-
     context.searchkeys = get_searchkeys()
     context.cache = can_cache(context.searchkeys)
-
     return context
 
 def get_zotero_path():

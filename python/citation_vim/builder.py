@@ -98,34 +98,44 @@ class Builder(object):
         if self.context.mode == 'bibtex':
             file_path = self.context.bibtex_file
         elif self.context.mode == 'zotero':
-            zotero_database = os.path.join(self.context.zotero_path, u"zotero.sqlite")
-            file_path = zotero_database
+            zotero_database = os.path.join(self.context.zotero_path, u"zotero.sqlite") 
+            file_path = zotero_databaseer
         return is_current(file_path, self.cache_file)
 
     def describe(self, item):
         """
         Returns visible text descriptions for unite, from user selected fields.
         """
-        wrap = self.context.wrap_chars
-        source_field = self.context.source_field
-        desc_fields = self.context.desc_fields
-        desc_strings = []
-        source_string = u""
+        description_values = self.get_description_values(item)
+        return self.describe_with_source_field(description_values, item)
 
-        for desc_field in desc_fields:
+    def get_description_values(self, item):
+        description_fields = self.context.desc_fields
+        description_values = []
+        for description_field in description_fields:
             try:
-                getattr(item, desc_field)
+                description_values.append(getattr(item, description_field))
             except AttributeError:
-                raiseError('"{}" in g:citation_vim_description_fields.'.format(desc_field))
-            desc_strings.append(getattr(item, desc_field))
+                raiseError('"{}" in g:citation_vim_description_fields.'.format(description_field))
+        return description_values
 
-        # Insert the source field if not present in the description.
-        # Put brackets around it wherever it is.
-        if source_field in desc_fields:
-            source_index = desc_fields.index(source_field)
-            desc_strings[source_index] = u'%s%s%s' % (wrap[0], desc_strings[source_index], wrap[1])
-        else:
-            if not source_field in ["combined","file"]:
-                source_string = u'%s%s%s' % (wrap[0], getattr(item, source_field), wrap[1])
+    def describe_with_source_field(self, description_values, item):
+        """
+        Returns description with added/replaced wrapped source field
+        """
+        description_fields = self.context.desc_fields
+        description_format = self.context.desc_format
+        source_field = self.context.source_field
+        wrapper = self.context.wrap_chars
+        source_value = getattr(item, source_field)
+        wrapped_source = self.wrap_string(source_value, wrapper)
+        if source_field in description_fields:
+            source_index = description_fields.index(source_field)
+            description_values[source_index] = wrapped_source
+            source_added = True
+        if not source_added and not source_field in ["combined","file"]:
+            description_format += wrapped_source
+        return description_format.format(*description_values)
 
-        return self.context.desc_format.format(*desc_strings) + source_string
+    def wrap_string(self, string, wrapper):
+        return u'%s%s%s' % (wrapper[0], string, wrapper[1])

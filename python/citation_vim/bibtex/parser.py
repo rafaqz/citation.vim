@@ -69,8 +69,7 @@ class bibtexParser(object):
         Returns cleaned field value for any bibtex field. 
         """
         output = entry.fields[field] if field in entry.fields else ""
-        output = self.strip_braces(output)
-        return output
+        return self.strip_braces(output)
 
     def parse_authors(self, entry):
         """
@@ -93,6 +92,9 @@ class bibtexParser(object):
         if authors == []: 
             return ""
         return self.strip_braces(authors[0][0]).replace(' ', '_') 
+
+    def format_title_word(self, entry):
+        return self.get_field(entry, "title").partition(' ')[0]
 
     def format_author(self, authors):
         """
@@ -151,18 +153,19 @@ class bibtexParser(object):
         Returns:
         A key manual format or default bibtex key.
         """
-        if self.context.key_format > "":
-            title = self.get_field(bib_entry, "title").partition(' ')[0]
-            author = self.format_first_author(authors)
-            replacements = {
-                u"title": title.lower(),
-                u"Title": title.capitalize(), 
-                u"author": author.lower(), 
-                u"Author": author.capitalize(),
-                u"date": self.get_field(bib_entry, "year")
-            }
-            key_format = u"%s" % self.context.key_format
-            key = key_format.format(**replacements)
+        if self.context.key_format == "":
+            return key
 
-        return key
+        author = self.format_first_author(authors)
+        title = self.format_title_word(bib_entry)
+        date = self.get_field(bib_entry, "year")
+        replacements = {
+            u"title": title.lower(),
+            u"Title": title.capitalize(), 
+            u"author": author.lower(), 
+            u"Author": author.capitalize(),
+            u"date": date
+        }
+        key_format = u"%s" % self.context.key_format
+        return key_format.format(**replacements)
 

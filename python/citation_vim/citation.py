@@ -9,24 +9,26 @@ class Citation(object):
     def connect():
 
         """
-        Loads variables from vimscript and passes them to the builder.
-        Prints errors from python to appear in the vim console.
+        Returns source from builder,
+        printing any errors from python to the vim console.
         """
 
         try:
-            script_path = os.path.join(vim.eval('s:script_path'), '../../../python')
-            sys.path.insert(0, script_path)
+            set_script_path()
             from citation_vim.utils import raiseError
             from citation_vim.builder import Builder
             from citation_vim.context import Context
             from citation_vim.loader import get_vim_context
-
-            context = get_vim_context(Context())
-            builder = Builder(context)
-            return builder.build_source()
-
+            return Builder(get_vim_context(Context())).build_source()
         except:
-            import traceback
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
-            print("Citation.vim error:\n" + "".join(line for line in lines))
+            print_exception()
+
+def set_script_path():
+    script_path = os.path.join(vim.eval('s:script_path'), '../../../python')
+    sys.path.insert(0, script_path)
+
+def print_exception():
+    import traceback
+    exc_type, exc_value, exc_traceback = sys.exc_info()
+    lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+    print("Citation.vim error:\n" + "".join(line for line in lines))
