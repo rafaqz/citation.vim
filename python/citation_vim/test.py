@@ -12,7 +12,7 @@ import sys
 import os.path
 module_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir)
 sys.path.insert(0, module_path)
-from citation_vim.citation import Citation, Context, Builder
+from citation_vim.builder import Builder, Context
 
 context = Context()
 

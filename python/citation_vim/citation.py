@@ -18,8 +18,7 @@ class Citation(object):
             script_path = os.path.join(vim.eval('s:script_path'), '../../../python')
             sys.path.insert(0, script_path)
             from citation_vim.utils import raiseError
-            from citation_vim.builder import Builder
-            from citation_vim.builder import Context
+            from citation_vim.builder import Builder, Context
 
             context = Context()
             context.mode = vim.eval("g:citation_vim_mode")
