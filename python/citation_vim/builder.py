@@ -132,8 +132,7 @@ class Builder(object):
         if source_field in description_fields:
             source_index = description_fields.index(source_field)
             description_values[source_index] = wrapped_source
-            source_added = True
-        if not source_added and not source_field in ["combined","file"]:
+        elif not source_field in ["combined","file"]:
             description_format += wrapped_source
         return description_format.format(*description_values)
 
