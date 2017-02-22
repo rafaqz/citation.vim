@@ -111,6 +111,7 @@ class zoteroData(object):
         self.context = context
         # Set paths
         self.storage_path = os.path.join(context.zotero_path, u"storage")
+        self.attachment_path = context.zotero_attachment_path
         self.zotero_database = os.path.join(context.zotero_path, u"zotero.sqlite")
         self.database_copy = os.path.join(context.cache_path, u"zotero.sqlite")
         # These extensions are recognized as openable file attachments
@@ -139,7 +140,7 @@ class zoteroData(object):
 
     def load(self):
         """
-        Returns filtered, completed items
+        Returns filtered, complete items
         """
         if not self.exists(): 
             return []
@@ -309,6 +310,7 @@ class zoteroData(object):
             self.cur.execute(self.attachment_query_v5)
         else:
             self.cur.execute(self.attachment_query_v4)
+
         for item in self.cur.fetchall():
             item_id = item[0]
             if item_id in self.index:
@@ -328,6 +330,16 @@ class zoteroData(object):
                             key = self.cur.fetchone()[0]
                             self.index[item_id].fulltext.append(os.path.join( \
                                 self.storage_path, key, item_attachment))
+                    elif att[:12] == u"attachments:":
+                        item_attachment = att[12:]
+                        attachment_id = item[2]
+                        if item_attachment[-4:].lower() in self.attachment_ext:
+                            self.cur.execute( \
+                                u"select items.key from items where itemID = %d" \
+                               % attachment_id)
+                            key = self.cur.fetchone()[0]
+                            self.index[item_id].fulltext.append(os.path.join( \
+                                self.attachment_path, item_attachment))
                     # If the attachment is linked, it is simply the full
                     # path to the attachment
                     else:

@@ -100,6 +100,14 @@ the example mappings for how to do this.
   The zotero path is quite variable accross different systems, just make sure it
   contains the file `zotero.sqlite`
 
+  If you have set a "Linked Attachment Base Directory" in zotero
+  (in Preferences\Files and Folders) you will need to set:
+
+  ``` vimscript
+  let
+  g:citation_vim_zotero_attachment_path="/your/linked/attachment/base/directory" ("default ~/Zotero/library")
+  ```
+
   If you don't have the better bibtex plugin (e.g. in zotero 5) and you want
   readable keys (like smith2010Sometitle), set a key formatter. This will not
   produce fixed keys like the better-bibtex plugin, so make sure to manage your
