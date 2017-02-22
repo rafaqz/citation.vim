@@ -106,16 +106,15 @@ class zoteroData(object):
             items.itemID = itemTags.itemID
             and tags.tagID = itemTags.tagID
         """
-
     def __init__(self, context):
         self.context = context
         # Set paths
         self.storage_path = os.path.join(context.zotero_path, u"storage")
-        self.attachment_path = context.zotero_attachment_path
+        self.attachment_base_path = context.zotero_attachment_path
         self.zotero_database = os.path.join(context.zotero_path, u"zotero.sqlite")
         self.database_copy = os.path.join(context.cache_path, u"zotero.sqlite")
         # These extensions are recognized as openable file attachments
-        self.attachment_ext = u".pdf", u".ps", u".epub"
+        self.attachment_extensions = u".pdf", u".ps", u".epub"
         self.index = {}
         self.collection_index = []
         self.ignored = []
@@ -221,6 +220,21 @@ class zoteroData(object):
         """
         Adds flat data to self.index Items
         """
+        field_mapping = {
+            u"date": 'date',
+            u"publicationTitle": 'publication',
+            u"publisher": 'publisher',
+            u"language": 'language',
+            u"DOI": 'doi',
+            u"ISBN": 'isbn',
+            u"volume": 'volume',
+            u"issue": 'issue',
+            u"pages": 'pages',
+            u"url": 'url',
+            u"title": 'title',
+            u"abstractNote": 'abstract'
+        }
+
         self.cur.execute(self.info_query)
         for item in self.cur.fetchall():
             item_id = item[0]
@@ -229,30 +243,10 @@ class zoteroData(object):
                 self.index[item_id].key = key
                 item_name = item[1]
                 item_value = item[2]
-                if item_name == u"date":
-                    self.index[item_id].date = item_value
-                elif item_name == u"publicationTitle":
-                    self.index[item_id].publication = compat_str(item_value)
-                elif item_name == u"publisher":
-                    self.index[item_id].publisher = item_value
-                elif item_name == u"language":
-                    self.index[item_id].language = item_value
-                elif item_name == u"DOI":
-                    self.index[item_id].doi = item_value
-                elif item_name == u"ISBN":
-                    self.index[item_id].isbn = item_value
-                elif item_name == u"volume":
-                    self.index[item_id].volume = item_value
-                elif item_name == u"issue":
-                    self.index[item_id].issue = item_value
-                elif item_name == u"pages":
-                    self.index[item_id].pages = item_value
-                elif item_name == u"url":
-                    self.index[item_id].url = item_value
-                elif item_name == u"title":
-                    self.index[item_id].title = item_value
-                elif item_name == u"abstractNote":
-                    self.index[item_id].abstract = item_value
+                if item_name in field_mapping:
+                    attribute = field_mapping[item_name]
+                    setattr(self.index[item_id], attribute, item_value)
+
 
     def get_authors(self):
         """
@@ -312,40 +306,41 @@ class zoteroData(object):
             self.cur.execute(self.attachment_query_v4)
 
         for item in self.cur.fetchall():
+            attachment_path = self.parse_attachment(item)
             item_id = item[0]
-            if item_id in self.index:
-                if item[1] != None:
-                    att = item[1]
-                    # If the attachment is stored in the Zotero folder, it is preceded
-                    # by "storage:"
-                    if att[:8] == u"storage:":
-                        item_attachment = att[8:]
-                        if self.context.zotero_version != 5:
-                            item_attachment = item_attachment.encode('latin-1').decode('utf-8')
-                        attachment_id = item[2]
-                        if item_attachment[-4:].lower() in self.attachment_ext:
-                            self.cur.execute( \
-                                u"select items.key from items where itemID = %d" \
-                               % attachment_id)
-                            key = self.cur.fetchone()[0]
-                            self.index[item_id].fulltext.append(os.path.join( \
-                                self.storage_path, key, item_attachment))
-                    elif att[:12] == u"attachments:":
-                        item_attachment = att[12:]
-                        attachment_id = item[2]
-                        if item_attachment[-4:].lower() in self.attachment_ext:
-                            self.cur.execute( \
-                                u"select items.key from items where itemID = %d" \
-                               % attachment_id)
-                            key = self.cur.fetchone()[0]
-                            self.index[item_id].fulltext.append(os.path.join( \
-                                self.attachment_path, item_attachment))
-                    # If the attachment is linked, it is simply the full
-                    # path to the attachment
-                    else:
-                        if self.context.zotero_version != 5:
-                            item_attachment = att.encode('latin-1').decode('utf-8')
-                        else: 
-                            item_attachment = att
-                        self.index[item_id].fulltext.append(item_attachment)
+            if self.attachment_has_right_extension(attachment_path):
+                self.index[item_id].fulltext.append(attachment_path)
         self.cur.close()
+
+    def parse_attachment(self, item):
+        item_id = item[0]
+        if item_id in self.index:
+            if item[1] != None:
+                attachment_string = item[1]
+                attachment_id = item[2]
+                if attachment_string[:8] == u"storage:":
+                    return self.format_storage_path(attachment_string, attachment_id)
+                if attachment_string[:12] == u"attachments:":
+                    return self.format_attachment_path(attachment_string)
+                return self.format_plain_path(attachment_string)
+
+    def format_storage_path(self, attachment_string, attachment_id):
+        attachment_path = attachment_string[8:]
+        if not self.attachment_has_right_extension(attachment_path):
+            return ""
+
+        self.cur.execute(u"select items.key from items where itemID = %d" \
+           % attachment_id)
+        key = self.cur.fetchone()[0]
+        return os.path.join(self.storage_path, key, attachment_path)
+
+    def format_attachment_path(self, attachment_string):
+        attachment_path = attachment_string[12:]
+        return os.path.join(self.attachment_base_path, attachment_path)
+
+    def format_plain_path(self, attachment_string):
+        return attachment_string
+
+    def attachment_has_right_extension(self, path):
+        return path and path[-4:].lower() in self.attachment_extensions
+
