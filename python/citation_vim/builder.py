@@ -114,10 +114,10 @@ class Builder(object):
         description_fields = self.context.desc_fields
         description_values = []
         for description_field in description_fields:
-            try:
+            if hasattr(item, description_field):
                 description_values.append(getattr(item, description_field))
-            except AttributeError:
-                raiseError('"{}" in g:citation_vim_description_fields.'.format(description_field))
+            else:
+                description_values.append("")
         return description_values
 
     def describe_with_source_field(self, description_values, item):
@@ -128,7 +128,10 @@ class Builder(object):
         description_format = self.context.desc_format
         source_field = self.context.source_field
         wrapper = self.context.wrap_chars
-        source_value = getattr(item, source_field)
+        if hasattr(item, source_field):
+            source_value = getattr(item, source_field)
+        else: 
+            source_value = ""
         wrapped_source = self.wrap_string(source_value, wrapper)
         if source_field in description_fields:
             source_index = description_fields.index(source_field)
