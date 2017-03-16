@@ -2,6 +2,7 @@
 
 import os.path
 import vim
+import re
 from citation_vim.utils import raiseError
 from citation_vim.context import Context
 
@@ -16,6 +17,8 @@ class Loader(object):
         context.cache_path = self.get_cache_path()
         context.collection = vim.eval("g:citation_vim_collection")
         context.key_format = vim.eval("g:citation_vim_key_format")
+        context.key_title_banned_regex = re.compile(vim.eval("g:citation_vim_key_title_banned_regex"))
+        context.key_clean_regex = re.compile(vim.eval("g:citation_vim_key_clean_regex"))
         context.desc_format = vim.eval("g:citation_vim_description_format")
         context.desc_fields = vim.eval("g:citation_vim_description_fields")
         context.wrap_chars = vim.eval("g:citation_vim_source_wrap")
@@ -27,15 +30,18 @@ class Loader(object):
     def set_mode(self):
         context = Context()
         context.mode = vim.eval("g:citation_vim_mode")
+
         if context.mode == "bibtex":
             context.bibtex_file = self.get_bibtex_file()
             context.cache = True
+
         elif context.mode == "zotero":
             context.zotero_version = int(vim.eval("g:citation_vim_zotero_version"))
             context.zotero_path = self.get_zotero_path()
             context.zotero_attachment_path = self.get_zotero_attachment_path()
             context.searchkeys = self.get_searchkeys()
-            context.cache = self.can_cache(context.searchkeys)
+            context.cache = False # self.can_cache(context.searchkeys)
+
         else:
             raiseError(u"'g:citation_vim_mode' must be set to 'zotero' or 'bibtex'")
         return context

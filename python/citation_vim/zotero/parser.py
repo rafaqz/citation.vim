@@ -4,6 +4,7 @@ import os
 import json
 import shutil
 import sqlite3
+import re
 from citation_vim.zotero.data import zoteroData
 from citation_vim.zotero.betterbibtex import betterBibtex
 from citation_vim.utils import check_path, raiseError
@@ -36,11 +37,11 @@ class zoteroParser(object):
         items = []
         for zot_id, zot_item in zot_data:
             item = Item()
-            item.abstract    = zot_item.abstract
+            item.abstract    = zot_item.abstractNote
             item.collections = zot_item.collections
-            item.doi         = zot_item.doi
-            item.isbn        = zot_item.isbn
-            item.publication = zot_item.publication
+            item.doi         = zot_item.DOI
+            item.isbn        = zot_item.ISBN
+            item.publication = zot_item.publicationTitle
             item.language    = zot_item.language
             item.issue       = zot_item.issue
             item.pages       = zot_item.pages
@@ -65,14 +66,18 @@ class zoteroParser(object):
         A user formatted key if present, or a better bibtex key, or zotero hash.
         """
         if self.context.key_format > "":
-            title = zot_item.title.partition(' ')[0]
+            title = item.title.lower()
+            title = self.context.key_title_banned_regex.sub("", title)
+            title = self.context.key_clean_regex.sub(" ", title)
+            title = title.partition(" ")[0]
+            date = item.date # Use the allready formatted date
             author = self.format_first_author(zot_item)
             replacements = {
                 u"title": title.lower(),
                 u"Title": title.capitalize(), 
                 u"author": author.lower(), 
                 u"Author": author.capitalize(),
-                u"date": item.date.replace(' ', '-').capitalize() # Date may be 'In-press' 
+                u"date": date.replace(' ', '-').capitalize() # Date may be 'In-press' 
             }
             key_format = u'%s' % self.context.key_format
             return key_format.format(**replacements)
@@ -138,25 +143,10 @@ class zoteroParser(object):
         for specialdate in special_dates:
             if specialdate in zot_item.date.lower():
                 return specialdate
-
-        # Dates can have months, days, and years, or just a
-        # year, and can be split by '-' and '/' characters.
-        # Detect whether the date should be split
         date = ""
-        if u'/' in zot_item.date:
-            split = u'/'
-        elif u'-' in zot_item.date:
-            split = u'-'
-        else:
-            split = None
-        # If not, just use the last four characters
-        if split == None:
-            date = zot_item.date[-4:]
-        # Else take the first slice that is four characters
-        else:
-            l = zot_item.date.split(split)
-            for i in l:
-                if len(i) == 4:
-                    date = i
-                    break
+        l = re.split(' |-|/', zot_item.date)
+        for i in l:
+            if len(i) == 4 and i.isdigit():
+                date = i
+                break
         return date

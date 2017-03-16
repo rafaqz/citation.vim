@@ -12,10 +12,10 @@ def compat_str(string):
         return str(string)
 
 def is_current(file_path, cache_path):
-    if not os.path.isfile(cache_path):
-        return False
     if not os.path.isfile(file_path):
         raiseError(file_path, u"does not exist")
+    if not os.path.isfile(cache_path):
+        return False
 
     filetime = datetime.fromtimestamp(os.path.getctime(file_path))
     cachetime = datetime.fromtimestamp(os.path.getctime(cache_path))
@@ -23,11 +23,8 @@ def is_current(file_path, cache_path):
 
 def check_path(path):
     path = os.path.abspath(os.path.expanduser(path))
-    if not os.path.exists(path):
-        raiseError(u"file:'%s' not found" % path)
-    return path
+    return os.path.exists(path)
 
 def raiseError(*args):
-    plug_error = u"Citation.vim error:"
-    print(plug_error, *args)
+    print(u"Citation.vim error:", *args)
     raise RuntimeError(plug_error, args)

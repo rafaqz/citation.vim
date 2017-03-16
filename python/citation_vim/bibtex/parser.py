@@ -10,14 +10,18 @@ class bibtexParser(object):
 
     def __init__(self, context):
         self.context = context
-        self.bibtex_file = check_path(self.context.bibtex_file)
+
+        if not check_path(self.context.bibtex_file):
+            raiseError(u"Citation.vim Error:", self.context.bibtex_file, \
+                    u" does not exist")
+            return []
 
     def load(self):
         """
         Returns: A bibtex file as an array of standardised Items.
         """
         items = []
-        bib_data = self._read_file(self.bibtex_file)
+        bib_data = self._read_file(self.context.bibtex_file)
 
         for key in bib_data.entries:
             bib_entry = bib_data.entries[key]
@@ -55,7 +59,7 @@ class bibtexParser(object):
             parser = bibtex.Parser()
             output = parser.parse_file(filename)
         except:
-            raiseError(u"Failed to read {}".format(self.bibtex_file))
+            raiseError(u"Failed to read {}".format(self.context.bibtex_file))
         return output
 
     def strip_braces(self, string):

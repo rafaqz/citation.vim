@@ -115,7 +115,15 @@ the example mappings for how to do this.
   zotero. Author and Title can be in lower case or sentence case.
 
   ``` vimscript
-  let g:citation_vim_key_format'="{author}{date}{Title}" (default)
+  let g:citation_vim_key_format="{author}{date}{title}"
+  ```
+
+  Key cleanup is set ot match zoteros Bibtex.js/Biblatex.js translator files.
+  If you need to these, you can also set:
+
+  ``` vimscript
+  let g:citation_vim_key_title_banned_regex = "\\b(a|an|the|some|from|on|in|to|of|do|with|der|die|das|ein|eine|einer|eines|einem|einen|un|une|la|le|l|el|las|los|al|uno|una|unos|unas|de|des|del|d)\\W")
+  let g:citation_vim_key_clean_regex = "[^A-Za-z0-9\!\$\&\*\+\-\.\/\:\;\<\>\?\[\]\^\_\`\|]+")
   ```
 
   And optionally:
@@ -218,7 +226,7 @@ nnoremap <silent>[unite]cx :<C-u>exec "Unite  -default-action=start citation/key
 
 #### Open files or show info from any source
 
-This autocomand set Control-o to open files and Control-i to show info
+This autocomand sets Control-o to open files and Control-i to show info
 
 ```vimscript
 autocmd FileType unite call s:unite_my_settings()
@@ -237,7 +245,7 @@ format string (the {} braces will be replaced by the sources):
 
 ```vimscript
 let g:citation_vim_description_format = "{}∶ {} \˝{}\˝ ₋{}₋ ₍{}₎"
-let g:citation_vim_description_fields = ["type", "key", "title", "author", "year"]
+let g:citation_vim_description_fields = ["", "", "", "", ""]
 ```
 
 You might have noticed the weird characters in the description format string.

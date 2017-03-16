@@ -4,34 +4,31 @@ class zoteroItem(object):
 
     """Represents a single zotero item."""
 
-    def __init__(self, init=None):
+    def __init__(self, _id):
 
         """
         Constructor.
 
         Keyword arguments:
-        init -- An `int` with the item id . (default=None)
+        _id -- An `int` with the item id.
         """
 
+        self.id = _id
         self.title = ""
         self.collections = []
-        self.publication = ""
+        self.publicationTitle = ""
         self.publisher = ""
         self.authors = []
         self.notes = []
         self.tags = []
         self.issue = ""
         self.pages = ""
-        self.doi = ""
-        self.isbn = ""
-        self.abstract = ""
+        self.DOI = ""
+        self.ISBN = ""
+        self.abstractNote = ""
         self.language = ""
         self.volume = ""
         self.fulltext = []
         self.date = ""
         self.url = ""
         self.key = ""
-        if isinstance(init, int):
-            self.id = init
-        else:
-            self.id = ""

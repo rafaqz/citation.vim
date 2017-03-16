@@ -15,9 +15,7 @@ class Citation(object):
 
         try:
             set_script_path()
-            from citation_vim.utils import raiseError
             from citation_vim.builder import Builder
-            from citation_vim.context import Context
             from citation_vim.loader import Loader
             return Builder(Loader().context).build_source()
         except:

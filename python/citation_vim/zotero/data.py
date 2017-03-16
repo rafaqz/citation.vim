@@ -35,9 +35,10 @@ class zoteroData(object):
             and itemData.fieldID = fields.fieldID
             and itemData.valueID = itemDataValues.valueID
             and (fields.fieldName = "date"
-                or fields.fieldName = "publicationTitle"
+                or fields.fieldName = "abstractNote"
                 or fields.fieldName = "volume"
-                or fields.fieldName = "publication"
+                or fields.fieldName = "publisher"
+                or fields.fieldName = "publicationTitle"
                 or fields.fieldName = "pages"
                 or fields.fieldName = "url"
                 or fields.fieldName = "DOI"
@@ -220,20 +221,6 @@ class zoteroData(object):
         """
         Adds flat data to self.index Items
         """
-        field_mapping = {
-            u"date": 'date',
-            u"publicationTitle": 'publication',
-            u"publisher": 'publisher',
-            u"language": 'language',
-            u"DOI": 'doi',
-            u"ISBN": 'isbn',
-            u"volume": 'volume',
-            u"issue": 'issue',
-            u"pages": 'pages',
-            u"url": 'url',
-            u"title": 'title',
-            u"abstractNote": 'abstract'
-        }
 
         self.cur.execute(self.info_query)
         for item in self.cur.fetchall():
@@ -243,10 +230,7 @@ class zoteroData(object):
                 self.index[item_id].key = key
                 item_name = item[1]
                 item_value = item[2]
-                if item_name in field_mapping:
-                    attribute = field_mapping[item_name]
-                    setattr(self.index[item_id], attribute, item_value)
-
+                setattr(self.index[item_id], item_name, item_value)
 
     def get_authors(self):
         """
@@ -312,6 +296,7 @@ class zoteroData(object):
                 self.index[item_id].fulltext.append(attachment_path)
         self.cur.close()
 
+    # Some parsing needs to be here because another call to the database is required
     def parse_attachment(self, item):
         item_id = item[0]
         if item_id in self.index:
@@ -319,27 +304,23 @@ class zoteroData(object):
                 attachment_string = item[1]
                 attachment_id = item[2]
                 if attachment_string[:8] == u"storage:":
-                    return self.format_storage_path(attachment_string, attachment_id)
+                    return self.get_storage_path(attachment_string[8:], attachment_id)
                 if attachment_string[:12] == u"attachments:":
-                    return self.format_attachment_path(attachment_string)
-                return self.format_plain_path(attachment_string)
+                    return self.format_attachment_path(attachment_string[12:])
+                return attachment_string
 
-    def format_storage_path(self, attachment_string, attachment_id):
-        attachment_path = attachment_string[8:]
+    def get_storage_path(self, attachment_path, attachment_id):
         if not self.attachment_has_right_extension(attachment_path):
             return ""
-
-        self.cur.execute(u"select items.key from items where itemID = %d" \
-           % attachment_id)
-        key = self.cur.fetchone()[0]
+        key = self.get_storage_key(attachment_id)
         return os.path.join(self.storage_path, key, attachment_path)
 
-    def format_attachment_path(self, attachment_string):
-        attachment_path = attachment_string[12:]
-        return os.path.join(self.attachment_base_path, attachment_path)
+    def get_storage_key(self, attachment_id):
+        self.cur.execute(u"select items.key from items where itemID = %d" % attachment_id)
+        return self.cur.fetchone()[0]
 
-    def format_plain_path(self, attachment_string):
-        return attachment_string
+    def format_attachment_path(self, attachment_path):
+        return os.path.join(self.attachment_base_path, attachment_path)
 
     def attachment_has_right_extension(self, path):
         return path and path[-4:].lower() in self.attachment_extensions
