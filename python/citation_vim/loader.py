@@ -40,7 +40,7 @@ class Loader(object):
             context.zotero_path = self.get_zotero_path()
             context.zotero_attachment_path = self.get_zotero_attachment_path()
             context.searchkeys = self.get_searchkeys()
-            context.cache = False # self.can_cache(context.searchkeys)
+            context.cache = self.can_cache(context.searchkeys)
 
         else:
             raiseError(u"'g:citation_vim_mode' must be set to 'zotero' or 'bibtex'")
