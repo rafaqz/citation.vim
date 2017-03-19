@@ -12,23 +12,12 @@ class Loader(object):
         return self.context
 
     def __init__(self):
-        context = self.set_mode()
-
-        context.cache_path = self.get_cache_path()
-        context.collection = vim.eval("g:citation_vim_collection")
-        context.key_format = vim.eval("g:citation_vim_key_format")
-        context.key_title_banned_regex = re.compile(vim.eval("g:citation_vim_key_title_banned_regex"))
-        context.key_clean_regex = re.compile(vim.eval("g:citation_vim_key_clean_regex"))
-        context.desc_format = vim.eval("g:citation_vim_description_format")
-        context.desc_fields = vim.eval("g:citation_vim_description_fields")
-        context.wrap_chars = vim.eval("g:citation_vim_source_wrap")
-        context.et_al_limit = int(vim.eval("g:citation_vim_et_al_limit"))
-        context.source = vim.eval("a:source")
-        context.source_field = vim.eval("a:field")
+        context = Context()
+        context = self.get_mode(context)
+        context = self.get_context(context)
         self.context = context
 
-    def set_mode(self):
-        context = Context()
+    def get_mode(self, context):
         context.mode = vim.eval("g:citation_vim_mode")
 
         if context.mode == "bibtex":
@@ -44,6 +33,20 @@ class Loader(object):
 
         else:
             raiseError(u"'g:citation_vim_mode' must be set to 'zotero' or 'bibtex'")
+        return context
+
+    def get_context(self, context):
+        context.collection = vim.eval("g:citation_vim_collection")
+        context.key_format = vim.eval("g:citation_vim_key_format")
+        context.key_title_banned_regex = re.compile(vim.eval("g:citation_vim_key_title_banned_regex"))
+        context.key_clean_regex = re.compile(vim.eval("g:citation_vim_key_clean_regex"))
+        context.desc_format = vim.eval("g:citation_vim_description_format")
+        context.desc_fields = vim.eval("g:citation_vim_description_fields")
+        context.wrap_chars = vim.eval("g:citation_vim_source_wrap")
+        context.et_al_limit = int(vim.eval("g:citation_vim_et_al_limit"))
+        context.source = vim.eval("a:source")
+        context.source_field = vim.eval("a:field")
+        context.cache_path = self.get_cache_path()
         return context
 
     def get_zotero_path(self):
