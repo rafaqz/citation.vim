@@ -107,20 +107,22 @@ class zoteroData(object):
             items.itemID = itemTags.itemID
             and tags.tagID = itemTags.tagID
         """
+
+    attachment_extensions = u".pdf", u".ps", u".epub"
+
+
     def __init__(self, context):
         self.context = context
-        # Set paths
-        self.storage_path = os.path.join(context.zotero_path, u"storage")
-        self.attachment_base_path = context.zotero_attachment_path
-        self.zotero_database = os.path.join(context.zotero_path, u"zotero.sqlite")
-        self.database_copy = os.path.join(context.cache_path, u"zotero.sqlite")
-        # These extensions are recognized as openable file attachments
-        self.attachment_extensions = u".pdf", u".ps", u".epub"
-        self.index = {}
-        self.collection_index = []
-        self.ignored = []
-        self.fulltext_matches = []
-        self.fulltext = False
+        self.set_paths()
+        self.init_database()
+
+    def set_paths(self):
+        self.storage_path = os.path.join(self.context.zotero_path, u"storage")
+        self.attachment_base_path = self.context.zotero_attachment_path
+        self.zotero_database = os.path.join(self.context.zotero_path, u"zotero.sqlite")
+        self.database_copy = os.path.join(self.context.cache_path, u"zotero.sqlite")
+
+    def init_database(self):
         # Copy the zotero database
         if not is_current(self.zotero_database, self.database_copy):
             shutil.copyfile(self.zotero_database, self.database_copy)
@@ -145,33 +147,71 @@ class zoteroData(object):
         if not self.exists(): 
             return []
         self.filter_items()
+        self.get_item_detail()
+        return self.index.items()
+
+    def filter_items(self):
+        """
+        Populates self.index with new items, filtering out 
+        ignored types and unmatched searches
+        """
         self.ignore_deleted()
-        self.set_fulltext_search()
+        self.do_fulltext_search()
+
+        self.index = {}
+        self.cur.execute(self.type_query)
+        for item in self.cur.fetchall():
+            item_id = item[0]
+            item_type = item[1]
+            if item_id in self.ignored:
+                continue
+            if item_type in ["note","attachment"]:
+                self.ignored.append(item_id)
+                continue
+            if self.fulltext and not item_id in self.fulltext_matches:
+                continue
+
+            self.index[item_id] = zoteroItem(item_id)
+            self.index[item_id].type = item_type
+
+    def get_item_detail(self):
         self.get_info()
         self.get_authors()
         self.get_collections()
         self.get_tags()
         self.get_notes()
         self.get_attachments()
-        return self.index.items()
-
-    def set_fulltext_search(self):
-        if len(self.context.searchkeys) > 0:
-            self.fulltext = True
-            self.get_fulltext_matches()
 
     def ignore_deleted(self):
         """
         Populate self.ignored with deleted ids.
         """
+        self.ignored = []
         self.cur.execute(self.deleted_query)
         for item in self.cur.fetchall():
             self.ignored.append(item[0])
 
+    def do_fulltext_search(self):
+        if len(self.context.searchkeys) > 0:
+            self.fulltext = True
+            self.get_fulltext_matches()
+        else:
+            self.fulltext = False
+
     def get_fulltext_matches(self):
         """
         Populate self.fulltext_matches with ids.
-        Uses awfull string query building.
+        """
+        self.fulltext_matches = []
+        self.cur.execute(self.build_fulltext_query)
+        for item in self.cur.fetchall():
+            item_id = item[0]
+            if not item_id in self.ignored: 
+                self.fulltext_matches.append(item_id)
+
+    def build_fulltext_query(self):
+        """
+        Awful, awful string query building.
         """
         if self.context.zotero_version == 5:
             fulltext_select = u"""
@@ -190,41 +230,16 @@ class zoteroData(object):
         for i in range(len(self.context.searchkeys)):
             if i > 0: 
                 wheres += '\nand '
-            searchkey = "jamaica" #self.context.searchkeys[i].lower()
+            searchkey = self.context.searchkeys[i].lower()
             _froms += fulltext_from.replace('#', str(i))
             wheres += fulltext_where.replace('#', str(i)).format(searchkey)
         query = fulltext_select + _froms + '\nWHERE\n' + wheres
-        self.cur.execute(query)
-        for item in self.cur.fetchall():
-            item_id = item[0]
-            if not item_id in self.ignored: 
-                self.fulltext_matches.append(item_id)
-
-    def filter_items(self):
-        """
-        Populates self.index with new items, filtering out 
-        ignored types and unmatched searches
-        """
-        self.cur.execute(self.type_query)
-        for item in self.cur.fetchall():
-            item_id = item[0]
-            item_type = item[1]
-            if item_id in self.ignored:
-                continue
-            if item_type in ["note","attachment"]:
-                self.ignored.append(item_id)
-                continue
-            if self.fulltext and not item_id in self.fulltext_matches:
-                continue
-
-            self.index[item_id] = zoteroItem(item_id)
-            self.index[item_id].type = item_type
+        return query
 
     def get_info(self):
         """
         Adds flat data to self.index Items
         """
-
         self.cur.execute(self.info_query)
         for item in self.cur.fetchall():
             item_id = item[0]
@@ -303,14 +318,15 @@ class zoteroData(object):
     def parse_attachment(self, item):
         item_id = item[0]
         if item_id in self.index:
-            if item[1] != None:
-                attachment_string = item[1]
-                attachment_id = item[2]
-                if attachment_string[:8] == u"storage:":
-                    return self.get_storage_path(attachment_string[8:], attachment_id)
-                if attachment_string[:12] == u"attachments:":
-                    return self.format_attachment_path(attachment_string[12:])
-                return attachment_string
+            if item[1] == None:
+                return ""
+            attachment_string = item[1]
+            attachment_id = item[2]
+            if attachment_string[:8] == u"storage:":
+                return self.get_storage_path(attachment_string[8:], attachment_id)
+            if attachment_string[:12] == u"attachments:":
+                return self.format_attachment_path(attachment_string[12:])
+            return attachment_string
 
     def get_storage_path(self, attachment_path, attachment_id):
         if not self.attachment_has_right_extension(attachment_path):
