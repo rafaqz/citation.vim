@@ -129,16 +129,6 @@ class zoteroData(object):
         self.conn = sqlite3.connect(self.database_copy)
         self.cur = self.conn.cursor()
 
-    def exists(self):
-        """
-        Returns: True/False for database existance.
-        """
-        try:
-            stats = os.stat(self.zotero_database)
-        except Exception as e:
-            raiseError(u"citation_vim.zotero.data.exists(): %s" % e)
-            return False
-        return True
 
     def load(self):
         """
@@ -150,6 +140,18 @@ class zoteroData(object):
         self.get_item_detail()
         return self.index.items()
 
+    def exists(self):
+        """
+        Returns: True/False for database existance.
+        """
+        try:
+            stats = os.stat(self.zotero_database)
+        except Exception as e:
+            raiseError(u"citation_vim.zotero.data.exists(): %s" % e)
+            return False
+        return True
+
+
     def filter_items(self):
         """
         Populates self.index with new items, filtering out 
@@ -157,12 +159,9 @@ class zoteroData(object):
         """
         self.ignore_deleted()
         self.do_fulltext_search()
-
         self.index = {}
         self.cur.execute(self.type_query)
-        for item in self.cur.fetchall():
-            item_id = item[0]
-            item_type = item[1]
+        for [item_id, item_type] in self.cur.fetchall():
             if item_id in self.ignored:
                 continue
             if item_type in ["note","attachment"]:
@@ -170,7 +169,6 @@ class zoteroData(object):
                 continue
             if self.fulltext and not item_id in self.fulltext_matches:
                 continue
-
             self.index[item_id] = zoteroItem(item_id)
             self.index[item_id].type = item_type
 
@@ -203,9 +201,9 @@ class zoteroData(object):
         Populate self.fulltext_matches with ids.
         """
         self.fulltext_matches = []
-        self.cur.execute(self.build_fulltext_query)
-        for item in self.cur.fetchall():
-            item_id = item[0]
+        query = self.build_fulltext_query()
+        self.cur.execute(query)
+        for [item_id] in self.cur.fetchall():
             if not item_id in self.ignored: 
                 self.fulltext_matches.append(item_id)
 
@@ -233,21 +231,16 @@ class zoteroData(object):
             searchkey = self.context.searchkeys[i].lower()
             _froms += fulltext_from.replace('#', str(i))
             wheres += fulltext_where.replace('#', str(i)).format(searchkey)
-        query = fulltext_select + _froms + '\nWHERE\n' + wheres
-        return query
+        return fulltext_select + _froms + '\nWHERE\n' + wheres
 
     def get_info(self):
         """
         Adds flat data to self.index Items
         """
         self.cur.execute(self.info_query)
-        for item in self.cur.fetchall():
-            item_id = item[0]
+        for [item_id, item_name, item_value, key] in self.cur.fetchall():
             if item_id in self.index:
-                key = item[3]
                 self.index[item_id].key = key
-                item_name = item[1]
-                item_value = item[2]
                 setattr(self.index[item_id], item_name, item_value)
 
     def get_authors(self):
@@ -258,11 +251,8 @@ class zoteroData(object):
             self.cur.execute(self.author_query_v5)
         else:
             self.cur.execute(self.author_query_v4)
-        for item in self.cur.fetchall():
-            item_id = item[0]
+        for [item_id, item_lastname, item_firstname] in self.cur.fetchall():
             if item_id in self.index:
-                item_lastname = item[1]
-                item_firstname = item[2]
                 self.index[item_id].authors.append([item_lastname ,item_firstname])
 
     def get_collections(self):
@@ -270,10 +260,8 @@ class zoteroData(object):
         Adds collection arrays to self.index Items
         """
         self.cur.execute(self.collection_query)
-        for item in self.cur.fetchall():
-            item_id = item[0]
+        for [item_id, item_collection] in self.cur.fetchall():
             if item_id in self.index:
-                item_collection = item[1]
                 self.index[item_id].collections.append(item_collection)
 
     def get_tags(self):
@@ -281,10 +269,8 @@ class zoteroData(object):
         Adds tags arrays to self.index Items
         """
         self.cur.execute(self.tag_query)
-        for item in self.cur.fetchall():
-            item_id = item[0]
+        for [item_id, item_tag] in self.cur.fetchall():
             if item_id in self.index:
-                item_tag = item[1]
                 self.index[item_id].tags.append(item_tag)
                 
     def get_notes(self):
@@ -292,10 +278,8 @@ class zoteroData(object):
         Adds notes arrays to self.index Items
         """
         self.cur.execute(self.note_query)
-        for item in self.cur.fetchall():
-            item_id = item[0]
+        for [item_id, item_note] in self.cur.fetchall():
             if item_id in self.index:
-                item_note = item[1]
                 self.index[item_id].notes.append(item_note)
 
     def get_attachments(self):
