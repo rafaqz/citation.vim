@@ -1,18 +1,19 @@
 citation.vim
 ============
 
-A citation source for unite.vim
+A citation source for [unite.vim](https://github.com/Shougo/unite.vim)
 
 (https://github.com/rafaqz/citation.vim)
 
-Citation.vim imports zotero databases with better_bibtex citation keys if
-available, or exported bibtex files. It can insert keys and many other fields,
-open attached pdfs and urls, or search zoteros fulltext database.
+Citation.vim imports Zotero (including 5.0) databases or exported
+bibtex/biblatex files. It can insert keys and many other fields, open attached
+pdfs and urls, or search Zoteros fulltext database.
 
-It allows you to use your documents as file managers - open referenced pdfs
-and urls directly from your citations or from a citation list. Browse all
-citation details, notes and abstracts within vim. Yank, insert or preview.
-Pass keywords to filter results with a zoteros fulltext search.
+A time saving advantage of Citation.vim is that it allows you to use your
+documents as file managers. You can open referenced pdfs and urls directly from
+citations, or you can open pdf directly from the unite citation list. Browse all
+citation details, notes and abstracts within vim. Yank, insert or preview. Pass
+keywords to filter results with a Zoteros fulltext search.
 
 ![Citation.vim screenshot](screenshot.png?raw=true "Citation.vim screenshot")
 
@@ -21,7 +22,7 @@ Many thanks to termoshtt for unite-bibtex and smathot for gnotero and LibZotero 
 
 ### Sources
 
-This plugin provides a *lot* of unite sources.
+This plugin provides a *lot* of unite sources
 
 citation/key
 - returns citation key string like [@smith2004] to be used as a reference.
@@ -34,6 +35,9 @@ citation/file
 
 citation/combined
 - Preview all available citation data on one page.
+
+citation_collection (yes underscore not slash) will list Zotero collections:
+select one to filter results.
 
 The full list:
 
@@ -59,8 +63,6 @@ The full list:
 - citation/volume
 
 You can also enter `:Unite citation` in vim for the full list of sources.
-
-`:Unite citation_collection` will list zotero collections: select one to filter results.
 
 No matter what source is selected, execute/edit and preview commands will always
 echo combined information for the citation, and file will always use the
@@ -118,8 +120,8 @@ the example mappings for how to do this.
   let g:citation_vim_key_format="{author}{date}{title}"
   ```
 
-  Key cleanup is set ot match zoteros Bibtex.js/Biblatex.js translator files.
-  If you need to these, you can also set:
+  Key cleanup is set ot match zoteros default Bibtex.js/Biblatex.js translator
+  files. If you need to change these, you can also set:
 
   ``` vimscript
   let g:citation_vim_key_title_banned_regex = "\\b(a|an|the|some|from|on|in|to|of|do|with|der|die|das|ein|eine|einer|eines|einem|einen|un|une|la|le|l|el|las|los|al|uno|una|unos|unas|de|des|del|d)\\W")
