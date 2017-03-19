@@ -6,7 +6,7 @@ from citation_vim.utils import compat_str, is_current
 class Item(object):
 
     """
-    Intermediary object between bibtex/zotero and unite source output.
+    Intermediary object between a bibtex/zotero item and a row in unite source output.
     """
 
     def combine(self):
