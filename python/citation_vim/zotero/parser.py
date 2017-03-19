@@ -143,10 +143,10 @@ class zoteroParser(object):
         for specialdate in special_dates:
             if specialdate in zot_item.date.lower():
                 return specialdate
+
         date = ""
-        l = re.split(' |-|/', zot_item.date)
-        for i in l:
-            if len(i) == 4 and i.isdigit():
-                date = i
+        for split in re.split(' |-|/', zot_item.date):
+            if len(split) == 4 and split.isdigit():
+                date = split
                 break
         return date

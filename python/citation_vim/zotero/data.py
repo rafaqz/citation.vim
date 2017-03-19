@@ -144,11 +144,9 @@ class zoteroData(object):
         """
         if not self.exists(): 
             return []
-        self.ignore_deleted()
-        if len(self.context.searchkeys) > 0:
-            self.fulltext = True
-            self.get_fulltext_matches()
         self.filter_items()
+        self.ignore_deleted()
+        self.set_fulltext_search()
         self.get_info()
         self.get_authors()
         self.get_collections()
@@ -156,6 +154,11 @@ class zoteroData(object):
         self.get_notes()
         self.get_attachments()
         return self.index.items()
+
+    def set_fulltext_search(self):
+        if len(self.context.searchkeys) > 0:
+            self.fulltext = True
+            self.get_fulltext_matches()
 
     def ignore_deleted(self):
         """
