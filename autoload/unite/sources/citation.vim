@@ -48,7 +48,7 @@ call unite#util#set_default('g:citation_vim_highlight_dash', "‾⁻−₋‐⋯
 call unite#util#set_default('g:citation_vim_highlight_bar', "‖│┃┆∥┇┊┋")
 call unite#util#set_default('g:citation_vim_highlight_bracket', "⊂〔₍⁽⊃〕₎⁾")
 call unite#util#set_default('g:citation_vim_highlight_arrow', "◀◁<‹▶▷>›")
-call unite#util#set_default('g:citation_vim_source_wrap', "【】")
+call unite#util#set_default('g:citation_vim_source_wrap', "||")
 call unite#util#set_default('g:citation_vim_highlight_colon', "∶∷→⇒≫")
 call unite#util#set_default('g:citation_vim_highlight_blob', "♯♡◆◇◊○◎●◐◑∗∙⊙⊚⌂★☺☻▪■□▢▣▤▥▦▧▨▩")
 call unite#util#set_default('g:citation_vim_highlight_tiny', "、。‸₊⁺∘♢☆☜☞♢☼")
@@ -99,11 +99,13 @@ let s:sub_sources = [
 \ "combined",
 \ "date",
 \ "doi",
+\ "duplicate_keys",
 \ "file",
 \ "isbn",
 \ "publication",
 \ "key",
 \ "key_inner",
+\ "key_raw",
 \ "language",
 \ "issue",
 \ "notes",
@@ -242,7 +244,6 @@ function! s:citation_source_key_inner.gather_candidates(args,context)
     \   "action__command": s:set_message(v:val[3]),
     \ }')
 endfunction
-
 
 function! s:citation_source_url_gather_candidates(args, context)
     return map(s:get_source('citation', "url", a:args),'{
