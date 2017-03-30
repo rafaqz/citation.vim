@@ -300,12 +300,11 @@ class ZoteroData(object):
             self.cur.execute(self.attachment_query_v5)
         else:
             self.cur.execute(self.attachment_query_v4)
-
         for item in self.cur.fetchall():
-            attachment_path = self.parse_attachment(item)
             item_id = item[0]
+            attachment_path = self.parse_attachment(item)
             if self.attachment_has_right_extension(attachment_path):
-                self.index[item_id].fulltext.append(attachment_path)
+                self.index[item_id].attachments.append(attachment_path)
         self.cur.close()
 
     # Some parsing needs to be here because another call to the database is required
@@ -335,6 +334,6 @@ class ZoteroData(object):
     def format_attachment_path(self, attachment_path):
         return os.path.join(self.attachment_base_path, attachment_path)
 
-    def attachment_has_right_extension(self, path):
-        return path and path[-4:].lower() in self.attachment_extensions
+    def attachment_has_right_extension(self, path): 
+        return path and os.path.splitext(path)[1] in self.attachment_extensions
 
