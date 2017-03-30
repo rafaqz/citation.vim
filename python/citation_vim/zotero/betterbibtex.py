@@ -6,7 +6,7 @@ import json
 import pprint
 import sqlite3
 
-class betterBibtex(object):
+class BetterBibtex(object):
 
     def __init__(self, zotero_path, cache_path):
         self.bb_file = os.path.join(zotero_path, 'better-bibtex/db.json')

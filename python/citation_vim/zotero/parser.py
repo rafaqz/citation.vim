@@ -5,12 +5,12 @@ import json
 import shutil
 import sqlite3
 import re
-from citation_vim.zotero.data import zoteroData
-from citation_vim.zotero.betterbibtex import betterBibtex
+from citation_vim.zotero.data import ZoteroData
+from citation_vim.zotero.betterbibtex import BetterBibtex
 from citation_vim.utils import check_path, raiseError
 from citation_vim.item import Item
 
-class zoteroParser(object):
+class ZoteroParser(object):
 
     def __init__(self, context):
         self.context = context
@@ -28,12 +28,13 @@ class zoteroParser(object):
             raiseError(u"Citation.vim Error:", self.zotero_path, \
                     u"is not a valid zotero path")
             return []
-
-        zotero = zoteroData(self.context)
+        zotero = ZoteroData(self.context)
         zot_data = zotero.load()
-        bb = betterBibtex(self.zotero_path, self.cache_path)
+        bb = BetterBibtex(self.zotero_path, self.cache_path)
         citekeys = bb.load_citekeys()
+        return self.build_items(zot_data, citekeys)
 
+    def build_items(self, zot_data, citekeys):
         items = []
         for zot_id, zot_item in zot_data:
             item = Item()
@@ -56,8 +57,10 @@ class zoteroParser(object):
             item.notes       = self.format_notes(zot_item)
             item.tags        = self.format_tags(zot_item)
             item.key         = self.format_key(item, zot_item, citekeys)
+            item.zotero_key  = zot_item.key
             item.combine()
             items.append(item)
+
         return items
 
     def format_key(self, item, zot_item, citekeys):
@@ -68,10 +71,9 @@ class zoteroParser(object):
         if self.context.key_format > "":
             title = item.title.lower()
             title = self.context.key_title_banned_regex.sub("", title)
-            title = self.context.key_clean_regex.sub(" ", title)
             title = title.partition(" ")[0]
             date = item.date # Use the allready formatted date
-            author = self.format_first_author(zot_item)
+            author = self.format_first_author(zot_item).replace(" ", "_")
             replacements = {
                 u"title": title.lower(),
                 u"Title": title.capitalize(), 
@@ -80,7 +82,9 @@ class zoteroParser(object):
                 u"date": date.replace(' ', '-').capitalize() # Date may be 'In-press' 
             }
             key_format = u'%s' % self.context.key_format
-            return key_format.format(**replacements)
+            key = key_format.format(**replacements)
+            key = self.context.key_clean_regex.sub("", key)
+            return key 
         elif zot_item.id in citekeys:
             return citekeys[zot_item.id]
         else:

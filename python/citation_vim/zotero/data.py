@@ -8,10 +8,10 @@ import shutil
 import sys
 import time
 from citation_vim.utils import compat_str, is_current
-from citation_vim.zotero.item import zoteroItem
+from citation_vim.zotero.item import ZoteroItem
 from citation_vim.utils import raiseError
 
-class zoteroData(object):
+class ZoteroData(object):
 
     """
     Provides access to the zotero database.
@@ -100,6 +100,13 @@ class zoteroData(object):
             items.itemID = itemNotes.itemID
         """
 
+    note_query_v5 = u"""
+        SELECT itemNotes.parentItemID, itemNotes.note
+        FROM itemNotes
+        WHERE
+            itemNotes.parentItemID IS NOT NULL;
+        """
+
     tag_query = u"""
         SELECT items.itemID, tags.name
         FROM items, tags, itemTags
@@ -169,7 +176,7 @@ class zoteroData(object):
                 continue
             if self.fulltext and not item_id in self.fulltext_matches:
                 continue
-            self.index[item_id] = zoteroItem(item_id)
+            self.index[item_id] = ZoteroItem(item_id)
             self.index[item_id].type = item_type
 
     def get_item_detail(self):
@@ -277,7 +284,10 @@ class zoteroData(object):
         """
         Adds notes arrays to self.index Items
         """
-        self.cur.execute(self.note_query)
+        if self.context.zotero_version == 5:
+            self.cur.execute(self.note_query_v5)
+        else:
+            self.cur.execute(self.note_query)
         for [item_id, item_note] in self.cur.fetchall():
             if item_id in self.index:
                 self.index[item_id].notes.append(item_note)

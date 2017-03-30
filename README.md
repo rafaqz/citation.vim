@@ -39,28 +39,30 @@ citation/combined
 citation_collection (yes underscore not slash) will list Zotero collections:
 select one to filter results.
 
-The full list:
+The full list, unchanged and self explanatory unless commented:
 
 - citation/abstract
-- citation/author
-- citation/combined
+- citation/author          - all authors, combined with rules set in g:citation_vim_et_al_limit
+- citation/combined        - all fields in an info page
 - citation/date
 - citation/doi
-- citation/file
+- citation/duplicate_keys  - lists all keys that are duplicates, for whatever reason
+- citation/file            - the first listed attachment that is a pdf, epub or ps file
 - citation/isbn
-- citation/publication
-- citation/key
-- citation/key_inner
+- citation/publication     
+- citation/key             - defaults is for markdown [@key]
+- citation/key_inner       - default is for markdown @key
 - citation/language
 - citation/issue
-- citation/notes
+- citation/notes           - all notes joined
 - citation/pages
 - citation/publisher
-- citation/tags
+- citation/tags            - all tags comma separated
 - citation/title
 - citation/type
-- citation/url
+- citation/url             - url only attachments
 - citation/volume
+- citation/zotero_key -- the raw key used by zotero
 
 You can also enter `:Unite citation` in vim for the full list of sources.
 
@@ -113,8 +115,9 @@ the example mappings for how to do this.
   If you don't have the better bibtex plugin (e.g. in zotero 5) and you want
   readable keys (like smith2010Sometitle), set a key formatter. This will not
   produce fixed keys like the better-bibtex plugin, so make sure to manage your
-  duplicates and watch for key changes after editing author, date or title in
+  duplicates (use Unite citation/duplicate_keys to check)  and watch for key changes after editing author, date or title in
   zotero. Author and Title can be in lower case or sentence case.
+
 
   ``` vimscript
   let g:citation_vim_key_format="{author}{date}{title}"

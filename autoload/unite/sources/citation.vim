@@ -105,7 +105,6 @@ let s:sub_sources = [
 \ "publication",
 \ "key",
 \ "key_inner",
-\ "key_raw",
 \ "language",
 \ "issue",
 \ "notes",
@@ -115,7 +114,8 @@ let s:sub_sources = [
 \ "title",
 \ "type",
 \ "url",
-\ "volume"
+\ "volume",
+\ "zotero_key"
 \ ]
 
 "-----------------------------------------------------------------------}}}
@@ -169,8 +169,32 @@ endfunction
 "-----------------------------------------------------------------------}}}
 " {{{ List sources
 function! s:citation_source.gather_candidates(args, context)
+let l:sub_sources = [
+\ "abstract",
+\ "author",
+\ "combined",
+\ "date",
+\ "doi",
+\ "duplicate_keys",
+\ "file",
+\ "isbn",
+\ "publication",
+\ "key",
+\ "key_inner",
+\ "key_raw",
+\ "language",
+\ "issue",
+\ "notes",
+\ "pages",
+\ "publisher",
+\ "tags",
+\ "title",
+\ "type",
+\ "url",
+\ "volume"
+\ ]
     call unite#print_message('[Citation] citation sources')
-    return map(s:sub_sources, '{
+    return map(l:sub_sources, '{
   \   "word"   : v:val,
   \   "source" : s:citation_source.name,
   \   "kind"   : "source",
@@ -266,8 +290,8 @@ endfunction
 " {{{ Return source and sub-sources to Unite.
 function! unite#sources#citation#define()
     let l:sources = [s:citation_source, s:citation_collection_source]
-    for sub_source in s:sub_sources
-        let l:sources += [s:citation_source_{sub_source}]
+    for l:sub_source in s:sub_sources
+        let l:sources += [s:citation_source_{l:sub_source}]
     endfor
     return l:sources
 endfunction

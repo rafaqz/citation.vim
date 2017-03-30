@@ -15,6 +15,7 @@ module_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir
 sys.path.insert(0, module_path)
 from citation_vim.builder import Builder
 from citation_vim.context import Context
+from citation_vim.utils import compat_str
 
 def get_console_context(context):
     context.bibtex_file = sys.argv[1]
@@ -22,7 +23,7 @@ def get_console_context(context):
     context.mode = sys.argv[2]
     context.source_field = sys.argv[3] 
     if context.mode == 'zotero':
-        context.searchkeys = sys.argv[4].split()
+        context.searchkeys = compat_str(sys.argv[4]).split()
         context.zotero_version = int(sys.argv[5])
     return context
 
@@ -44,16 +45,23 @@ def set_default_context(context):
     context.cache = False
     return context
 
+class col:
+    NORMAL = '\033[m'
+    WHITE = '\033[37m'
+    ONE = '\033[33m'
+    TWO = '\033[32m'
+    THREE = '\033[36m'
+    FOUR = '\033[34m'
+    ENDC = '\033[0m'
+
 def print_output(output):
     for field, desc, file, combined in output:
-        print("\nField: ")
-        print(field)
-        print("\nDescription: ")
-        print(desc)
-        print("\nFile: ")
-        print(file)
-        print("\nCombined: ")
-        print(combined)
+        print(col.ONE + "\nField: " + col.WHITE + field)
+        print(col.TWO + "\nDescription: ")
+        print(col.NORMAL + desc)
+        print(col.THREE + "\nFile: " + col.NORMAL + file)
+        print(col.FOUR + "\nCombined: ")
+        print(col.NORMAL + combined)
 
 context = Context()
 context = get_console_context(context)

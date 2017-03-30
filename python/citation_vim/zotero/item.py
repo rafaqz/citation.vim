@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-class zoteroItem(object):
+class ZoteroItem(object):
 
     """Represents a single zotero item."""
 
@@ -32,3 +32,4 @@ class zoteroItem(object):
         self.date = ""
         self.url = ""
         self.key = ""
+        self.zotero_key = ""

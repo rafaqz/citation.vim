@@ -4,6 +4,7 @@ import os.path
 import string
 import pickle
 from citation_vim.utils import raiseError
+from citation_vim.item import Item
 
 class Builder(object):
     
@@ -14,21 +15,20 @@ class Builder(object):
 
     def build_source(self):
         """
-        Returns source array.
+        Returns source array depending, on source and field.
         """
         if self.context.source == 'citation_collection':
             return self.get_collections()
+        elif self.context.source_field == 'duplicate_keys':
+            return self.get_duplicate_keys()
+        else:
+            return self.get_sub_source()
 
+    def get_sub_source(self):
         output = []
         for item in self.get_items():
             if self.context.collection == "" or self.context.collection in item.collections:
-                description = self.describe(item)
-                output.append([
-                    getattr(item, self.context.source_field),
-                    description,
-                    item.file,
-                    item.combined,
-                ])
+                output.append(self.item_to_array(item))
         return output
 
     def get_collections(self):
@@ -44,13 +44,41 @@ class Builder(object):
                     collections[col] = col
         return output
 
+    def get_duplicate_keys(self):
+        """
+        Returns an array of collections.
+        """
+        self.context.collection = ""
+        self.context.cashe = False
+        self.context.source_field = 'key'
+        return self.filter_duplicate_keys()
+
+    def filter_duplicate_keys(self):
+        items = self.get_items()
+        items.sort(key = lambda item: item.key)
+        last_item = Item()
+        last_item.key = ""
+        output = []
+        for item in items:
+            if last_item.key == item.key:
+                output.append(self.item_to_array(item))
+            last_item = item
+        return output
+
+    def item_to_array(self, item):
+        return [
+            getattr(item, self.context.source_field),
+            item.describe(self.context),
+            item.file,
+            item.combined,
+        ]
+
     def get_items(self):
         """
         Returns items from cache or parser 
         """
         if self.cache and self.is_cached(): 
             return self.read_cache()
-
         parser = self.get_parser()
         items = parser.load()
         if self.cache:
@@ -62,11 +90,11 @@ class Builder(object):
         Returns a bibtex or zotero parser.
         """
         if self.context.mode == "bibtex":
-            from citation_vim.bibtex.parser import bibtexParser
-            parser = bibtexParser(self.context)
+            from citation_vim.bibtex.parser import BibtexParser
+            parser = BibtexParser(self.context)
         elif self.context.mode == "zotero":
-            from citation_vim.zotero.parser import zoteroParser
-            parser = zoteroParser(self.context)
+            from citation_vim.zotero.parser import ZoteroParser
+            parser = ZoteroParser(self.context)
         else:
             raiseError(u"g:citation_vim_mode must be either 'zotero' or 'bibtex'")
         return parser
@@ -101,44 +129,6 @@ class Builder(object):
         elif self.context.mode == 'zotero':
             zotero_database = os.path.join(self.context.zotero_path, u"zotero.sqlite") 
             file_path = zotero_database
-        return is_current(file_path, self.cache_file)
-
-    def describe(self, item):
-        """
-        Returns visible text descriptions for unite, from user selected fields.
-        """
-        description_values = self.get_description_values(item)
-        return self.describe_with_source_field(description_values, item)
-
-    def get_description_values(self, item):
-        description_fields = self.context.desc_fields
-        description_values = []
-        for description_field in description_fields:
-            if hasattr(item, description_field):
-                description_values.append(getattr(item, description_field))
-            else:
-                description_values.append("")
-        return description_values
-
-    def describe_with_source_field(self, description_values, item):
-        """
-        Returns description with added/replaced wrapped source field
-        """
-        description_fields = self.context.desc_fields
-        description_format = self.context.desc_format
-        source_field = self.context.source_field
-        wrapper = self.context.wrap_chars
-        if hasattr(item, source_field):
-            source_value = getattr(item, source_field)
         else: 
-            source_value = ""
-        wrapped_source = self.wrap_string(source_value, wrapper)
-        if source_field in description_fields:
-            source_index = description_fields.index(source_field)
-            description_values[source_index] = wrapped_source
-        elif not source_field in ["combined"]:
-            description_format += wrapped_source
-        return description_format.format(*description_values)
-
-    def wrap_string(self, string, wrapper):
-        return u'%s%s%s' % (wrapper[0], string, wrapper[1])
+            raiseError(u"g:citation_vim_mode must be either 'zotero' or 'bibtex'")
+        return is_current(file_path, self.cache_file)

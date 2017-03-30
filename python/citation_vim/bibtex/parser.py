@@ -6,7 +6,7 @@ from pybtex.database.input import bibtex
 from citation_vim.item import Item
 from citation_vim.utils import check_path, raiseError
 
-class bibtexParser(object):
+class BibtexParser(object):
 
     def __init__(self, context):
         self.context = context
@@ -22,13 +22,16 @@ class bibtexParser(object):
         """
         items = []
         bib_data = self._read_file(self.context.bibtex_file)
+        return self.build_items(bib_data)
 
+    def build_items(self, bib_data):
+        items = []
         for key in bib_data.entries:
-            bib_entry = bib_data.entries[key]
-            authors = self.parse_authors(bib_entry)
-
             item = Item()
             item.collections  = []
+            bib_entry = bib_data.entries[key]
+            authors = self.parse_authors(bib_entry)
+            item.author    = self.format_author(authors)
             item.type      = bib_entry.type
             item.abstract  = self.get_field(bib_entry, "abstract")
             item.date      = self.get_field(bib_entry, "year")
@@ -45,8 +48,8 @@ class bibtexParser(object):
             item.volume    = self.get_field(bib_entry, "volume")
             item.url       = self.format_url(bib_entry)
             item.file      = self.format_file(bib_entry)
-            item.author    = self.format_author(authors)
-            item.key       = self.format_key(authors, bib_entry, key)
+            item.key       = key
+            item.key_raw   = key
             item.combine()
             items.append(item)
         return items
@@ -151,25 +154,4 @@ class bibtexParser(object):
         if u"keywords" in bib_entry.fields:
             tags = ", ".join(bib_entry.fields[u"keywords"])
         return tags
-
-    def format_key(self, authors, bib_entry, key):
-        """
-        Returns:
-        A key manual format or default bibtex key.
-        """
-        if self.context.key_format == "":
-            return key
-
-        author = self.format_first_author(authors)
-        title = self.format_title_word(bib_entry)
-        date = self.get_field(bib_entry, "year")
-        replacements = {
-            u"title": title.lower(),
-            u"Title": title.capitalize(), 
-            u"author": author.lower(), 
-            u"Author": author.capitalize(),
-            u"date": date
-        }
-        key_format = u"%s" % self.context.key_format
-        return key_format.format(**replacements)
 

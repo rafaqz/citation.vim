@@ -8,34 +8,43 @@ from citation_vim.context import Context
 
 class Loader(object):
 
+    """
+    Loads context from Vim
+    """
+
     def context():
         return self.context
 
     def __init__(self):
         context = Context()
         context = self.get_mode(context)
-        context = self.get_context(context)
+        context = self.get_shared_context(context)
         self.context = context
 
     def get_mode(self, context):
         context.mode = vim.eval("g:citation_vim_mode")
-
         if context.mode == "bibtex":
-            context.bibtex_file = self.get_bibtex_file()
-            context.cache = True
-
+            context = self.get_bibtex_context(context)
         elif context.mode == "zotero":
-            context.zotero_version = int(vim.eval("g:citation_vim_zotero_version"))
-            context.zotero_path = self.get_zotero_path()
-            context.zotero_attachment_path = self.get_zotero_attachment_path()
-            context.searchkeys = self.get_searchkeys()
-            context.cache = self.can_cache(context.searchkeys)
-
+            context = self.get_zotero_context(context)
         else:
             raiseError(u"'g:citation_vim_mode' must be set to 'zotero' or 'bibtex'")
         return context
 
-    def get_context(self, context):
+    def get_bibtex_context(self, context):
+        context.bibtex_file = self.get_bibtex_file()
+        context.cache = True
+        return context
+
+    def get_zotero_context(self, context):
+        context.zotero_version = int(vim.eval("g:citation_vim_zotero_version"))
+        context.zotero_path = self.get_zotero_path()
+        context.zotero_attachment_path = self.get_zotero_attachment_path()
+        context.searchkeys = self.get_searchkeys()
+        context.cache = self.can_cache(context.searchkeys)
+        return context
+
+    def get_shared_context(self, context):
         context.collection = vim.eval("g:citation_vim_collection")
         context.key_format = vim.eval("g:citation_vim_key_format")
         context.key_title_banned_regex = re.compile(vim.eval("g:citation_vim_key_title_banned_regex"))
