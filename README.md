@@ -9,11 +9,13 @@ Citation.vim imports Zotero (including 5.0) databases or exported
 bibtex/biblatex files. It can insert keys and many other fields, open attached
 pdfs and urls, or search Zoteros fulltext database.
 
-A time saving advantage of Citation.vim is that it allows you to use your
-documents as file managers. You can open referenced pdfs and urls directly from
-citations, or you can open pdf directly from the unite citation list. Browse all
-citation details, notes and abstracts within vim. Yank, insert or preview. Pass
-keywords to filter results with a Zoteros fulltext search.
+Citation.vim also allows you to use your document as a file manager. You
+can open referenced pdfs directly from citations, or you can open pdf
+from the unite citation list. Browse all citation details, notes and
+abstracts within vim. 
+
+You can also use Zoteros full-text search to pre-filter items based on
+attachment text.
 
 ![Citation.vim screenshot](screenshot.png?raw=true "Citation.vim screenshot")
 
@@ -22,49 +24,51 @@ Many thanks to termoshtt for unite-bibtex and smathot for gnotero and LibZotero 
 
 ### Sources
 
-This plugin provides a *lot* of unite sources
+This plugin provides a *lot* of unite sources. Some important ones are:
 
 citation/key
 - returns citation key string like [@smith2004] to be used as a reference.
-- change the customisable prefix and suffix to produce latex/pandoc etc. citation styles
+- customise the prefix and suffix to produce latex/pandoc etc. citation styles.
 
 citation/file
 - Returns the file attached to a citation, great for opening pdfs from vim
-  directly, using the start action.
-- If there are multiple files it just returns the first one.
+  directly, using the 'start' action.
+- If there are multiple files it returns the first one.
 
 citation/combined
 - Preview all available citation data on one page.
 
-citation_collection (yes underscore not slash) will list Zotero collections:
-select one to filter results.
 
-The full list, unchanged and self explanatory unless commented:
+The full list:
 
-- citation/abstract
-- citation/author          - all authors, combined with rules set in g:citation_vim_et_al_limit
-- citation/combined        - all fields in an info page
-- citation/date
-- citation/doi
-- citation/duplicate_keys  - lists all keys that are duplicates, for whatever reason
-- citation/file            - the first listed attachment that is a pdf, epub or ps file
-- citation/isbn
-- citation/publication     
-- citation/key             - defaults is for markdown [@key]
-- citation/key_inner       - default is for markdown @key
-- citation/language
-- citation/issue
-- citation/notes           - all notes joined
-- citation/pages
-- citation/publisher
-- citation/tags            - all tags comma separated
-- citation/title
-- citation/type
-- citation/url             - url only attachments
-- citation/volume
-- citation/zotero_key -- the raw key used by zotero
+| Source                  | Output                                                               |
+| ----------------------- | -------------------------------------------------------------------- |
+| citation                | list sources                                                         |
+| citation/abstract       | absract                                                              |
+| citation/author         | all authors, combined with rules set in g:citation_vim_et_al_limit   |
+| citation/combined       | all fields combined in an info page                                  |
+| citation/date           | year of publication                                                  |
+| citation/doi            | doi                                                                  |
+| citation/duplicate_keys | key from filter items that have duplicate keys                       |
+| citation/file           | the first listed attachment that is a pdf, epub or ps file           |
+| citation/isbn           | isbn                                                                 |
+| citation/publication    | name of journal, magazine etc                                        |
+| citation/key            | key from bibtex, generated, of from zotero. default format is [@key] |
+| citation/key_inner      | inner key, default format is @key                                    |
+| citation/language       | language                                                             |
+| citation/issue          | issue                                                                |
+| citation/notes          | all attached notes, joined                                           |
+| citation/pages          | pages                                                                |
+| citation/publisher      | publisher                                                            |
+| citation/tags           | all tags, comma separated                                            |
+| citation/title          | title                                                                |
+| citation/type           | type of item                                                         |
+| citation/url            | url                                                                  |
+| citation/volume         | volume                                                               |
+| citation/zotero_key     | the raw key used by zotero                                           |
+| citation_collection     | (yes underscore not slash) list Zotero collection to filter results. |
 
-You can also enter `:Unite citation` in vim for the full list of sources.
+
 
 No matter what source is selected, execute/edit and preview commands will always
 echo combined information for the citation, and file will always use the
@@ -73,7 +77,7 @@ commands to use within unite, no matter what source is being browsed - see
 the example mappings for how to do this.
 
 
-### Usage
+### Installation
 
 1. Install [unite.vim](https://github.com/Shougo/unite.vim)
 2. Install this plugin in vim however you like to do that.
@@ -163,7 +167,7 @@ the example mappings for how to do this.
 7. Set some mappings. Copy and paste the following examples into your vimrc to get started.
 
 
-### Example mappings:
+### Key mappings:
 
 Set a unite leader:
 nmap <leader>u [unite]
@@ -280,19 +284,3 @@ You can correct your .bib file with `pybtex-convert`:
 ```sh
 pybtex-convert /path/to/your.bib out.bib
 ```
-
-Test your setup with test.py:
-
-```sh
-python test.py /your/bibtext/path bibtex key
-```
-
-or
-
-```sh
-python test.py /your/zotero/path zotero key "" 4
-```
-
-Use other sources instead of "key" if you are having problems with them. You can
-also test a search term in the final argument. In zotero mode the 6th arg is the
-zotero version.
