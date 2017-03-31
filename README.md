@@ -140,7 +140,7 @@ the example mappings for how to do this.
   ```
   let g:citation_vim_collection" = 'your_zotero_collection'
   ```
-  Although this can be set on the fly with :Unite citation_colletion
+  Although this can be set on the fly with :Unite citation_collection
 
 4. Set a cache path:
 
@@ -254,7 +254,7 @@ format string (the {} braces will be replaced by the sources):
 
 ```vimscript
 let g:citation_vim_description_format = "{}∶ {} \˝{}\˝ ₋{}₋ ₍{}₎"
-let g:citation_vim_description_fields = ["", "", "", "", ""]
+let g:citation_vim_description_fields = ["key", "author", "doi", "journal", "whateveryouwant"]
 ```
 
 You might have noticed the weird characters in the description format string.
