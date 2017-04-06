@@ -4,6 +4,7 @@ import os
 import json
 import shutil
 import sqlite3
+import re
 from citation_vim.zotero.data import ZoteroData
 from citation_vim.zotero.betterbibtex import BetterBibtex
 from citation_vim.utils import check_path, raiseError
@@ -17,6 +18,9 @@ class ZoteroParser(object):
         self.cache_path = context.cache_path
         self.et_al_limit = context.et_al_limit
         self.key_format = context.key_format
+        self.clean_regex = re.compile("[^A-Za-z0-9\ \!\$\&\*\+\-\.\/\:\;\<\>\?\[\]\^\_\`\|]+")
+        self.html_regex = re.compile('<[^<]+?>')
+
 
     def load(self):
         """
@@ -37,30 +41,35 @@ class ZoteroParser(object):
         items = []
         for zot_id, zot_item in zot_data:
             item = Item()
-            item.abstract    = zot_item.abstractNote
-            item.collections = zot_item.collections
-            item.doi         = zot_item.DOI
-            item.isbn        = zot_item.ISBN
-            item.publication = zot_item.publicationTitle
-            item.language    = zot_item.language
-            item.issue       = zot_item.issue
-            item.pages       = zot_item.pages
-            item.publisher   = zot_item.publisher
-            item.title       = zot_item.title
-            item.type        = zot_item.type
-            item.url         = zot_item.url
-            item.volume      = zot_item.volume
-            item.author      = zot_item.format_author(self.et_al_limit)
-            item.date        = zot_item.format_date()
-            item.file        = zot_item.format_attachment()
-            item.notes       = zot_item.format_notes()
-            item.tags        = zot_item.format_tags()
-            item.zotero_key  = zot_item.key
+            item.collections = zot_item.collections # Allways an array.
+            item.abstract    = self.clean(zot_item.abstractNote)
+            item.doi         = self.clean(zot_item.DOI)
+            item.isbn        = self.clean(zot_item.ISBN)
+            item.publication = self.clean(zot_item.publicationTitle)
+            item.language    = self.clean(zot_item.language)
+            item.issue       = self.clean(zot_item.issue)
+            item.pages       = self.clean(zot_item.pages)
+            item.publisher   = self.clean(zot_item.publisher)
+            item.title       = self.clean(zot_item.title)
+            item.type        = self.clean(zot_item.type)
+            item.url         = self.clean(zot_item.url)
+            item.volume      = self.clean(zot_item.volume)
+            item.author      = self.clean(zot_item.format_author(self.et_al_limit))
+            item.date        = self.clean(zot_item.format_date())
+            item.file        = self.clean(zot_item.format_attachment())
+            item.notes       = self.clean(zot_item.format_notes())
+            item.tags        = self.clean(zot_item.format_tags())
+            item.zotero_key  = self.clean(zot_item.key)
             item.key         = self.format_key(item, zot_item, citekeys)
             item.combine()
             items.append(item)
 
         return items
+
+    def clean(self, string):
+        string = self.html_regex.sub('', string)
+        return self.clean_regex.sub('', string)
+        
 
     def format_key(self, item, zot_item, citekeys):
         """
@@ -68,7 +77,7 @@ class ZoteroParser(object):
         A user formatted key if present, or a better bibtex key, or zotero hash.
         """
         if self.context.key_format > "":
-            title = item.title.lower()
+            title = zot_item.title.lower()
             title = self.context.key_title_banned_regex.sub("", title)
             title = title.partition(" ")[0]
             date = item.date # Use the allready formatted date

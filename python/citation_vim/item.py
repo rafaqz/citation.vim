@@ -29,14 +29,14 @@ class Item(object):
             ('Publisher', self.publisher),
             ('Language', self.language),
             ('Abstract', self.abstract),
-            ('Notes', '"' + self.notes + '"'),
+            ('Notes', self.notes),
             ('File(s)', self.file),
             ('URL', self.url),
             ('DOI', self.doi),
             ('ISBN', self.isbn),
             ('Zotero key', self.zotero_key)
         ])
-        self.combined = u"Available citation information:\n"
+        self.combined = u"Available citation fields:\n"
         for key, value in pairs.items():
             if value:
                 self.combined += "  " + key + " : " + compat_str(value) + "\n"
