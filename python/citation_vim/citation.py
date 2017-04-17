@@ -2,6 +2,7 @@
 
 import os.path
 import sys
+import vim
 
 class Citation(object):
 
