@@ -35,7 +35,7 @@ class Builder(object):
         """
         Returns an array of collections.
         """
-        output = ["<all>"]
+        output = [""]
         collections = {}
         for item in self.get_items():
             for col in item.collections:
