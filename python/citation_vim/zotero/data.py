@@ -191,10 +191,13 @@ class ZoteroData(object):
         """
         Populate self.ignored with deleted ids.
         """
-        self.ignored = []
+        self.deleted = []
         self.cur.execute(self.deleted_query)
         for item in self.cur.fetchall():
-            self.ignored.append(item[0])
+            item_id = item[0]
+            self.deleted.append(item_id)
+        # Using list() to ensure this is an actual duplicate .
+        self.ignored = list(self.deleted)
 
     def do_fulltext_search(self):
         if len(self.context.searchkeys) > 0:
@@ -303,7 +306,7 @@ class ZoteroData(object):
         for item in self.cur.fetchall():
             item_id = item[0]
             attachment_path = self.parse_attachment(item)
-            if self.attachment_has_right_extension(attachment_path):
+            if attachment_path and self.attachment_has_right_extension(attachment_path):
                 self.index[item_id].attachments.append(attachment_path)
         self.cur.close()
 
@@ -312,9 +315,11 @@ class ZoteroData(object):
         item_id = item[0]
         if item_id in self.index:
             if item[1] == None:
-                return ""
+                return None
             attachment_string = item[1]
             attachment_id = item[2]
+            if attachment_id in self.deleted:
+                return None
             if attachment_string[:8] == u"storage:":
                 return self.get_storage_path(attachment_string[8:], attachment_id)
             if attachment_string[:12] == u"attachments:":
