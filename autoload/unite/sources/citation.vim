@@ -269,7 +269,7 @@ function! s:citation_source_key_inner.gather_candidates(args,context)
     \ }')
 endfunction
 
-function! s:citation_source_url_gather_candidates(args, context)
+function! s:citation_source_url.gather_candidates(args, context)
     return map(s:get_source('citation', "url", a:args),'{
     \   "word": v:val[1],
     \   "source": "citation/url",
