@@ -26,6 +26,7 @@ class BibtexParser(object):
 
     def build_items(self, bib_data):
         items = []
+        
         for key in bib_data.entries:
             item = Item()
             item.collections  = []
@@ -40,7 +41,7 @@ class BibtexParser(object):
             item.publication = self.get_field(bib_entry, "journal")
             item.language  = self.get_field(bib_entry, "language")
             item.issue     = self.get_field(bib_entry, "number")
-            item.notes     = self.get_field(bib_entry, "annote")
+            item.notes     = self.get_field_or(bib_entry, "annotation", "annote")
             item.pages     = self.get_field(bib_entry, "pages")
             item.publisher = self.get_field(bib_entry, "publisher")
             item.tags      = self.get_field(bib_entry, "keyword")
@@ -76,6 +77,18 @@ class BibtexParser(object):
         Returns cleaned field value for any bibtex field. 
         """
         output = bib_entry.fields[field] if field in bib_entry.fields else ""
+        return self.strip_braces(output)
+
+    def get_field_or(self, bib_entry, field1, field2):
+        """
+        Returns cleaned field value for any bibtex field. 
+        """
+        if field1 in bib_entry.fields:
+            output = bib_entry.fields[field1] 
+        elif field2 in bib_entry.fields:
+            output = bib_entry.fields[field2] 
+        else: 
+            output = ""
         return self.strip_braces(output)
 
     def parse_authors(self, bib_entry):
@@ -138,7 +151,9 @@ class BibtexParser(object):
         Returns: Url string
         """
         url = ""
-        if u"file" in bib_entry.fields:
+        if u"url" in bib_entry.fields:
+            url = bib_entry.fields[u"url"]
+        elif u"file" in bib_entry.fields:
             for file in bib_entry.fields[u"file"].split(";"):
                 details = file.split(":")
                 if 2 < len(details) and details[2] != "application/pdf":
