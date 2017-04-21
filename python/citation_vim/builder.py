@@ -49,7 +49,7 @@ class Builder(object):
         Returns an array of collections.
         """
         self.context.collection = ""
-        self.context.cashe = False
+        self.context.cache = False
         self.context.source_field = 'key'
         return self.filter_duplicate_keys()
 
