@@ -2,6 +2,7 @@
 import os.path
 import sys
 import string
+import re
 from pybtex.database.input import bibtex
 from citation_vim.item import Item
 from citation_vim.utils import check_path, raiseError
@@ -35,18 +36,18 @@ class BibtexParser(object):
             item.author    = self.format_author(authors)
             item.type      = bib_entry.type
             item.abstract  = self.get_field(bib_entry, "abstract")
-            item.date      = self.get_field(bib_entry, "year")
             item.doi       = self.get_field(bib_entry, "doi")
             item.isbn      = self.get_field(bib_entry, "isbn")
             item.publication = self.get_field(bib_entry, "journal")
-            item.language  = self.get_field(bib_entry, "language")
+            item.language  = self.get_field_from(bib_entry, ["language", "langid"])
             item.issue     = self.get_field(bib_entry, "number")
-            item.notes     = self.get_field_or(bib_entry, "annotation", "annote")
+            item.notes     = self.get_field_from(bib_entry, ["annotation", "annote"])
             item.pages     = self.get_field(bib_entry, "pages")
-            item.publisher = self.get_field(bib_entry, "publisher")
-            item.tags      = self.get_field(bib_entry, "keyword")
+            item.publisher = self.get_field_from(bib_entry, ["publisher", "school", "institution"])
+            item.tags      = self.get_field_from(bib_entry, ["keyword", "keywords"])
             item.title     = self.get_field(bib_entry, "title")
             item.volume    = self.get_field(bib_entry, "volume")
+            item.date      = self.format_date(bib_entry)
             item.url       = self.format_url(bib_entry)
             item.file      = self.format_file(bib_entry)
             item.key       = key
@@ -79,16 +80,12 @@ class BibtexParser(object):
         output = bib_entry.fields[field] if field in bib_entry.fields else ""
         return self.strip_braces(output)
 
-    def get_field_or(self, bib_entry, field1, field2):
-        """
-        Returns cleaned field value for any bibtex field. 
-        """
-        if field1 in bib_entry.fields:
-            output = bib_entry.fields[field1] 
-        elif field2 in bib_entry.fields:
-            output = bib_entry.fields[field2] 
-        else: 
-            output = ""
+    def get_field_from(self, bib_entry, fields):
+        output = ""
+        for field in fields:
+            if field in bib_entry.fields:
+                output = bib_entry.fields[field] 
+                break
         return self.strip_braces(output)
 
     def parse_authors(self, bib_entry):
@@ -104,17 +101,6 @@ class BibtexParser(object):
         except KeyError:
             authors = []
         return authors
-
-    def format_first_author(self, authors):
-        """
-        Returns: The first authors surname, if one exists.
-        """
-        if authors == []: 
-            return ""
-        return self.strip_braces(authors[0][0]).replace(' ', '_') 
-
-    def format_title_word(self, bib_entry):
-        return self.get_field(bib_entry, "title").partition(' ')[0]
 
     def format_author(self, authors):
         """
@@ -169,4 +155,16 @@ class BibtexParser(object):
         if u"keywords" in bib_entry.fields:
             tags = ", ".join(bib_entry.fields[u"keywords"])
         return tags
+
+    def format_date(self, bib_entry):
+        output = ""
+        if "year" in bib_entry.fields:
+            output = self.strip_braces(bib_entry.fields["year"])
+        elif "date" in bib_entry.fields:
+            date = self.strip_braces(bib_entry.fields['date'])
+            for split in re.split(' |-|/', date):
+                if len(split) == 4 and split.isdigit():
+                    output = split
+                    break
+        return output 
 
