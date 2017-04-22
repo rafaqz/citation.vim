@@ -11,6 +11,13 @@ def compat_str(string):
     elif sys.version_info[0] == 3:
         return str(string)
 
+def decode_str(string):
+    if sys.version_info[0] == 2:
+        return string.decode(encoding='UTF-8')
+    elif sys.version_info[0] == 3:
+        return string
+
+
 def is_current(file_path, cache_path):
     if not os.path.isfile(file_path):
         raiseError(file_path, u"does not exist")
