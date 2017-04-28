@@ -52,11 +52,11 @@ class ZoteroParser(object):
             item.publisher   = self.clean(zot_item.publisher)
             item.title       = self.clean(zot_item.title)
             item.type        = self.clean(zot_item.type)
-            item.url         = self.clean(zot_item.url)
+            item.url         = zot_item.url
             item.volume      = self.clean(zot_item.volume)
             item.author      = self.clean(zot_item.format_author(self.et_al_limit))
             item.date        = self.clean(zot_item.format_date())
-            item.file        = self.clean(zot_item.format_attachment())
+            item.file        = zot_item.format_attachment()
             item.notes       = self.clean(zot_item.format_notes())
             item.tags        = self.clean(zot_item.format_tags())
             item.zotero_key  = self.clean(zot_item.key)
