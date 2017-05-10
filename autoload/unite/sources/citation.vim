@@ -96,6 +96,7 @@ let s:citation_collection_source = {
 let s:sub_sources = [
 \ "abstract",
 \ "author",
+\ "collection",
 \ "combined",
 \ "date",
 \ "doi",
@@ -297,7 +298,7 @@ function! unite#sources#citation#define()
 endfunction
 
 "-----------------------------------------------------------------------}}}
-" {{{ Syntax
+" {{{ Syntax Highlighting
 let s:hooks = {}
 function! s:hooks.syntax()
   let arrow = g:citation_vim_highlight_arrow
@@ -314,12 +315,16 @@ function! s:hooks.syntax()
         \ contains=uniteSource__Citation_Field,uniteSource__Citation_Split
         \ ,uniteSource__Citation_Arrow, uniteSource__Citation_Bar,uniteSource__Citation_Bracket
         \ containedin=uniteSource__Citation"
+  syntax match uniteSource__Citation_Key "\<[\S-]\+\d\{4}[\S-]*\>\|\<\S*\d\{4}\S\+\>" contained
+			        \ containedin=uniteSource__Citation
+              \ contains=uniteSource__Citation_Year
+  syntax match uniteSource__Citation_Split "\.\{2}" contained
+			        \ containedin=uniteSource__Citation
+  syntax match uniteSource__Citation_Year "\d\{4}" contained
   execute "syntax region uniteSource__Citation_Source start=/[" . source_field . "]/ end=/[" . source_field . "]/
 	 		        \ containedin=uniteSource__Citation"
   execute 'syntax match uniteSource__Citation_Colon "\<\w*[' . colon . ']"
 			        \ contained containedin=uniteSource__Citation'
-  execute "syntax region uniteSource__Citation_Bracket start=/[" . bracket . "]/ end=/[" . bracket . "]/
-			        \ containedin=uniteSource__Citation"
   execute "syntax region uniteSource__Citation_Arrow start=/[" . arrow . "]/ end=/[" . arrow . "]/
 			        \ containedin=uniteSource__Citation"
   execute "syntax region uniteSource__Citation_Blob start=/[" . blob . "]/ end=/[" . blob . "]/
@@ -330,12 +335,8 @@ function! s:hooks.syntax()
 			        \ containedin=uniteSource__Citation"
   execute "syntax region uniteSource__Citation_Dash start=/[" . dash . "]/ end=/[" . dash . "]/
 			        \ containedin=uniteSource__Citation"
-  syntax match uniteSource__Citation_Key "\<[\S-]\+\d\{4}[\S-]*\>\|\<\S*\d\{4}\S\+\>" contained
-			        \ containedin=uniteSource__Citation
-              \ contains=uniteSource__Citation_Year
-  syntax match uniteSource__Citation_Split "\.\{2}" contained
-			        \ containedin=uniteSource__Citation
-  syntax match uniteSource__Citation_Year "\d\{4}" contained
+  execute "syntax region uniteSource__Citation_Bracket start=/[" . bracket . "]/ end=/[" . bracket . "]/
+			        \ containedin=uniteSource__Citation"
 
   highlight default link uniteSource__Citation_Colon Type
   highlight default link uniteSource__Citation_Text Comment
