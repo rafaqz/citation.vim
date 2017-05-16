@@ -5,14 +5,12 @@ A citation source for [unite.vim](https://github.com/Shougo/unite.vim)
 
 (https://github.com/rafaqz/citation.vim)
 
-Citation.vim imports Zotero (including 5.0) databases or exported
-bibtex/biblatex files. It can insert keys and many other fields, open attached
-pdfs and urls, or search Zoteros fulltext database.
+Citation.vim imports Zotero databases or exported bibtex/biblatex files. It can
+insert keys and many other fields, open attached pdfs and urls.
 
-Citation.vim also allows you to use your document as a file manager. You
-can open referenced pdfs directly from citations, or you can open pdf
-from the unite citation list. Browse all citation details, notes and
-abstracts within vim. 
+Citation.vim allows you to creeate a workflow from a single document. You can
+open referenced pdfs or url directly from citations, and view all citation
+details, notes and abstracts within vim. 
 
 You can also use Zoteros full-text search to pre-filter items based on
 attachment text.
@@ -86,7 +84,7 @@ the example mappings for how to do this.
   If you're using bibtex install [pybtex](http://pypi.python.org/pypi/pybtex)
 
   ```bash
-  sudo easy_install pybtex
+  easy_install pybtex
   ```
 
   Set variables:
@@ -119,9 +117,9 @@ the example mappings for how to do this.
   If you don't have the better bibtex plugin (e.g. in zotero 5) and you want
   readable keys (like smith2010Sometitle), set a key formatter. This will not
   produce fixed keys like the better-bibtex plugin, so make sure to manage your
-  duplicates (use Unite citation/duplicate_keys to check)  and watch for key changes after editing author, date or title in
-  zotero. Author and Title can be in lower case or sentence case.
-
+  duplicates (use Unite citation/duplicate_keys to check) and watch for key
+  changes after editing author, date or title in zotero. Author and Title can be
+  in lower case or sentence case.
 
   ``` vimscript
   let g:citation_vim_key_format="{author}{date}{title}"
@@ -140,6 +138,7 @@ the example mappings for how to do this.
   ```
   let g:citation_vim_collection" = 'your_zotero_collection'
   ```
+
   Although this can be set on the fly with :Unite citation_collection
 
 4. Set a cache path:
