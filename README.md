@@ -23,7 +23,6 @@ _Warning: the concept of this plugin fundamentally a hack. It uses Zotero
 databases in ways they not designed to be used (in the name of brute
 speed and unmatched utility, of course), and bibtex/biblatex files that are
 fundamentally, er, problematic in terms of their structural consistency.
-
 This plugin should work for Zotero 5 or biblatex files in vim with python 2 or 3
 on Linux, in English, I test the hell out that setup and use it most days. Other
 setups may work fine, or they may break. The combinations of possible problems
