@@ -141,7 +141,7 @@ class ZoteroData(object):
         """
         Returns filtered, complete items
         """
-        if not self.exists(): 
+        if not self.exists():
             return []
         self.filter_items()
         self.get_item_detail()
@@ -161,7 +161,7 @@ class ZoteroData(object):
 
     def filter_items(self):
         """
-        Populates self.index with new items, filtering out 
+        Populates self.index with new items, filtering out
         ignored types and unmatched searches
         """
         self.ignore_deleted()
@@ -214,7 +214,7 @@ class ZoteroData(object):
         query = self.build_fulltext_query()
         self.cur.execute(query)
         for [item_id] in self.cur.fetchall():
-            if not item_id in self.ignored: 
+            if not item_id in self.ignored:
                 self.fulltext_matches.append(item_id)
 
     def build_fulltext_query(self):
@@ -236,7 +236,7 @@ class ZoteroData(object):
         _froms = ''
         wheres = ''
         for i in range(len(self.context.searchkeys)):
-            if i > 0: 
+            if i > 0:
                 wheres += '\nand '
             searchkey = self.context.searchkeys[i].lower()
             _froms += fulltext_from.replace('#', str(i))
@@ -282,7 +282,7 @@ class ZoteroData(object):
         for [item_id, item_tag] in self.cur.fetchall():
             if item_id in self.index:
                 self.index[item_id].tags.append(item_tag)
-                
+
     def get_notes(self):
         """
         Adds notes arrays to self.index Items
@@ -339,6 +339,6 @@ class ZoteroData(object):
     def format_attachment_path(self, attachment_path):
         return os.path.join(self.attachment_base_path, attachment_path)
 
-    def attachment_has_right_extension(self, path): 
+    def attachment_has_right_extension(self, path):
         return path and os.path.splitext(path)[1] in self.attachment_extensions
 
