@@ -19,7 +19,7 @@ attachment text.
 
 Many thanks to termoshtt for unite-bibtex and smathot for gnotero and LibZotero code.
 
-*Warning: the concept of this plugin fundamentally a hack. It uses Zotero
+_Warning: the concept of this plugin fundamentally a hack. It uses Zotero
 databases in ways they not designed to be used (in the name of brute
 speed and unmatched utility, of course), and bibtex/biblatex files that are
 fundamentally, er, problematic in terms of their structural consistency.
@@ -29,7 +29,7 @@ on Linux, in English, I test the hell out that setup and use it most days. Other
 setups may work fine, or they may break. The combinations of possible problems
 are yuuge and practically untestable (cygwin? asian scripts? different bibtex formats
 for some reason? zotero database changes? errors in your custom variables? you
-get the picture).*
+get the picture)._
 
 If you have a problem, make an issue on github and include the error output from
 vim.
