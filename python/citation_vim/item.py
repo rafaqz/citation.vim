@@ -12,7 +12,6 @@ class Item(object):
     def __init__(self):
         self.zotero_key = ""
 
-
     def combine(self):
         pairs = collections.OrderedDict([
             ('Key', self.key),
@@ -46,38 +45,33 @@ class Item(object):
         Returns visible text descriptions for unite, from user selected fields.
         """
         self.context = context
-        description_values = self.get_description_values()
-        return self.describe_with_source_field(description_values)
+        desc_values = self.get_description_values()
+        return self.describe_with_source_field(desc_values)
 
     def get_description_values(self):
-        description_fields = self.context.desc_fields
-        description_values = []
-        for description_field in description_fields:
-            if hasattr(self, description_field):
-                description_values.append(getattr(self, description_field))
-            else:
-                description_values.append("")
-        return description_values
+        desc_fields = self.context.desc_fields
+        desc_values = []
+        for desc_field in desc_fields:
+            desc_values.append(self.get_field_value(desc_field))
+        return desc_values
 
-    def describe_with_source_field(self, description_values):
+    def describe_with_source_field(self, desc_values):
         """
         Returns description with added/replaced wrapped source field
         """
-        description_fields = self.context.desc_fields
-        description_format = self.context.desc_format
+        desc_fields = self.context.desc_fields
+        desc_format = self.context.desc_format 
         source_field = self.context.source_field
-        wrapper = self.context.wrap_chars
-        if hasattr(self, source_field):
-            source_value = getattr(self, source_field)
-        else: 
-            source_value = ""
-        wrapped_source = self.wrap_string(source_value, wrapper)
-        if source_field in description_fields:
-            source_index = description_fields.index(source_field)
-            description_values[source_index] = wrapped_source
+        wrapped_value = self.wrap(self.get_field_value(source_field))
+        if source_field in desc_fields:
+            desc_values[desc_fields.index(source_field)] = wrapped_value
         elif not source_field in ["combined"]:
-            description_format += wrapped_source
-        return description_format.format(*description_values)
+            desc_format += wrapped_value
+        return desc_format.format(*desc_values)
 
-    def wrap_string(self, string, wrapper):
+    def get_field_value(self, field):
+        return getattr(self, field) if hasattr(self, field) else ""
+
+    def wrap(self, string):
+        wrapper = self.context.wrap_chars
         return u'%s%s%s' % (wrapper[0], string, wrapper[1])
