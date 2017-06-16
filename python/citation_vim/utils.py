@@ -17,7 +17,6 @@ def decode_str(string):
     elif sys.version_info[0] == 3:
         return string
 
-
 def is_current(file_path, cache_path):
     if not os.path.isfile(file_path):
         raiseError(file_path, u"does not exist")
@@ -33,5 +32,6 @@ def check_path(path):
     return os.path.exists(path)
 
 def raiseError(*args):
-    print(u"Citation.vim error:", *args)
+    plug_error = u"Citation.vim error:"
+    print(plug_error, *args)
     raise RuntimeError(plug_error, args)
