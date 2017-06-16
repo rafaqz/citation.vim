@@ -12,6 +12,11 @@ class Builder(object):
         self.context = context
         self.cache_file = os.path.join(self.context.cache_path, u"citation_vim_cache")
         self.cache = context.cache
+        self.check_mode
+
+    def check_mode(self):
+        if not self.context.mode in ["bibtex", "zotero"]:
+            raiseError(u"g:citation_vim_mode must be either 'zotero' or 'bibtex', but is set to:", self.context.mode)
 
     def build_source(self):
         """
@@ -95,8 +100,6 @@ class Builder(object):
         elif self.context.mode == "zotero":
             from citation_vim.zotero.parser import ZoteroParser
             parser = ZoteroParser(self.context)
-        else:
-            raiseError(u"g:citation_vim_mode must be either 'zotero' or 'bibtex'")
         return parser
 
     def read_cache(self):
@@ -107,7 +110,7 @@ class Builder(object):
             with open(self.cache_file, 'rb') as in_file:
                 return pickle.load(in_file)
         except:
-            raiseError(u"Cache could not be read")
+            raiseError(u"Cache could not be read", self.cache_file)
 
     def write_cache(self, items):
         """
@@ -117,7 +120,7 @@ class Builder(object):
             with open(self.cache_file, 'wb') as out_file:
                 pickle.dump(items, out_file)
         except: 
-            raiseError(u"Cache could not be written")
+            raiseError(u"Cache could not be written", self.cache_file)
 
     def is_cached(self):
         """
@@ -129,6 +132,4 @@ class Builder(object):
         elif self.context.mode == 'zotero':
             zotero_database = os.path.join(self.context.zotero_path, u"zotero.sqlite") 
             file_path = zotero_database
-        else: 
-            raiseError(u"g:citation_vim_mode must be either 'zotero' or 'bibtex'")
         return is_current(file_path, self.cache_file)
