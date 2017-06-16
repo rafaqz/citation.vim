@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
 import sys
 import os.path
 from datetime import datetime, timedelta
@@ -19,7 +18,7 @@ def decode_str(string):
 
 def is_current(file_path, cache_path):
     if not os.path.isfile(file_path):
-        raiseError(file_path, u"does not exist")
+        raiseError(u"{} does not exist".format(file_path))
     if not os.path.isfile(cache_path):
         return False
 
@@ -31,7 +30,5 @@ def check_path(path):
     path = os.path.abspath(os.path.expanduser(path))
     return os.path.exists(path)
 
-def raiseError(*args):
-    plug_error = u"Citation.vim error:"
-    print(plug_error, *args)
-    raise RuntimeError(plug_error, args)
+def raiseError(message):
+    raise RuntimeError(u"Citation.vim error: " + message)

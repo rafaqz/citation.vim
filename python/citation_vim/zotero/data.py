@@ -9,7 +9,7 @@ import sys
 import time
 from citation_vim.utils import compat_str, is_current
 from citation_vim.zotero.item import ZoteroItem
-from citation_vim.utils import raiseError
+from citation_vim.utils import raiseError, check_path
 
 class ZoteroData(object):
 
@@ -136,28 +136,15 @@ class ZoteroData(object):
         self.conn = sqlite3.connect(self.database_copy)
         self.cur = self.conn.cursor()
 
-
     def load(self):
         """
         Returns filtered, complete items
         """
-        if not self.exists():
+        if not check_path(self.zotero_database):
             return []
         self.filter_items()
         self.get_item_detail()
         return self.index.items()
-
-    def exists(self):
-        """
-        Returns: True/False for database existance.
-        """
-        try:
-            stats = os.stat(self.zotero_database)
-        except Exception as e:
-            raiseError(u"citation_vim.zotero.data.exists(): %s" % e)
-            return False
-        return True
-
 
     def filter_items(self):
         """

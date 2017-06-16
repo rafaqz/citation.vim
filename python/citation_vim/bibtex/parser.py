@@ -11,10 +11,8 @@ class BibtexParser(object):
 
     def __init__(self, context):
         self.context = context
-
         if not check_path(self.context.bibtex_file):
-            raiseError(u"Citation.vim Error:", self.context.bibtex_file, \
-                    u" does not exist")
+            raiseError(u"{} does not exist".format(self.context.bibtex_file))
             return []
 
     def load(self):
@@ -27,7 +25,6 @@ class BibtexParser(object):
 
     def build_items(self, bib_data):
         items = []
-        
         for key in bib_data.entries:
             item = Item()
             item.collections  = []
@@ -60,12 +57,8 @@ class BibtexParser(object):
         """
         Returns: A bibtex file from the pybtex parser
         """
-        try:
-            parser = bibtex.Parser()
-            output = parser.parse_file(filename)
-        except:
-            raiseError(u"Failed to read {}".format(self.context.bibtex_file))
-        return output
+        parser = bibtex.Parser()
+        return parser.parse_file(filename)
 
     def strip_braces(self, string):
         """
@@ -75,7 +68,7 @@ class BibtexParser(object):
 
     def get_field(self, bib_entry, field):
         """
-        Returns cleaned field value for any bibtex field. 
+        Returns cleaned field value for any bibtex field.
         """
         output = bib_entry.fields[field] if field in bib_entry.fields else ""
         return self.strip_braces(output)
@@ -84,7 +77,7 @@ class BibtexParser(object):
         output = ""
         for field in fields:
             if field in bib_entry.fields:
-                output = bib_entry.fields[field] 
+                output = bib_entry.fields[field]
                 break
         return self.strip_braces(output)
 
@@ -106,7 +99,7 @@ class BibtexParser(object):
         """
         Returns: Authors - format depending on et_al_limit.
         """
-        if authors == []: 
+        if authors == []:
             return ""
         if len(authors) > self.context.et_al_limit:
             return u"%s et al." % authors[0][0]
@@ -166,5 +159,5 @@ class BibtexParser(object):
                 if len(split) == 4 and split.isdigit():
                     output = split
                     break
-        return output 
+        return output
 

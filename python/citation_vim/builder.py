@@ -16,7 +16,7 @@ class Builder(object):
 
     def check_mode(self):
         if not self.context.mode in ["bibtex", "zotero"]:
-            raiseError(u"g:citation_vim_mode must be either 'zotero' or 'bibtex', but is set to:", self.context.mode)
+            raiseError(u"g:citation_vim_mode must be either 'zotero' or 'bibtex', but is set to {}".format(self.context.mode))
 
     def build_source(self):
         """
@@ -106,21 +106,15 @@ class Builder(object):
         """
         Returns items from the cache file.
         """
-        try:
-            with open(self.cache_file, 'rb') as in_file:
-                return pickle.load(in_file)
-        except:
-            raiseError(u"Cache could not be read", self.cache_file)
+        with open(self.cache_file, 'rb') as in_file:
+            return pickle.load(in_file)
 
     def write_cache(self, items):
         """
         Writes the cache file.
         """
-        try:
-            with open(self.cache_file, 'wb') as out_file:
-                pickle.dump(items, out_file)
-        except: 
-            raiseError(u"Cache could not be written", self.cache_file)
+        with open(self.cache_file, 'wb') as out_file:
+            pickle.dump(items, out_file)
 
     def is_cached(self):
         """

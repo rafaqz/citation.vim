@@ -60,28 +60,19 @@ class Loader(object):
         return context
 
     def get_zotero_path(self):
-        try:
-            file = vim.eval("g:citation_vim_zotero_path")
-            return os.path.expanduser(file)
-        except:
-            raiseError("global variable 'g:citation_vim_zotero_path' is not set")
+        file = vim.eval("g:citation_vim_zotero_path")
+        return os.path.expanduser(file)
 
     def get_bibtex_file(self):
-        try:
-            file = vim.eval("g:citation_vim_bibtex_file")
-            return os.path.expanduser(file)
-        except:
-            raiseError("'g:citation_vim_bibtex_file' is not set")
+        file = vim.eval("g:citation_vim_bibtex_file")
+        return os.path.expanduser(file)
 
     def get_zotero_attachment_path(self):
         file = vim.eval("g:citation_vim_zotero_attachment_path")
         return os.path.expanduser(file)
 
     def get_cache_path(self):
-        try:
-            return os.path.expanduser(vim.eval("g:citation_vim_cache_path"))
-        except:
-            raiseError("'g:citation_vim_cache_path' is not set")
+        return os.path.expanduser(vim.eval("g:citation_vim_cache_path"))
 
     def get_searchkeys(self):
         searchkeys = vim.eval("l:searchkeys")

@@ -22,16 +22,14 @@ class ZoteroParser(object):
         self.key_format = context.key_format
         self.clean_regex = re.compile("[^A-Za-z0-9\ \!\$\&\*\+\-\.\/\:\;\<\>\?\[\]\^\_\`\|]+")
         self.html_regex = re.compile('<[^<]+?>')
+        if not check_path(os.path.join(self.zotero_path, u"zotero.sqlite")):
+            raiseError(u"{} is not a valid zotero path".format(self.zotero_path))
 
     def load(self):
         """
         Returns:
         A zotero database as an array of standardised Items.
         """
-        if not check_path(os.path.join(self.zotero_path, u"zotero.sqlite")):
-            raiseError(u"Citation.vim Error:", self.zotero_path, \
-                    u"is not a valid zotero path")
-            return []
         zotero = ZoteroData(self.context)
         zot_data = zotero.load()
         bb = BetterBibtex(self.zotero_path, self.cache_path)
@@ -64,7 +62,6 @@ class ZoteroParser(object):
             item.key         = self.format_key(item, zot_item, citekeys)
             item.combine()
             items.append(item)
-
         return items
 
     def clean(self, string):
@@ -72,7 +69,7 @@ class ZoteroParser(object):
         string = self.html_regex.sub('', string) # Remove any html formatting 
         # Clean and return (based on field cleaning replacements in Zoteros BibLatex.js)
         return self.clean_regex.sub('', string)
-        
+
 
     def format_key(self, item, zot_item, citekeys):
         """
@@ -87,15 +84,15 @@ class ZoteroParser(object):
             author = compat_str(zot_item.format_first_author().replace(" ", "_"))
             replacements = {
                 u"title": title.lower(),
-                u"Title": title.capitalize(), 
-                u"author": author.lower(), 
+                u"Title": title.capitalize(),
+                u"author": author.lower(),
                 u"Author": author.capitalize(),
                 u"date": date.replace(' ', '-').capitalize() # Date may be 'In-press' etc.
             }
             key_format = u'%s' % self.context.key_format
             key = key_format.format(**replacements)
             key = self.context.key_clean_regex.sub("", key)
-            return key 
+            return key
         elif zot_item.id in citekeys:
             return citekeys[zot_item.id]
         else:
