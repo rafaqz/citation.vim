@@ -110,7 +110,7 @@ the example mappings for how to do this.
   To use [zotero](https://www.zotero.org/)
     Set variables:
 
-  ``` vimscript
+  ```vimscript
   let g:citation_vim_mode="zotero" (default)
   let g:citation_vim_zotero_path="/path/to/your/zotero/7XX8XX72/zotero_folder/" ("~/Zotero" is default)
   let g:citation_vim_zotero_version=5 (default is 4, use 5 for zotero 5.x)
@@ -122,7 +122,7 @@ the example mappings for how to do this.
   If you have set a "Linked Attachment Base Directory" in zotero
   (in Preferences\Files and Folders) you will need to set:
 
-  ``` vimscript
+  ```vimscript
   let
   g:citation_vim_zotero_attachment_path="/your/linked/attachment/base/directory" ("default ~/Zotero/library")
   ```
@@ -134,14 +134,14 @@ the example mappings for how to do this.
   changes after editing author, date or title in zotero. Author and Title can be
   in lower case or sentence case.
 
-  ``` vimscript
+  ```vimscript
   let g:citation_vim_key_format="{author}{date}{title}"
   ```
 
   Key cleanup is set ot match zoteros default Bibtex.js/Biblatex.js translator
   files. If you need to change these, you can also set:
 
-  ``` vimscript
+  ```vimscript
   let g:citation_vim_key_title_banned_regex = "\\b(a|an|the|some|from|on|in|to|of|do|with|der|die|das|ein|eine|einer|eines|einem|einen|un|une|la|le|l|el|las|los|al|uno|una|unos|unas|de|des|del|d)\\W")
   let g:citation_vim_key_clean_regex = "[^A-Za-z0-9\!\$\&\*\+\-\.\/\:\;\<\>\?\[\]\^\_\`\|]+")
   ```

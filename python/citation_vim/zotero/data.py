@@ -9,7 +9,7 @@ import sys
 import time
 from citation_vim.utils import compat_str, is_current
 from citation_vim.zotero.item import ZoteroItem
-from citation_vim.utils import raiseError, check_path
+from citation_vim.utils import check_path
 
 class ZoteroData(object):
 

@@ -12,6 +12,9 @@ class Citation(object):
         """
         Returns source from builder,
         printing any errors from python to the vim console.
+
+        wrapping everything in "try: except:" is bad practise generally, 
+        but in this case ensures all erros can actually be reported 
         """
 
         try:

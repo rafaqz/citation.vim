@@ -77,7 +77,7 @@ elseif has('python')"
     endtry
 else
     echo "Citation.vim unavailable:"
-    echo "requires python 2 or 3 and Vim 7.3+"
+    echo "requires Vim 7.3+ and python 2 or 3, or neovim with python libs installed"
 endif
 
 
