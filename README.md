@@ -8,30 +8,25 @@ A citation source for [unite.vim](https://github.com/Shougo/unite.vim)
 Citation.vim imports Zotero databases or exported bibtex/biblatex files. It can
 insert keys and many other fields, open attached pdfs and urls.
 
-Citation.vim allows you to creeate a workflow from a single document. You can
+Citation.vim allows you to create a workflow from within your documents. You can
 open referenced pdfs or url directly from citations, and view all citation
-details, notes and abstracts within vim. 
-
-You can also use Zoteros full-text search to pre-filter items based on
-attachment text.
+details, notes and abstracts within vim or nvim. You can also use Zoteros
+full-text search to pre-filter items based on attachment text.
 
 ![Citation.vim screenshot](screenshot.png?raw=true "Citation.vim screenshot")
 
 Many thanks to termoshtt for unite-bibtex and smathot for gnotero and LibZotero code.
 
-_Warning: the concept of this plugin fundamentally a hack. It uses Zotero
-databases in ways they not designed to be used (in the name of brute
-speed and unmatched utility, of course), and bibtex/biblatex files that are
-fundamentally, er, problematic in terms of their structural consistency.
-This plugin should work for Zotero 5 or biblatex files in vim with python 2 or 3
-on Linux, in English, I test the hell out that setup and use it most days. Other
-setups may work fine, or they may break. The combinations of possible problems
-are yuuge and practically untestable (cygwin? asian scripts? different bibtex formats
-for some reason? zotero database changes? errors in your custom variables? you
-get the picture)._
+_Warning: the concept of this plugin is fundamentally a hack. It uses Zotero
+databases in ways they not intended to be used (in the name of brute speed and
+unmatched utility, of course), and bibtex/biblatex files that are problematic in
+terms of their structural consistency. This plugin should work for Zotero 5 or
+biblatex files in vim with python 2 or 3 on Linux, in English. I test the hell
+out that setup and use it most days. Other setups may work fine, or they may
+break. 
 
-If you have a problem, make an issue on github and include the error output from
-vim.
+If you have problems, please open an issue on github and include the error output
+from vim.
 
 ### Sources
 
@@ -81,12 +76,10 @@ The full list:
 
 
 
-No matter what source is selected, execute/edit and preview commands will always
-echo combined information for the citation, and file will always use the
-attached pdf/epub file path. This is useful for setting open/show info key
-commands to use within unite, no matter what source is being browsed - see
-the example mappings for how to do this.
-
+Whichever source is selected, execute/edit and preview commands will always echo
+combined information for the citation, and file will always use the attached
+pdf/epub file path. This is useful for setting open/show info key commands to
+use within unite - see the example mappings for how to do this.
 
 ### Installation
 
@@ -96,7 +89,7 @@ the example mappings for how to do this.
 
   If you're using bibtex install [pybtex](http://pypi.python.org/pypi/pybtex)
 
-  ```bash
+  ``` bash
   easy_install pybtex
   ```
 
@@ -223,7 +216,7 @@ nnoremap <silent>[unite]cp :<C-u>Unite -default-action=yank citation/your_source
 ```
 
 
-#### Search fulltext!!
+#### Search fulltext
 
 Search for word by appending them after the command and a colon:
 
@@ -296,3 +289,9 @@ You can correct your .bib file with `pybtex-convert`:
 ```sh
 pybtex-convert /path/to/your.bib out.bib
 ```
+
+If you have other problems, open an issue on github and include the error output
+from vim. Please pull the latest changes first, and include your vim/nvim
+version and zotero versions in the issue. Attaching your bib(la)tex file may also be
+helpful if using the bibtex/biblatex backend.
+
