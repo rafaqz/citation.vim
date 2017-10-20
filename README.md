@@ -23,7 +23,7 @@ unmatched utility, of course), and bibtex/biblatex files that are problematic in
 terms of their structural consistency. This plugin should work for Zotero 5 or
 biblatex files in vim with python 2 or 3 on Linux, in English. I test the hell
 out that setup and use it most days. Other setups may work fine, or they may
-break. 
+break._
 
 If you have problems, please open an issue on github and include the error output
 from vim.
