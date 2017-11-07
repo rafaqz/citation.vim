@@ -84,7 +84,7 @@ class ZoteroData(object):
         ORDER by itemCreators.ORDERIndex
         """
     collection_query = u"""
-        SELECT items.itemID, collections.collectionName
+        SELECT items.itemID, collections.collectionID, collections.collectionName
         FROM items, collections, collectionItems
         WHERE
             items.itemID = collectionItems.itemID
@@ -257,9 +257,22 @@ class ZoteroData(object):
         Adds collection arrays to self.index Items
         """
         self.cur.execute(self.collection_query)
-        for [item_id, item_collection] in self.cur.fetchall():
+        # collection_ids = []
+        for [item_id, collection_id, collection_name] in self.cur.fetchall():
             if item_id in self.index:
-                self.index[item_id].collections.append(item_collection)
+                self.index[item_id].collections.append(collection_name)
+                # collection_ids.append(collection_id)
+                # self.get_collection_parents(item_id, collection_ids)
+
+    # def get_collection_parents(self, item_id, collection_ids):
+        # parent_ids = []
+        # for collection_id in collection_ids:
+            # self.cur.execute(u"select collections.parentCollectionID from collections where collections.collectionID = %d" % collection_id)
+            # self.cur.execute(u"SELECT collectionID, collectionName FROM collections WHERE collectionID = %d" % collection_id)
+            # for [parent_id, parent_name] in self.cur.fetchall():
+                # self.index[item_id].collections.append(parent_name)
+                # parent_ids.append(parent_id)
+        # self.get_collection_parents(item_id, parent_ids)
 
     def get_tags(self):
         """
