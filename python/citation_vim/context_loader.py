@@ -7,7 +7,7 @@ import sys
 from citation_vim.utils import raiseError, decode_str
 from citation_vim.context import Context
 
-class Loader(object):
+class ContextLoader(object):
 
     """
     Loads context from Vim

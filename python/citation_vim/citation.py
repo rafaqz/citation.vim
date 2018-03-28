@@ -14,14 +14,14 @@ class Citation(object):
         printing any errors from python to the vim console.
 
         wrapping everything in "try: except:" is bad practise generally, 
-        but in this case ensures all erros can actually be reported 
+        but in this case ensures all errors can actually be reported 
         """
 
         try:
             set_script_path()
             from citation_vim.builder import Builder
-            from citation_vim.loader import Loader
-            return Builder(Loader().context).build_source()
+            from citation_vim.context_loader import ContextLoader
+            return Builder(ContextLoader().context).build_source()
         except:
             print_exception()
 
