@@ -38,6 +38,7 @@ call unite#util#set_default('g:citation_vim_key_title_banned_regex', "\\b(a|an|t
 call unite#util#set_default('g:citation_vim_key_clean_regex', "[^A-Za-z0-9\!\$\&\*\+\-\.\/\:\;\<\>\?\[\]\^\_\`\|]+")
 call unite#util#set_default('g:citation_vim_et_al_limit', 5)
 call unite#util#set_default('g:citation_vim_collection', "")
+call unite#util#set_default('g:citation_vim_reverse_order', 1)
 call unite#util#set_default('g:citation_vim_outer_prefix', "[")
 call unite#util#set_default('g:citation_vim_inner_prefix', "@")
 call unite#util#set_default('g:citation_vim_suffix', "]")

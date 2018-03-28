@@ -50,6 +50,7 @@ class Loader(object):
         context.key_title_banned_regex = re.compile(decode_str(vim.eval("g:citation_vim_key_title_banned_regex")))
         context.collection   = decode_str(vim.eval("g:citation_vim_collection"))
         context.key_format   = decode_str(vim.eval("g:citation_vim_key_format"))
+        context.reverse_order = bool(int(decode_str(vim.eval("g:citation_vim_reverse_order"))))
         context.wrap_chars   = decode_str(vim.eval("g:citation_vim_source_wrap"))
         context.desc_format  = decode_str(vim.eval("g:citation_vim_description_format"))
         context.desc_fields  = vim.eval("g:citation_vim_description_fields")

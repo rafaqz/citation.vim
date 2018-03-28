@@ -139,6 +139,14 @@ use within unite - see the example mappings for how to do this.
   let g:citation_vim_key_clean_regex = "[^A-Za-z0-9\!\$\&\*\+\-\.\/\:\;\<\>\?\[\]\^\_\`\|]+")
   ```
 
+  The default order results are displayed in was recently reversed so your
+  recent additions are allways at the top. If you want to keep the old
+  behaviour, set:
+
+  ```vimscript
+  let g:citation_vim_reverse_order=0 
+  ```
+
   And optionally:
 
   ```
