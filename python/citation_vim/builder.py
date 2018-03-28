@@ -86,7 +86,8 @@ class Builder(object):
             return self.read_cache()
         parser = self.get_parser()
         if self.context.reverse_order:
-            items = reversed(parser.load())
+            items = parser.load()
+            items.reverse()
         else:
             items = parser.load()
         if self.cache:

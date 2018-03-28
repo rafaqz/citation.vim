@@ -41,6 +41,7 @@ def set_default_context(context):
     context.key_clean_regex = re.compile("[^A-Za-z0-9\!\$\&\*\+\-\.\/\:\;\<\>\?\[\]\^\_\`\|]+")
     context.desc_format = u"{}∶ {} ‴{}‴ ₋{}₋ ₍{}₎" 
     context.desc_fields = ["type", "key", "title", "author", "date"]
+    context.reverse_order = True
     context.et_al_limit = 5
     context.wrap_chars = u"||"
     context.zotero_attachment_path = u"~/Zotero/library/"
