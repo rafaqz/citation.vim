@@ -106,7 +106,7 @@ use within unite - see the example mappings for how to do this.
   ```vimscript
   let g:citation_vim_mode="zotero" (default)
   let g:citation_vim_zotero_path="/path/to/your/zotero/7XX8XX72/zotero_folder/" ("~/Zotero" is default)
-  let g:citation_vim_zotero_version=5 (default is 4, use 5 for zotero 5.x)
+  let g:citation_vim_zotero_version=5 (5 is the Default, zotero 4 is no longer supported)
   ```
 
   The zotero path is quite variable accross different systems, just make sure it
@@ -116,8 +116,7 @@ use within unite - see the example mappings for how to do this.
   (in Preferences\Files and Folders) you will need to set:
 
   ```vimscript
-  let
-  g:citation_vim_zotero_attachment_path="/your/linked/attachment/base/directory" ("default ~/Zotero/library")
+  let g:citation_vim_zotero_attachment_path="/your/linked/attachment/base/directory" ("default ~/Zotero/library")
   ```
 
   If you don't have the better bibtex plugin (e.g. in zotero 5) and you want
@@ -189,8 +188,7 @@ nnoremap [unite] <nop>
 To insert a citation:
 
 ```vimscript
-nnoremap <silent>[unite]c       :<C-u>Unite -buffer-name=citation
--start-insert -default-action=append      citation/key<cr>
+nnoremap <silent>[unite]c       :<C-u>Unite -buffer-name=citation-start-insert -default-action=append      citation/key<cr>
 ```
 
 To immediately open a file from a citation under the cursor:
@@ -201,8 +199,9 @@ nnoremap <silent>[unite]co :<C-u>Unite -input=<C-R><C-W> -default-action=start -
 
 Or open a url from a citation under the cursor:
 
+```vimscript
 nnoremap <silent><leader>cu :<C-u>Unite -input=<C-R><C-W> -default-action=start -force-immediately citation/url<cr>
-
+```
 
 To browse the file folder from a citation under the cursor:
 
@@ -214,12 +213,11 @@ To view all citation information from a citation under the cursor:
 
 ```vimscript
 nnoremap <silent>[unite]ci :<C-u>Unite -input=<C-R><C-W> -default-action=preview -force-immediately citation/combined<cr>
-
+```
 
 To preview, append, yank any other citation data you want from unite:
 
 ```vimscript
-
 nnoremap <silent>[unite]cp :<C-u>Unite -default-action=yank citation/your_source_here<cr>
 ```
 
@@ -233,11 +231,13 @@ Search for the word under the cursor:
 ```vimscript
 nnoremap <silent>[unite]cs :<C-u>Unite  -default-action=yank  citation/key:<C-R><C-W><cr>
 ```
+
 Search for selected words in visual mode (notice that spaces have to be escaped) :
 
 ```vimscript
 vnoremap <silent>[unite]cs :<C-u>exec "Unite  -default-action=start citation/key:" . escape(@*,' ') <cr>
 ```
+
 Type search terms in the prompt:
 
 ```vimscript
