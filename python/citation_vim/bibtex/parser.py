@@ -11,8 +11,8 @@ class BibtexParser(object):
 
     def __init__(self, context):
         self.context = context
-        if not check_path(self.context.bibtex_file):
-            raiseError(u"{} does not exist".format(self.context.bibtex_file))
+        if not check_path(self.context['bibtex_file']):
+            raiseError(u"{} does not exist".format(self.context['bibtex_file']))
             return []
 
     def load(self):
@@ -20,7 +20,7 @@ class BibtexParser(object):
         Returns: A bibtex file as an array of standardised Items.
         """
         items = []
-        bib_data = self._read_file(self.context.bibtex_file)
+        bib_data = self._read_file(self.context['bibtex_file'])
         return self.build_items(bib_data)
 
     def build_items(self, bib_data):
@@ -101,7 +101,7 @@ class BibtexParser(object):
         """
         if authors == []:
             return ""
-        if len(authors) > self.context.et_al_limit:
+        if len(authors) > self.context['et_al_limit']:
             return u"%s et al." % authors[0][0]
         if len(authors) > 2:
             auth_string = u""

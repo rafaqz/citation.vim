@@ -16,10 +16,10 @@ class ZoteroParser(object):
 
     def __init__(self, context):
         self.context = context
-        self.zotero_path = context.zotero_path
-        self.cache_path = context.cache_path
-        self.et_al_limit = context.et_al_limit
-        self.key_format = context.key_format
+        self.zotero_path = context['zotero_path']
+        self.cache_path = context['cache_path']
+        self.et_al_limit = context['et_al_limit']
+        self.key_format = context['key_format']
         self.clean_regex = re.compile("[^A-Za-z0-9\ \!\$\&\*\+\-\.\/\:\;\<\>\?\[\]\^\_\`\|]+")
         self.html_regex = re.compile('<[^<]+?>')
         if not check_path(os.path.join(self.zotero_path, u"zotero.sqlite")):
@@ -76,9 +76,9 @@ class ZoteroParser(object):
         Returns:
         A user formatted key if present, or a better bibtex key, or zotero hash.
         """
-        if self.context.key_format > "":
+        if self.context['key_format'] > "":
             title = compat_str(zot_item.title.lower())
-            title = self.context.key_title_banned_regex.sub("", title)
+            title = self.context['key_title_banned_regex'].sub("", title)
             title = title.partition(" ")[0]
             date = item.date # Use the allready formatted date
             author = compat_str(zot_item.format_first_author().replace(" ", "_"))
@@ -89,9 +89,9 @@ class ZoteroParser(object):
                 u"Author": author.capitalize(),
                 u"date": date.replace(' ', '-').capitalize() # Date may be 'In-press' etc.
             }
-            key_format = u'%s' % self.context.key_format
+            key_format = u'%s' % self.context['key_format']
             key = key_format.format(**replacements)
-            key = self.context.key_clean_regex.sub("", key)
+            key = self.context['key_clean_regex'].sub("", key)
             return key
         elif zot_item.id in bb_citekeys:
             return bb_citekeys[zot_item.id]

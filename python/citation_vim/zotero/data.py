@@ -124,10 +124,10 @@ class ZoteroData(object):
         self.init_database()
 
     def set_paths(self):
-        self.storage_path = os.path.join(self.context.zotero_path, u"storage")
-        self.attachment_base_path = self.context.zotero_attachment_path
-        self.zotero_database = os.path.join(self.context.zotero_path, u"zotero.sqlite")
-        self.database_copy = os.path.join(self.context.cache_path, u"zotero.sqlite")
+        self.storage_path = os.path.join(self.context['zotero_path'], u"storage")
+        self.attachment_base_path = self.context['zotero_attachment_path']
+        self.zotero_database = os.path.join(self.context['zotero_path'], u"zotero.sqlite")
+        self.database_copy = os.path.join(self.context['cache_path'], u"zotero.sqlite")
 
     def init_database(self):
         # Copy the zotero database
@@ -187,7 +187,7 @@ class ZoteroData(object):
         self.ignored = list(self.deleted)
 
     def do_fulltext_search(self):
-        if len(self.context.searchkeys) > 0:
+        if len(self.context['searchkeys']) > 0:
             self.fulltext = True
             self.get_fulltext_matches()
         else:
@@ -208,7 +208,7 @@ class ZoteroData(object):
         """
         Awful, awful string query building.
         """
-        if self.context.zotero_version == 5:
+        if self.context['zotero_version'] == 5:
             fulltext_select = u"""
                 SELECT itemAttachments.parentItemID
                 FROM itemAttachments"""
@@ -222,10 +222,10 @@ class ZoteroData(object):
             and fW#.word = '{}'"""
         _froms = ''
         wheres = ''
-        for i in range(len(self.context.searchkeys)):
+        for i in range(len(self.context['searchkeys'])):
             if i > 0:
                 wheres += '\nand '
-            searchkey = self.context.searchkeys[i].lower()
+            searchkey = self.context['searchkeys'][i].lower()
             _froms += fulltext_from.replace('#', str(i))
             wheres += fulltext_where.replace('#', str(i)).format(searchkey)
         return fulltext_select + _froms + '\nWHERE\n' + wheres
@@ -244,7 +244,7 @@ class ZoteroData(object):
         """
         Adds author arrays to self.index Items
         """
-        if self.context.zotero_version == 5:
+        if self.context['zotero_version'] == 5:
             self.cur.execute(self.author_query_v5)
         else:
             self.cur.execute(self.author_query_v4)
@@ -274,7 +274,7 @@ class ZoteroData(object):
         """
         Adds notes arrays to self.index Items
         """
-        if self.context.zotero_version == 5:
+        if self.context['zotero_version'] == 5:
             self.cur.execute(self.note_query_v5)
         else:
             self.cur.execute(self.note_query)
@@ -286,7 +286,7 @@ class ZoteroData(object):
         """
         Adds attachment arrays to self.index Items
         """
-        if self.context.zotero_version == 5:
+        if self.context['zotero_version'] == 5:
             self.cur.execute(self.attachment_query_v5)
         else:
             self.cur.execute(self.attachment_query_v4)
