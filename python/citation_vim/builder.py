@@ -10,21 +10,21 @@ class Builder(object):
     
     def __init__(self, context):
         self.context = context
-        self.cache_file = os.path.join(self.context.cache_path, u"citation_vim_cache")
-        self.cache = context.cache
+        self.cache_file = os.path.join(self.context['cache_path'], u"citation_vim_cache")
+        self.cache = context['cache']
         self.check_mode
 
     def check_mode(self):
-        if not self.context.mode in ["bibtex", "zotero"]:
-            raiseError(u"g:citation_vim_mode must be either 'zotero' or 'bibtex', but is set to {}".format(self.context.mode))
+        if not self.context['mode'] in ["bibtex", "zotero"]:
+            raiseError(u"g:citation_vim_mode must be either 'zotero' or 'bibtex', but is set to {}".format(self.context['mode']))
 
     def build_source(self):
         """
         Returns source array depending, on source and field.
         """
-        if self.context.source == 'citation_collection':
+        if self.context['source'] == 'citation_collection':
             return self.get_collections()
-        elif self.context.source_field == 'duplicate_keys':
+        elif self.context['source_field'] == 'duplicate_keys':
             return self.get_duplicate_keys()
         else:
             return self.get_sub_source()
@@ -32,7 +32,7 @@ class Builder(object):
     def get_sub_source(self):
         output = []
         for item in self.get_items():
-            if self.context.collection == "" or self.context.collection in item.collections:
+            if self.context['collection'] == "" or self.context['collection'] in item.collections:
                 output.append(self.item_to_array(item))
         return output
 
@@ -53,9 +53,9 @@ class Builder(object):
         """
         Returns an array of collections.
         """
-        self.context.collection = ""
-        self.context.cache = False
-        self.context.source_field = 'key'
+        self.context['collection'] = ""
+        self.context['cache'] = False
+        self.context['source_field'] = 'key'
         return self.filter_duplicate_keys()
 
     def filter_duplicate_keys(self):
@@ -72,7 +72,7 @@ class Builder(object):
 
     def item_to_array(self, item):
         return [
-            getattr(item, self.context.source_field),
+            getattr(item, self.context['source_field']),
             item.describe(self.context),
             item.file,
             item.combined,
@@ -85,7 +85,7 @@ class Builder(object):
         if self.cache and self.is_cached(): 
             return self.read_cache()
         parser = self.get_parser()
-        if self.context.reverse_order:
+        if self.context['reverse_order']:
             items = parser.load()
             items.reverse()
         else:
@@ -98,10 +98,10 @@ class Builder(object):
         """
         Returns a bibtex or zotero parser.
         """
-        if self.context.mode == "bibtex":
+        if self.context['mode'] == "bibtex":
             from citation_vim.bibtex.parser import BibtexParser
             parser = BibtexParser(self.context)
-        elif self.context.mode == "zotero":
+        elif self.context['mode'] == "zotero":
             from citation_vim.zotero.parser import ZoteroParser
             parser = ZoteroParser(self.context)
         return parser
@@ -125,9 +125,9 @@ class Builder(object):
         Returns boolean based on cache and target file dates
         """
         from citation_vim.utils import is_current
-        if self.context.mode == 'bibtex':
-            file_path = self.context.bibtex_file
-        elif self.context.mode == 'zotero':
-            zotero_database = os.path.join(self.context.zotero_path, u"zotero.sqlite") 
+        if self.context['mode'] == 'bibtex':
+            file_path = self.context['bibtex_file']
+        elif self.context['mode'] == 'zotero':
+            zotero_database = os.path.join(self.context['zotero_path'], u"zotero.sqlite") 
             file_path = zotero_database
         return is_current(file_path, self.cache_file)

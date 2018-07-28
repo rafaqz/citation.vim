@@ -49,7 +49,7 @@ class Item(object):
         return self.describe_with_source_field(desc_values)
 
     def get_description_values(self):
-        desc_fields = self.context.desc_fields
+        desc_fields = self.context['desc_fields']
         desc_values = []
         for desc_field in desc_fields:
             desc_values.append(self.get_field_value(desc_field))
@@ -59,9 +59,9 @@ class Item(object):
         """
         Returns description with added/replaced wrapped source field
         """
-        desc_fields = self.context.desc_fields
-        desc_format = self.context.desc_format 
-        source_field = self.context.source_field
+        desc_fields = self.context['desc_fields']
+        desc_format = self.context['desc_format'] 
+        source_field = self.context['source_field']
         wrapped_value = self.wrap(self.get_field_value(source_field))
         if source_field in desc_fields:
             desc_values[desc_fields.index(source_field)] = wrapped_value
@@ -73,5 +73,5 @@ class Item(object):
         return getattr(self, field) if hasattr(self, field) else ""
 
     def wrap(self, string):
-        wrapper = self.context.wrap_chars
+        wrapper = self.context['wrap_chars']
         return u'%s%s%s' % (wrapper[0], string, wrapper[1])
