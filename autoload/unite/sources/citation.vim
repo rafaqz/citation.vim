@@ -171,32 +171,10 @@ endfunction
 "-----------------------------------------------------------------------}}}
 " {{{ List sources
 function! s:citation_source.gather_candidates(args, context)
-let l:sub_sources = [
-\ "abstract",
-\ "author",
-\ "combined",
-\ "date",
-\ "doi",
-\ "duplicate_keys",
-\ "file",
-\ "isbn",
-\ "publication",
-\ "key",
-\ "key_inner",
-\ "key_raw",
-\ "language",
-\ "issue",
-\ "notes",
-\ "pages",
-\ "publisher",
-\ "tags",
-\ "title",
-\ "type",
-\ "url",
-\ "volume"
-\ ]
+
+" Its annoying to duplicate this list, but its not actually identical
     call unite#print_message('[Citation] citation sources')
-    return map(l:sub_sources, '{
+    return map(s:sub_sources, '{
   \   "word"   : v:val,
   \   "source" : s:citation_source.name,
   \   "kind"   : "source",

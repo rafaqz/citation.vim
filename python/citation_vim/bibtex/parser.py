@@ -48,7 +48,6 @@ class BibtexParser(object):
             item.url       = self.format_url(bib_entry)
             item.file      = self.format_file(bib_entry)
             item.key       = key
-            item.key_raw   = key
             item.combine()
             items.append(item)
         return items
