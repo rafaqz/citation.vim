@@ -83,6 +83,7 @@ class ZoteroParser(object):
             date = item.date # Use the allready formatted date
             author = compat_str(zot_item.format_first_author().replace(" ", "_"))
             replacements = {
+                u"zotero_key": item.zotero_key,
                 u"title": title.lower(),
                 u"Title": title.capitalize(),
                 u"author": author.lower(),
