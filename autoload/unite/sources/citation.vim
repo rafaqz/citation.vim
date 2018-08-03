@@ -31,7 +31,7 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 call unite#util#set_default('g:citation_vim_mode', "zotero")
-call unite#util#set_default('g:citation_vim_zotero_version', 4)
+call unite#util#set_default('g:citation_vim_zotero_version', 5)
 call unite#util#set_default('g:citation_vim_zotero_path', "~/Zotero")
 call unite#util#set_default('g:citation_vim_zotero_attachment_path', "~/Zotero/library")
 call unite#util#set_default('g:citation_vim_key_title_banned_regex', "\\b(a|an|the|some|from|on|in|to|of|do|with|der|die|das|ein|eine|einer|eines|einem|einen|un|une|la|le|l|el|las|los|al|uno|una|unos|unas|de|des|del|d)\\W")
