@@ -184,8 +184,10 @@ use within unite - see the example mappings for how to do this.
 
 Set a unite leader:
 
-    nmap <leader>u [unite]
-    nnoremap [unite] <nop>
+```vimscript
+nmap <leader>u [unite]
+nnoremap [unite] <nop>
+```
 
 To insert a citation:
 
