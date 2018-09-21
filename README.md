@@ -171,10 +171,8 @@ use within unite - see the example mappings for how to do this.
   ```vimscript
   let g:citation_vim_et_al_limit=2
   ```
-
-7. Set some mappings. Copy and paste the following examples into your vimrc to get started.
   
-8. The default order results are displayed in was recently reversed so your
+7. The default order results are displayed in was recently reversed so your
   recent additions are allways at the top. If you want to keep the old
   behaviour, set:
 
@@ -182,6 +180,7 @@ use within unite - see the example mappings for how to do this.
   let g:citation_vim_reverse_order=0 
   ```
 
+8. Set some mappings. Copy and paste the following examples into your vimrc to get started.
 
 ### Key mappings:
 
