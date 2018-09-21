@@ -87,18 +87,20 @@ use within unite - see the example mappings for how to do this.
 2. Install this plugin in vim however you like to do that.
 3. Choose your source
 
-  If you're using bibtex install [pybtex](http://pypi.python.org/pypi/pybtex)
+  If you're using bibtex 
+  
+  * install [pybtex](http://pypi.python.org/pypi/pybtex)
 
-  ``` bash
-  easy_install pybtex
-  ```
+    ``` bash
+    easy_install pybtex
+    ```
 
-  Set variables:
+  * Set variables:
 
-  ```vimscript
-  let g:citation_vim_bibtex_file="/path/to/your/bib/file/library.bib"
-  let g:citation_vim_mode="bibtex"
-  ```
+    ```vimscript
+    let g:citation_vim_bibtex_file="/path/to/your/bib/file/library.bib"
+    let g:citation_vim_mode="bibtex"
+    ```
 
   To use [zotero](https://www.zotero.org/)
 
