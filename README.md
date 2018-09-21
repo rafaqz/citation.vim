@@ -101,6 +101,7 @@ use within unite - see the example mappings for how to do this.
   ```
 
   To use [zotero](https://www.zotero.org/)
+
     Set variables:
 
   ```vimscript
@@ -182,8 +183,11 @@ use within unite - see the example mappings for how to do this.
 ### Key mappings:
 
 Set a unite leader:
+
+```vimscript
 nmap <leader>u [unite]
 nnoremap [unite] <nop>
+```
 
 To insert a citation:
 
