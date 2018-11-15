@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import collections
-from citation_vim.utils import compat_str, is_current
+from citation_vim.utils import compat_str, is_current, double_braces
 
 class Item(object):
 
@@ -52,7 +52,8 @@ class Item(object):
         desc_fields = self.context['desc_fields']
         desc_values = []
         for desc_field in desc_fields:
-            desc_values.append(self.get_field_value(desc_field))
+            val = self.get_field_value(desc_field)
+            desc_values.append(val)
         return desc_values
 
     def describe_with_source_field(self, desc_values):
@@ -70,7 +71,7 @@ class Item(object):
         return desc_format.format(*desc_values)
 
     def get_field_value(self, field):
-        return getattr(self, field) if hasattr(self, field) else ""
+        return double_braces(getattr(self, field)) if hasattr(self, field) else ""
 
     def wrap(self, string):
         wrapper = self.context['wrap_chars']

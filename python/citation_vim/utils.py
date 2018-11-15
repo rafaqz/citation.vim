@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import re
 import os.path
 from datetime import datetime, timedelta
 
@@ -32,3 +33,6 @@ def check_path(path):
 
 def raiseError(message):
     raise RuntimeError(u"Citation.vim error: " + message)
+
+def double_braces(string):
+    return re.sub("[{.*}]+", "{{\1}}", string) 

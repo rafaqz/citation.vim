@@ -20,7 +20,6 @@ class ZoteroParser(object):
         self.cache_path = context['cache_path']
         self.et_al_limit = context['et_al_limit']
         self.key_format = context['key_format']
-        self.clean_regex = re.compile("[^A-Za-z0-9\ \!\$\&\*\+\-\.\/\:\;\<\>\?\[\]\^\_\`\|]+")
         self.html_regex = re.compile('<[^<]+?>')
         if not check_path(os.path.join(self.zotero_path, u"zotero.sqlite")):
             raiseError(u"{} is not a valid zotero path".format(self.zotero_path))
@@ -66,35 +65,36 @@ class ZoteroParser(object):
 
     def clean(self, string):
         string = compat_str(string) # Cast as a unicode string in python 2 or 3
-        string = self.html_regex.sub('', string) # Remove any html formatting 
-        # Clean and return (based on field cleaning replacements in Zoteros BibLatex.js)
-        return self.clean_regex.sub('', string)
+        return self.html_regex.sub('', string) # Remove any html formatting 
 
 
     def format_key(self, item, zot_item, bb_citekeys):
         """
         Returns:
-        A user formatted key if present, or a better bibtex key, or zotero hash.
+        A custom formatted key if present, or a better bibtex key, or the zotero hash.
         """
         if self.context['key_format'] > "":
-            title = compat_str(zot_item.title.lower())
-            title = self.context['key_title_banned_regex'].sub("", title)
-            title = title.partition(" ")[0]
-            date = item.date # Use the allready formatted date
-            author = compat_str(zot_item.format_first_author().replace(" ", "_"))
-            replacements = {
-                u"zotero_key": item.zotero_key,
-                u"title": title.lower(),
-                u"Title": title.capitalize(),
-                u"author": author.lower(),
-                u"Author": author.capitalize(),
-                u"date": date.replace(' ', '-').capitalize() # Date may be 'In-press' etc.
-            }
-            key_format = u'%s' % self.context['key_format']
-            key = key_format.format(**replacements)
-            key = self.context['key_clean_regex'].sub("", key)
-            return key
+            return self.custom_key(item, zot_item)
         elif zot_item.id in bb_citekeys:
             return bb_citekeys[zot_item.id]
         else:
             return zot_item.key
+
+    def custom_key(self, item, zot_item):
+        title = compat_str(zot_item.title.lower())
+        title = self.context['key_title_banned_regex'].sub('', title)
+        title = title.partition(' ')[0]
+        date = item.date # Use the allready formatted date
+        author = compat_str(zot_item.format_first_author().replace(" ", "_"))
+        replacements = {
+            u"zotero_key": item.zotero_key,
+            u"title": title.lower(),
+            u"Title": title.capitalize(),
+            u"author": author.lower(),
+            u"Author": author.capitalize(),
+            u"date": date.replace(' ', '-').capitalize() # Date may be 'In-press' etc.
+        }
+        key_format = u'%s' % self.context['key_format']
+        key = key_format.format(**replacements)
+        key = self.context['key_clean_regex'].sub('', key)
+        return key
