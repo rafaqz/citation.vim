@@ -87,78 +87,74 @@ use within unite - see the example mappings for how to do this.
 2. Install this plugin in vim however you like to do that.
 3. Choose your source
 
-  If you're using bibtex install [pybtex](http://pypi.python.org/pypi/pybtex)
+    If you're using bibtex 
+  
+    * install [pybtex](http://pypi.python.org/pypi/pybtex)
 
-  ``` bash
-  easy_install pybtex
-  ```
+      ``` bash
+      easy_install pybtex
+      ```
 
-  Set variables:
+    * Set variables:
 
-  ```vimscript
-  let g:citation_vim_bibtex_file="/path/to/your/bib/file/library.bib"
-  let g:citation_vim_mode="bibtex"
-  ```
+      ```vimscript
+      let g:citation_vim_bibtex_file="/path/to/your/bib/file/library.bib"
+      let g:citation_vim_mode="bibtex"
+      ```
 
-  To use [zotero](https://www.zotero.org/)
-    Set variables:
+    To use [zotero](https://www.zotero.org/)
+ 
+    * Set variables:
 
-  ```vimscript
-  let g:citation_vim_mode="zotero" (default)
-  let g:citation_vim_zotero_path="/path/to/your/zotero/7XX8XX72/zotero_folder/" ("~/Zotero" is default)
-  let g:citation_vim_zotero_version=5 (5 is the Default, zotero 4 is no longer supported)
-  ```
+      ```vimscript
+      let g:citation_vim_mode="zotero" (default)
+      let g:citation_vim_zotero_path="/path/to/your/zotero/7XX8XX72/zotero_folder/" ("~/Zotero" is default)
+      let g:citation_vim_zotero_version=5 (5 is the Default, zotero 4 is no longer supported)
+      ```
 
-  The zotero path is quite variable accross different systems, just make sure it
-  contains the file `zotero.sqlite`
+      The zotero path is quite variable accross different systems, just make sure it
+      contains the file `zotero.sqlite`
 
-  If you have set a "Linked Attachment Base Directory" in zotero
-  (in Preferences\Files and Folders) you will need to set:
+    * If you have set a "Linked Attachment Base Directory" in zotero
+      (in Preferences\Files and Folders) you will need to set:
 
-  ```vimscript
-  let g:citation_vim_zotero_attachment_path="/your/linked/attachment/base/directory" ("default ~/Zotero/library")
-  ```
+      ```vimscript
+      let g:citation_vim_zotero_attachment_path="/your/linked/attachment/base/directory" ("default ~/Zotero/library")
+      ```
 
-  If you don't have the better bibtex plugin (e.g. in zotero 5) and you want
-  readable keys (like smith2010Sometitle), set a key formatter. This will not
-  produce fixed keys like the better-bibtex plugin, so make sure to manage your
-  duplicates (use Unite citation/duplicate_keys to check) and watch for key
-  changes after editing author, date or title in zotero. Author and Title can be
-  in lower case or sentence case.
+    * If you don't have the better bibtex plugin and you want
+      readable keys (like smith2010Sometitle), set a key formatter. This will not
+      produce fixed keys like the better-bibtex plugin, so make sure to manage your
+      duplicates (use Unite citation/duplicate_keys to check) and watch for key
+      changes after editing author, date or title in zotero. Author and Title can be
+      in lower case or sentence case.
 
-  ```vimscript
-  let g:citation_vim_key_format="{author}{date}{title}"
-  ```
+      ```vimscript
+      let g:citation_vim_key_format="{author}{date}{title}"
+      ```
 
-  Key cleanup is set ot match zoteros default Bibtex.js/Biblatex.js translator
-  files. If you need to change these, you can also set:
+      Key cleanup is set ot match zoteros default Bibtex.js/Biblatex.js translator
+      files. If you need to change these, you can also set:
 
-  ```vimscript
-  let g:citation_vim_key_title_banned_regex = "\\b(a|an|the|some|from|on|in|to|of|do|with|der|die|das|ein|eine|einer|eines|einem|einen|un|une|la|le|l|el|las|los|al|uno|una|unos|unas|de|des|del|d)\\W")
-  let g:citation_vim_key_clean_regex = "[^A-Za-z0-9\!\$\&\*\+\-\.\/\:\;\<\>\?\[\]\^\_\`\|]+")
-  ```
+      ```vimscript
+      let g:citation_vim_key_title_banned_regex = "\\b(a|an|the|some|from|on|in|to|of|do|with|der|die|das|ein|eine|einer|eines|einem|einen|un|une|la|le|l|el|las|los|al|uno|una|unos|unas|de|des|del|d)\\W")
+      let g:citation_vim_key_clean_regex = "[^A-Za-z0-9\!\$\&\*\+\-\.\/\:\;\<\>\?\[\]\^\_\`\|]+")
+      ```
 
-  The default order results are displayed in was recently reversed so your
-  recent additions are allways at the top. If you want to keep the old
-  behaviour, set:
+    * And optionally:
 
-  ```vimscript
-  let g:citation_vim_reverse_order=0 
-  ```
+      ```
+      let g:citation_vim_collection" = 'your_zotero_collection'
+      ```
 
-  And optionally:
-
-  ```
-  let g:citation_vim_collection" = 'your_zotero_collection'
-  ```
-
-  Although this can be set on the fly with :Unite citation_collection
+      Although this can be set on the fly with :Unite citation_collection
 
 4. Set a cache path:
 
   ```vimscript
-    let g:citation_vim_cache_path='~/.vim/your_cache_path'
+  let g:citation_vim_cache_path='~/.vim/your_cache_path'
   ```
+  
 
 5. Set your citation suffix and prefix. This pandoc markdown style is the default:
 
@@ -175,15 +171,25 @@ use within unite - see the example mappings for how to do this.
   ```vimscript
   let g:citation_vim_et_al_limit=2
   ```
+  
+7. The default order results are displayed in was recently reversed so your
+  recent additions are allways at the top. If you want to keep the old
+  behaviour, set:
 
-7. Set some mappings. Copy and paste the following examples into your vimrc to get started.
+  ```vimscript
+  let g:citation_vim_reverse_order=0 
+  ```
 
+8. Set some mappings. Copy and paste the following examples into your vimrc to get started.
 
 ### Key mappings:
 
 Set a unite leader:
+
+```vimscript
 nmap <leader>u [unite]
 nnoremap [unite] <nop>
+```
 
 To insert a citation:
 
