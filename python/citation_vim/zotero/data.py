@@ -48,31 +48,13 @@ class ZoteroData(object):
                 or fields.fieldName = "title")
         """
 
-    attachment_query_v4 = u"""
-        SELECT items.itemID, itemAttachments.path, itemAttachments.itemID
-        FROM items, itemAttachments
-        WHERE items.itemID = itemAttachments.sourceItemID
-        """
-
-    attachment_query_v5 = u"""
+    attachment_query = u"""
         SELECT items.itemID, itemAttachments.path, itemAttachments.itemID
         FROM items, itemAttachments
         WHERE items.itemID = itemAttachments.parentItemID
         """
 
-    author_query_v4 = u"""
-        SELECT items.itemID, creatorData.lastName, creatorData.firstName
-        FROM items, itemCreators, creators, creatorData, creatorTypes
-        WHERE
-            items.itemID = itemCreators.itemID
-            and itemCreators.creatorID = creators.creatorID
-            and creators.creatorDataID = creatorData.creatorDataID
-            and itemCreators.creatorTypeID = creatorTypes.creatorTypeID
-            and creatorTypes.creatorType != "editor"
-        ORDER by itemCreators.ORDERIndex
-        """
-
-    author_query_v5 = u"""
+    author_query = u"""
         SELECT items.itemID, creators.lastName, creators.firstName
         FROM items, itemCreators, creators, creatorTypes
         WHERE
@@ -94,13 +76,6 @@ class ZoteroData(object):
         """
 
     note_query = u"""
-        SELECT items.itemID, itemNotes.note
-        FROM items, itemNotes
-        WHERE
-            items.itemID = itemNotes.itemID
-        """
-
-    note_query_v5 = u"""
         SELECT itemNotes.parentItemID, itemNotes.note
         FROM itemNotes
         WHERE
@@ -208,14 +183,9 @@ class ZoteroData(object):
         """
         Awful, awful string query building.
         """
-        if self.context['zotero_version'] == 5:
-            fulltext_select = u"""
-                SELECT itemAttachments.parentItemID
-                FROM itemAttachments"""
-        else:
-            fulltext_select = u"""
-                SELECT itemAttachments.sourceItemID
-                FROM itemAttachments"""
+        fulltext_select = u"""
+            SELECT itemAttachments.parentItemID
+            FROM itemAttachments"""
         fulltext_from = u", fulltextItemWords AS fIW#, fulltextWords AS fW#"
         fulltext_where = u"""itemAttachments.itemID = fIW#.itemID
             and fIW#.wordID = fW#.wordID
@@ -244,10 +214,7 @@ class ZoteroData(object):
         """
         Adds author arrays to self.index Items
         """
-        if self.context['zotero_version'] == 5:
-            self.cur.execute(self.author_query_v5)
-        else:
-            self.cur.execute(self.author_query_v4)
+        self.cur.execute(self.author_query)
         for [item_id, item_lastname, item_firstname] in self.cur.fetchall():
             if item_id in self.index:
                 self.index[item_id].authors.append([item_lastname ,item_firstname])
@@ -274,10 +241,7 @@ class ZoteroData(object):
         """
         Adds notes arrays to self.index Items
         """
-        if self.context['zotero_version'] == 5:
-            self.cur.execute(self.note_query_v5)
-        else:
-            self.cur.execute(self.note_query)
+        self.cur.execute(self.note_query)
         for [item_id, item_note] in self.cur.fetchall():
             if item_id in self.index:
                 self.index[item_id].notes.append(item_note)
@@ -286,10 +250,7 @@ class ZoteroData(object):
         """
         Adds attachment arrays to self.index Items
         """
-        if self.context['zotero_version'] == 5:
-            self.cur.execute(self.attachment_query_v5)
-        else:
-            self.cur.execute(self.attachment_query_v4)
+        self.cur.execute(self.attachment_query)
         for item in self.cur.fetchall():
             item_id = item[0]
             attachment_path = self.parse_attachment(item)
