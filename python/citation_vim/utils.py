@@ -35,4 +35,4 @@ def raiseError(message):
     raise RuntimeError(u"Citation.vim error: " + message)
 
 def double_braces(string):
-    return re.sub("[{.*}]+", "{{\1}}", string) 
+    return re.sub("[{.*}]+", "", string) 
