@@ -34,5 +34,5 @@ def check_path(path):
 def raiseError(message):
     raise RuntimeError(u"Citation.vim error: " + message)
 
-def double_braces(string):
+def strip_braces(string):
     return re.sub("[{.*}]+", "", string) 

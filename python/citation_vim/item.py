@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import collections
-from citation_vim.utils import compat_str, is_current, double_braces
+from citation_vim.utils import compat_str, is_current, strip_braces
 
 class Item(object):
 
@@ -71,7 +71,7 @@ class Item(object):
         return desc_format.format(*desc_values)
 
     def get_field_value(self, field):
-        return double_braces(getattr(self, field)) if hasattr(self, field) else ""
+        return strip_braces(getattr(self, field)) if hasattr(self, field) else ""
 
     def wrap(self, string):
         wrapper = self.context['wrap_chars']
