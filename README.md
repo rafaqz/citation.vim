@@ -227,6 +227,12 @@ To preview, append, yank any other citation data you want from unite:
 nnoremap <silent>[unite]cp :<C-u>Unite -default-action=yank citation/your_source_here<cr>
 ```
 
+To integrate with zotcli for note editing (assuming you have zotcli installed):
+
+```vimscript
+nnoremap <silent><leader>cn :<C-u>UniteWithCursorWord -default-action=yank -force-immediately citation/title<cr><cr>:!zotcli add-note "<C-R>0"<cr>
+```
+
 
 #### Search fulltext
 
